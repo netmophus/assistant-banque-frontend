@@ -2,6 +2,10 @@
   "name": "assistant-bank-frontend",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=20.x",
+    "npm": ">=10.x"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -9,9 +13,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@11labs/client": "^0.2.0",
+    "@elevenlabs/elevenlabs-js": "^2.32.0",
     "next": "16.1.1",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-markdown": "^9.1.0",
+    "recharts": "^3.8.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

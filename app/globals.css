@@ -1,26 +1,209 @@
 @import "tailwindcss";
 
+/* ── NovaBanque — Design Tokens ── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: 10 20 52;       /* #0A1434 — bleu nuit royal */
+  --surface: 15 30 72;  /* #0F1E48 — surface navy */
+  --surface2: 27 58 140; /* #1B3A8C — bleu royal */
+  --border: 27 58 140;  /* #1B3A8C */
+  --text: 255 255 255;  /* #FFFFFF */
+  --muted: 203 213 225; /* #CBD5E1 */
+  --primary: 27 58 140; /* #1B3A8C — bleu royal */
+  --secondary: 15 40 100; /* #0F2864 — bleu profond */
+  --accent: 201 168 76; /* #C9A84C — or prestige */
+  --glow-1: 27 58 140;
+  --glow-2: 201 168 76;
+}
+
+/* Variante Claire — sections landing */
+[data-theme="light"] {
+  --bg: 248 249 252;    /* #F8F9FC */
+  --surface: 255 255 255;
+  --surface2: 27 58 140;
+  --border: 226 232 240;/* #E2E8F0 */
+  --text: 12 27 58;     /* #0C1B3A */
+  --muted: 100 116 139; /* #64748B */
+  --primary: 27 58 140;
+  --secondary: 15 40 100;
+  --accent: 201 168 76;
+  --glow-1: 27 58 140;
+  --glow-2: 201 168 76;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-background: rgb(var(--bg));
+  --color-foreground: rgb(var(--text));
+  --color-card: rgb(var(--surface));
+  --color-border: rgb(var(--border));
+  --color-muted: rgb(var(--muted));
+  --color-primary: rgb(var(--primary));
+  --color-secondary: rgb(var(--secondary));
+  --color-accent: rgb(var(--accent));
+  --font-sans: var(--font-inter);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: rgb(var(--bg));
+  color: rgb(var(--text));
+  font-family: var(--font-inter), Arial, Helvetica, sans-serif;
 }
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--primary), var(--secondary), var(--accent));
+  border-radius: 5px;
+  border: 2px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, color-mix(in srgb, var(--primary) 80% black), color-mix(in srgb, var(--secondary) 80% black), color-mix(in srgb, var(--accent) 80% black));
+}
+
+
+
+/* Scrollbar corrigée avec rgb() */
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgb(var(--bg));
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, rgb(var(--primary)), rgb(var(--secondary)), rgb(var(--accent)));
+  border-radius: 5px;
+  border: 2px solid rgb(var(--bg));
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, color-mix(in srgb, rgb(var(--primary)) 80% black), color-mix(in srgb, rgb(var(--secondary)) 80% black), color-mix(in srgb, rgb(var(--accent)) 80% black));
+}
+
+/* Animations personnalisées */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+/* Floating orbs for hero */
+@keyframes float-orb-1 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(50px, -70px) scale(1.05); }
+  66% { transform: translate(-30px, -40px) scale(0.95); }
+}
+
+@keyframes float-orb-2 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(-60px, 50px) scale(1.08); }
+  66% { transform: translate(40px, -60px) scale(0.92); }
+}
+
+@keyframes float-orb-3 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(70px, 40px) scale(0.96); }
+  66% { transform: translate(-50px, 60px) scale(1.04); }
+}
+
+.animate-float-1 { animation: float-orb-1 18s ease-in-out infinite; }
+.animate-float-2 { animation: float-orb-2 22s ease-in-out infinite; }
+.animate-float-3 { animation: float-orb-3 16s ease-in-out infinite; }
+
+/* Marquee */
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee { animation: marquee 35s linear infinite; }
+.animate-marquee:hover { animation-play-state: paused; }
+
+/* Shimmer for hero title */
+@keyframes text-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.animate-text-shimmer {
+  background-size: 200% auto;
+  animation: text-shimmer 4s linear infinite;
+}
+
+/* Pulse glow */
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+
+/* Grid pattern — NovaBanque navy */
+.bg-grid-pattern {
+  background-image:
+    linear-gradient(rgba(27, 58, 140, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 58, 140, 0.12) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Grid pattern — version claire */
+.bg-grid-pattern-light {
+  background-image:
+    linear-gradient(rgba(27, 58, 140, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 58, 140, 0.06) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Dot pattern */
+.bg-dot-pattern {
+  background-image: radial-gradient(rgba(27, 58, 140, 0.15) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+/* Step connector line */
+.step-line::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, rgb(37 99 235 / 0.5), rgb(124 58 237 / 0.5));
+  transform: translateY(-50%);
+}
+
+/* Shimmer card hover */
+@keyframes card-shimmer {
+  0% { transform: translateX(-100%) rotate(45deg); }
+  100% { transform: translateX(200%) rotate(45deg); }
+}
+
+/* Border glow animation */
+@keyframes border-glow {
+  0%, 100% { border-color: rgba(37, 99, 235, 0.3); }
+  50% { border-color: rgba(124, 58, 237, 0.6); }
+}
+.animate-border-glow { animation: border-glow 3s ease-in-out infinite; }
+
+/* Smooth counter animation */
+@keyframes count-reveal {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-count-reveal { animation: count-reveal 0.6s ease-out forwards; }

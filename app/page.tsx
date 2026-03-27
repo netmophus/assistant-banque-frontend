@@ -106,9 +106,9 @@ const security = [
 ];
 
 const testimonials = [
-  { quote: 'NovaBanque a transformé notre processus d\'analyse de crédit. Ce qui prenait 3 jours se fait désormais en quelques heures. Un gain de productivité remarquable pour nos équipes.', name: 'Directeur des Risques', org: 'Banque Commerciale — Sénégal', initials: 'DR' },
-  { quote: 'La conformité réglementaire BCEAO n\'a jamais été aussi simple. Les états financiers PCB se génèrent automatiquement avec une précision que nos auditeurs ont saluée.', name: 'Directeur Financier', org: 'Institution Financière — Côte d\'Ivoire', initials: 'DF' },
-  { quote: 'Notre taux de recouvrement des impayés a progressé de 40% depuis l\'implémentation. L\'automatisation des relances et la qualification intelligente font la différence.', name: 'Responsable Recouvrement', org: 'Établissement Bancaire — Mali', initials: 'RR' },
+  { quote: 'NovaBanque a transformé notre processus d\'analyse de crédit. Ce qui prenait 3 jours se fait désormais en quelques heures. Un gain de productivité remarquable pour nos équipes.', name: 'Directeur des Risques', org: 'Banque Commerciale — Niger', initials: 'DR' },
+  { quote: 'La conformité réglementaire n\'a jamais été aussi simple. Les états financiers PCB se génèrent automatiquement avec une précision que nos auditeurs ont saluée.', name: 'Directrice Financière', org: 'Institution Financière — Niger', initials: 'DF' },
+  { quote: 'Notre taux de recouvrement des impayés a progressé de 40% depuis l\'implémentation. L\'automatisation des relances et la qualification intelligente font la différence.', name: 'Responsable Recouvrement', org: 'Établissement Bancaire — Niger', initials: 'RR' },
 ];
 
 /* ─── Gradient Button ───────────────────────────────────────────────────── */

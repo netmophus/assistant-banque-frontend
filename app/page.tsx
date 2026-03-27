@@ -69,7 +69,7 @@ const bankTypes = [
 ];
 
 const features = [
-  { image: '/imageA.jpg', tag: 'Réglementation', title: 'Base de Connaissance Réglementaire', description: 'Base structurée regroupant les référentiels BCEAO, Instructions Commission Bancaire, PCB et la documentation interne. L\'IA répond avec précision et conformité.' },
+  { image: '/imageA.jpg', tag: 'Réglementation', title: 'Base de Connaissance Réglementaire', description: 'Base structurée regroupant les référentiels PCB et la documentation interne. L\'IA répond avec précision et conformité.' },
   { image: '/imageB.jpg', tag: 'Crédit', title: 'Analyse de Crédit Intelligente', description: 'Accélère l\'analyse des dossiers Particuliers et PME/PMI. Structure automatiquement les données, identifie les risques et génère des synthèses pour la décision.' },
   { image: '/imageC.jpg', tag: 'Recouvrement', title: 'Recouvrement Automatisé des Impayés', description: 'Automatise le recouvrement en 3 étapes : import et qualification, relances personnalisées par tranche de retard, suivi et restructuration des dossiers.' },
   { image: '/imageD.jpg', tag: 'Finance', title: 'États Financiers PCB UEMOA', description: 'Génère automatiquement bilan, compte de résultat et hors bilan. Calcule les ratios BCEAO, interprète les résultats et fournit alertes et recommandations conformes.' },

@@ -12,7 +12,7 @@ export class ApiClient {
   private baseUrl: string;
 
   constructor(baseUrl: string = API_URL) {
-    this.baseUrl = baseUrl;
+    this.baseUrl = baseUrl.replace(/\/+$/, '');
   }
 
   /**

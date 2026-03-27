@@ -292,7 +292,7 @@ const DashboardTab = () => {
       setLoadingDashboard(true);
       
       const endpoint = `/impayes/dashboard${selectedDateSituation ? `?date_situation=${selectedDateSituation}` : ''}`;
-      const data = await apiClient.get(endpoint);
+      const data = await apiClient.get<any>(endpoint);
       console.log('📊 Dashboard détaillé reçu:', data);
       console.log('📊 KPIs:', data?.kpis);
       console.log('📊 Répartitions:', {
@@ -371,7 +371,7 @@ const DashboardTab = () => {
       const statsEndpoint = `/impayes/statistiques/comparaison?date_actuelle=${selectedDateSituation}`;
       let statsData = null;
       try {
-        statsData = await apiClient.get(statsEndpoint);
+        statsData = await apiClient.get<any>(statsEndpoint);
       } catch (err) {
         console.warn('Comparaison statistique non disponible:', err);
       }
@@ -380,7 +380,7 @@ const DashboardTab = () => {
       let bilanData = null;
       try {
         const bilanEndpoint = `/impayes/situations/comparaison?date_actuelle=${selectedDateSituation}`;
-        bilanData = await apiClient.get(bilanEndpoint);
+        bilanData = await apiClient.get<any>(bilanEndpoint);
         console.log('✅ Bilan métier chargé avec succès');
       } catch (err) {
         console.warn('Bilan métier non disponible:', err);
@@ -553,22 +553,22 @@ const DashboardTab = () => {
                   <div style={{ marginBottom: '1rem', padding: '0.75rem', backgroundColor: 'rgba(59, 130, 246, 0.1)', borderRadius: '8px', border: '1px solid rgba(59, 130, 246, 0.3)' }}>
                     <div style={{ fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: '#93C5FD' }}>📊 Bilan des Références:</div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', fontSize: '0.8rem', marginBottom: '0.75rem' }}>
-                      <div>Références avant : <strong>{comparaison.bilan.references.avant}</strong></div>
-                      <div>Références après : <strong>{comparaison.bilan.references.apres}</strong></div>
-                      <div>Nouvelles : <strong style={{ color: '#FCD34D' }}>+{comparaison.bilan.references.nouvelles}</strong></div>
-                      <div>Disparues : <strong style={{ color: '#F87171' }}>-{comparaison.bilan.references.disparues}</strong></div>
-                      <div>Stables : <strong style={{ color: '#A78BFA' }}>{comparaison.bilan.references.stables}</strong></div>
-                      <div>Évoluées : <strong style={{ color: '#60A5FA' }}>{comparaison.bilan.references.evoluees}</strong></div>
+                      <div>Références avant : <strong>{comparaison.bilan?.references?.avant}</strong></div>
+                      <div>Références après : <strong>{comparaison.bilan?.references?.apres}</strong></div>
+                      <div>Nouvelles : <strong style={{ color: '#FCD34D' }}>+{comparaison.bilan?.references?.nouvelles}</strong></div>
+                      <div>Disparues : <strong style={{ color: '#F87171' }}>-{comparaison.bilan?.references?.disparues}</strong></div>
+                      <div>Stables : <strong style={{ color: '#A78BFA' }}>{comparaison.bilan?.references?.stables}</strong></div>
+                      <div>Évoluées : <strong style={{ color: '#60A5FA' }}>{comparaison.bilan?.references?.evoluees}</strong></div>
                     </div>
-                    
+
                     <div style={{ fontSize: '0.85rem', fontWeight: '600', marginBottom: '0.5rem', color: '#93C5FD' }}>💰 Bilan des Montants:</div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem', fontSize: '0.8rem' }}>
-                      <div>Avant : <strong>{comparaison.bilan.montants.avant.toLocaleString('fr-FR')} FCFA</strong></div>
-                      <div>Après : <strong>{comparaison.bilan.montants.apres.toLocaleString('fr-FR')} FCFA</strong></div>
-                      <div>Nouveaux : <strong style={{ color: '#FCD34D' }}>+{comparaison.bilan.montants.nouveaux.toLocaleString('fr-FR')} FCFA</strong></div>
-                      <div>Récupérés : <strong style={{ color: '#34D399' }}>-{comparaison.bilan.montants.recuperes.toLocaleString('fr-FR')} FCFA</strong></div>
-                      <div>Aggravés : <strong style={{ color: '#F87171' }}>+{comparaison.bilan.montants.aggraves.toLocaleString('fr-FR')} FCFA</strong></div>
-                      <div>Taux recouvrement : <strong style={{ color: '#34D399' }}>{comparaison.bilan.taux.recouvrement.toFixed(1)}%</strong></div>
+                      <div>Avant : <strong>{comparaison.bilan?.montants?.avant?.toLocaleString('fr-FR')} FCFA</strong></div>
+                      <div>Après : <strong>{comparaison.bilan?.montants?.apres?.toLocaleString('fr-FR')} FCFA</strong></div>
+                      <div>Nouveaux : <strong style={{ color: '#FCD34D' }}>+{comparaison.bilan?.montants?.nouveaux?.toLocaleString('fr-FR')} FCFA</strong></div>
+                      <div>Récupérés : <strong style={{ color: '#34D399' }}>-{comparaison.bilan?.montants?.recuperes?.toLocaleString('fr-FR')} FCFA</strong></div>
+                      <div>Aggravés : <strong style={{ color: '#F87171' }}>+{comparaison.bilan?.montants?.aggraves?.toLocaleString('fr-FR')} FCFA</strong></div>
+                      <div>Taux recouvrement : <strong style={{ color: '#34D399' }}>{comparaison.bilan?.taux?.recouvrement?.toFixed(1)}%</strong></div>
                     </div>
                   </div>
                 )}

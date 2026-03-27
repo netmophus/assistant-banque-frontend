@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // PUT /api/pcb/ratio-gestion-lines/[id] - Mettre à jour
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await context.params;
     const body = await request.json();
 
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     const authHeader = request.headers.get('Authorization') || request.headers.get('authorization') || '';
 
-    const response = await fetch(`${backendUrl}/api/pcb/ratio-gestion-lines/${params.id}`, {
+    const response = await fetch(`${backendUrl}/api/pcb/ratio-gestion-lines/${id}`, {
       method: 'PUT',
       body: JSON.stringify(body),
       headers: {
@@ -31,12 +32,13 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 }
 
 // DELETE /api/pcb/ratio-gestion-lines/[id] - Supprimer
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await context.params;
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     const authHeader = request.headers.get('Authorization') || request.headers.get('authorization') || '';
 
-    const response = await fetch(`${backendUrl}/api/pcb/ratio-gestion-lines/${params.id}`, {
+    const response = await fetch(`${backendUrl}/api/pcb/ratio-gestion-lines/${id}`, {
       method: 'DELETE',
       headers: {
         Authorization: authHeader,

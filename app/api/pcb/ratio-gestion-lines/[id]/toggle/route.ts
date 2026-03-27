@@ -1,15 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 // PATCH /api/pcb/ratio-gestion-lines/[id]/toggle?is_active=true|false
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await context.params;
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
     const authHeader = request.headers.get('Authorization') || request.headers.get('authorization') || '';
 
     const isActive = request.nextUrl.searchParams.get('is_active');
     const qs = isActive !== null ? `?is_active=${encodeURIComponent(isActive)}` : '';
 
-    const response = await fetch(`${backendUrl}/api/pcb/ratio-gestion-lines/${params.id}/toggle${qs}`, {
+    const response = await fetch(`${backendUrl}/api/pcb/ratio-gestion-lines/${id}/toggle${qs}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

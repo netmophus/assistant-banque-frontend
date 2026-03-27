@@ -4,11 +4,11 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = request.headers.get('Authorization');
-    const messageId = params.id;
+    const { id: messageId } = await context.params;
 
     const response = await fetch(`${BACKEND_URL}/impayes/messages/${messageId}`, {
       method: 'DELETE',

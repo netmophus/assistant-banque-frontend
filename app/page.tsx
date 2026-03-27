@@ -178,7 +178,7 @@ export default function Home() {
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-[#C9A84C]" />
               </span>
               <span className="text-sm font-semibold text-white/80 tracking-wide">
-                Plateforme certifiée — Zone UEMOA / BCEAO
+                Plateforme — conforme PCB UEMOA
               </span>
             </div>
           </ScrollReveal>

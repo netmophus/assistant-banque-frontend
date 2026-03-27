@@ -36,16 +36,14 @@ export default function Footer() {
 
             <p className="text-xs text-white/55 leading-relaxed max-w-xs mb-4">
               Intelligence artificielle pour les institutions financières de la zone UEMOA.
-              Conformité BCEAO, sécurité maximale, performance garantie.
+              Conforme PCB-UEMOA, sécurité maximale, performance garantie.
             </p>
 
             {/* Badges compliance */}
             <div className="flex flex-wrap gap-1.5">
               {[
-                { label: 'BCEAO', icon: '🏛️' },
                 { label: 'PCB UEMOA', icon: '📊' },
                 { label: 'ISO 27001', icon: '🔒' },
-                { label: 'CB-UMOA', icon: '⚖️' },
               ].map((b) => (
                 <span
                   key={b.label}

@@ -37,23 +37,8 @@ export default function ForgotPasswordPage() {
       
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 pt-8 md:pt-12 pb-4">
         <div className="w-full max-w-md mx-auto mt-12 md:mt-16">
-          {/* Mobile Logo */}
+          {/* Mobile tagline */}
           <div className="lg:hidden text-center mb-6">
-            <div className="flex items-center justify-center space-x-3 mb-4">
-              <div className="relative w-16 h-16">
-                <div className="absolute inset-0 rounded-full blur-lg" style={{ background: 'linear-gradient(to right, var(--primary)/20, var(--secondary)/20, var(--accent)/20)' }}></div>
-                <img
-                  src="/logoA.png"
-                  alt="BankIA Suite Logo"
-                  width={64}
-                  height={64}
-                  className="object-contain relative z-10"
-                />
-              </div>
-              <span className="text-2xl font-bold" style={{ color: 'var(--text)' }}>
-                BankIA Suite
-              </span>
-            </div>
             <p className="text-sm" style={{ color: 'var(--muted)' }}>
               Accélérez l'intelligence bancaire
             </p>

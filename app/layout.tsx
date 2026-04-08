@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "NovaBanque — Plateforme IA Bancaire",
+  title: "Miznas Banking — L'IA au service de la décision bancaire",
   description: "Plateforme d'intelligence artificielle pour les institutions bancaires de la zone UEMOA. Analyse de crédit, recouvrement, états financiers PCB et formation.",
 };
 

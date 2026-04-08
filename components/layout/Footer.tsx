@@ -26,16 +26,16 @@ export default function Footer() {
               </div>
               <div className="flex flex-col leading-tight">
                 <span className="text-lg font-black text-white tracking-wide">
-                  Nova<span className="text-[#C9A84C]">Banque</span>
+                  Miznas<span className="text-[#C9A84C]"> Banking</span>
                 </span>
                 <span className="text-[9px] font-bold text-white/50 uppercase tracking-[0.18em]">
-                  Plateforme IA Bancaire
+                  L'IA au service de la décision bancaire
                 </span>
               </div>
             </Link>
 
             <p className="text-xs text-white/55 leading-relaxed max-w-xs mb-4">
-              Intelligence artificielle pour les institutions financières de la zone UEMOA.
+              L'intelligence artificielle au service de la décision bancaire.
               Conforme PCB-UEMOA, sécurité maximale, performance garantie.
             </p>
 
@@ -90,25 +90,25 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <a href="mailto:support@novabanque.com"
+                <a href="mailto:support@miznasbanking.com"
                   className="group flex items-center gap-2.5 text-xs text-white/60 hover:text-white transition-colors duration-200">
                   <span className="w-6 h-6 rounded-lg bg-[#1B3A8C]/30 border border-[#1B3A8C]/30 flex items-center justify-center group-hover:border-[#C9A84C]/30 transition-colors flex-shrink-0">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                   </span>
-                  support@novabanque.com
+                  support@miznasbanking.com
                 </a>
               </li>
               <li className="flex items-center gap-2.5 text-xs text-white/60">
                 <span className="w-6 h-6 rounded-lg bg-[#1B3A8C]/30 border border-[#1B3A8C]/30 flex items-center justify-center flex-shrink-0">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.1 1.18 2 2 0 012.08.02h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.18 6.18l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
                 </span>
-                +227 XX XX XX XX
+                +227 80 64 83 83
               </li>
               <li className="flex items-center gap-2.5 text-xs text-white/60">
                 <span className="w-6 h-6 rounded-lg bg-[#1B3A8C]/30 border border-[#1B3A8C]/30 flex items-center justify-center flex-shrink-0">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
                 </span>
-                Niamey, Niger — Zone UEMOA
+                Niamey, Niger — KOUBIA
               </li>
             </ul>
           </div>
@@ -122,7 +122,7 @@ export default function Footer() {
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] shadow-[0_0_6px_rgba(34,197,94,0.6)]" />
             <p className="text-[10px] text-white/40">
-              © {currentYear} NovaBanque · Tous droits réservés
+              © {currentYear} Miznas Banking · Tous droits réservés
             </p>
           </div>
           <div className="flex items-center gap-5 text-[10px] text-white/40">

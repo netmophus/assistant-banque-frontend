@@ -549,7 +549,9 @@ function ChatTab({
           width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '0.5rem 0.75rem', marginBottom: 0,
           background: `${activeTheme.color}12`,
-          border: `2px solid ${activeTheme.color}60`,
+          borderTop: `2px solid ${activeTheme.color}60`,
+          borderRight: `2px solid ${activeTheme.color}60`,
+          borderBottom: `2px solid ${activeTheme.color}60`,
           borderLeft: `4px solid ${activeTheme.color}`,
           borderRadius: themePanelOpen ? '0.75rem 0.75rem 0 0' : '0.75rem',
           cursor: 'pointer', gap: '0.5rem',
@@ -575,9 +577,10 @@ function ChatTab({
 
       {themePanelOpen && (
         <div style={{
-          border: `2px solid ${activeTheme.color}55`,
-          borderLeft: `4px solid ${activeTheme.color}`,
           borderTop: 'none',
+          borderRight: `2px solid ${activeTheme.color}55`,
+          borderBottom: `2px solid ${activeTheme.color}55`,
+          borderLeft: `4px solid ${activeTheme.color}`,
           borderRadius: '0 0 0.75rem 0.75rem',
           background: `linear-gradient(180deg, ${activeTheme.color}10 0%, rgba(10,20,52,0.9) 100%)`,
           overflow: 'hidden',
@@ -1340,72 +1343,74 @@ function ArchiveTab({
         onClick={() => setExpandedItem(null)}
       >
         <div
-          className="relative w-full max-w-3xl mx-4 bg-surface border border-border rounded-2xl shadow-2xl"
+          className="relative w-full max-w-3xl mx-4 rounded-2xl shadow-2xl overflow-hidden"
+          style={{ background: '#0B1120', border: '1px solid rgba(255,255,255,0.1)' }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Modal header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-            <div className="flex items-center gap-3">
-              <span className="text-primary text-lg">📋</span>
-              <div>
-                <p className="text-xs text-muted">{formatDate(expandedItem.created_at)}</p>
-                <p className="text-sm font-semibold text-text line-clamp-2">{expandedItem.question}</p>
-              </div>
+          {/* Header */}
+          <div style={{ background: 'linear-gradient(135deg, #0f1e48 0%, #0B1120 100%)', borderBottom: '1px solid rgba(255,255,255,0.08)' }}
+            className="px-6 py-4 flex items-start justify-between gap-4">
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: '#C9A84C' }}>
+                Question archivée · {formatDate(expandedItem.created_at)}
+              </p>
+              <p className="text-base font-bold text-white leading-snug">{expandedItem.question}</p>
             </div>
             <button
               onClick={() => setExpandedItem(null)}
-              className="flex-shrink-0 w-8 h-8 rounded-lg bg-surface2 border border-border flex items-center justify-center text-muted hover:text-text transition-colors"
+              className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+              style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#94a3b8' }}
             >
               ✕
             </button>
           </div>
 
-          {/* Question bubble */}
-          <div className="px-6 pt-5">
-            <div className="flex justify-end mb-4">
-              <div className="max-w-[80%] bg-gradient-to-br from-primary to-secondary text-white rounded-2xl rounded-tr-sm px-4 py-3 text-sm">
-                <p className="whitespace-pre-wrap">{expandedItem.question}</p>
+          {/* Réponse */}
+          <div className="px-6 py-5">
+            {expandedItem.answer ? (
+              <div style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: '0.875rem',
+                padding: '1.25rem 1.5rem',
+                fontSize: '0.9rem',
+                lineHeight: '1.75',
+                color: '#cbd5e1',
+              }}>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={{
+                    h1: ({ children }) => <h1 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f1f5f9', marginTop: '1.2em', marginBottom: '0.5em', paddingBottom: '0.3em', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>{children}</h1>,
+                    h2: ({ children }) => <h2 style={{ fontSize: '1rem', fontWeight: 700, color: '#e2e8f0', marginTop: '1em', marginBottom: '0.4em' }}>{children}</h2>,
+                    h3: ({ children }) => <h3 style={{ fontSize: '0.9rem', fontWeight: 700, color: '#C9A84C', marginTop: '0.9em', marginBottom: '0.3em' }}>{children}</h3>,
+                    p: ({ children }) => <p style={{ margin: '0.5em 0', color: '#cbd5e1' }}>{children}</p>,
+                    ul: ({ children }) => <ul style={{ paddingLeft: '1.4em', margin: '0.5em 0', color: '#cbd5e1' }}>{children}</ul>,
+                    ol: ({ children }) => <ol style={{ paddingLeft: '1.4em', margin: '0.5em 0', color: '#cbd5e1' }}>{children}</ol>,
+                    li: ({ children }) => <li style={{ marginBottom: '0.25em', lineHeight: '1.6' }}>{children}</li>,
+                    strong: ({ children }) => <strong style={{ color: '#f1f5f9', fontWeight: 700 }}>{children}</strong>,
+                    em: ({ children }) => <em style={{ color: '#94a3b8', fontStyle: 'italic' }}>{children}</em>,
+                    code: ({ children }) => <code style={{ background: 'rgba(0,0,0,0.4)', padding: '0.15em 0.45em', borderRadius: '4px', fontSize: '0.82em', fontFamily: 'monospace', color: '#7dd3fc' }}>{children}</code>,
+                    blockquote: ({ children }) => <blockquote style={{ borderLeft: '3px solid #C9A84C', paddingLeft: '1em', margin: '0.75em 0', color: '#94a3b8', fontStyle: 'italic' }}>{children}</blockquote>,
+                    hr: () => <hr style={{ borderTop: '1px solid rgba(255,255,255,0.08)', margin: '1em 0', border: 'none' }} />,
+                    table: ({ children }) => <table style={{ width: '100%', borderCollapse: 'collapse', margin: '0.75em 0', fontSize: '0.85rem' }}>{children}</table>,
+                    th: ({ children }) => <th style={{ padding: '6px 10px', background: 'rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.1)', textAlign: 'left', color: '#e2e8f0', fontWeight: 700 }}>{children}</th>,
+                    td: ({ children }) => <td style={{ padding: '6px 10px', borderBottom: '1px solid rgba(255,255,255,0.05)', color: '#cbd5e1' }}>{children}</td>,
+                  }}
+                >
+                  {expandedItem.answer}
+                </ReactMarkdown>
               </div>
-            </div>
+            ) : (
+              <p className="text-sm italic" style={{ color: '#64748b' }}>Aucune réponse disponible.</p>
+            )}
           </div>
 
-          {/* Answer */}
-          <div className="px-6 pb-6">
-            <div className="flex gap-3">
-              <div className="flex-shrink-0">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center text-white text-[10px] font-bold">
-                  FA
-                </div>
-                <p className="text-[8px] text-muted text-center mt-0.5">Fahimta</p>
-              </div>
-              <div className="flex-1 bg-surface2 border border-border rounded-2xl rounded-tl-sm px-5 py-4">
-                {expandedItem.answer ? (
-                  <div className="prose prose-invert prose-sm max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                      {expandedItem.answer}
-                    </ReactMarkdown>
-                  </div>
-                ) : (
-                  <p className="text-muted text-sm italic">Aucune réponse disponible.</p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Footer actions */}
-          <div className="px-6 pb-5 flex justify-end gap-3 border-t border-border pt-4">
-            <button
-              onClick={() => {
-                onReread(expandedItem.question, expandedItem.answer || expandedItem.question);
-                setExpandedItem(null);
-              }}
-              className="text-sm px-4 py-2 bg-primary/10 text-primary border border-primary/20 rounded-xl hover:bg-primary/20 transition-colors"
-            >
-              Relire dans le chat
-            </button>
+          {/* Footer */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', padding: '1rem 1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
             <button
               onClick={() => setExpandedItem(null)}
-              className="text-sm px-4 py-2 bg-surface2 border border-border rounded-xl text-muted hover:text-text transition-colors"
+              className="text-sm px-5 py-2 rounded-xl font-semibold transition-all"
+              style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)', color: '#cbd5e1' }}
             >
               Fermer
             </button>
@@ -1494,40 +1499,18 @@ function ArchiveTab({
               className="bg-surface2/50 border border-border rounded-xl p-4 space-y-3 hover:border-primary/30 transition-colors"
             >
               <div className="flex items-start justify-between gap-3">
-                <p className="text-sm font-medium text-text flex-1">
-                  {item.question}
-                </p>
-                <div className="flex flex-col gap-1.5 flex-shrink-0">
-                  <button
-                    onClick={() => setExpandedItem(item)}
-                    className="text-xs px-3 py-1.5 bg-gradient-to-r from-primary/20 to-secondary/20 text-primary border border-primary/30 rounded-lg hover:from-primary/30 hover:to-secondary/30 transition-all font-medium"
-                  >
-                    Voir la réponse
-                  </button>
-                  <button
-                    onClick={() =>
-                      onReread(item.question, item.answer || item.question)
-                    }
-                    className="text-xs px-3 py-1.5 bg-surface border border-border rounded-lg text-muted hover:text-text hover:border-primary/30 transition-colors"
-                  >
-                    Relire dans le chat
-                  </button>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-text leading-snug">{item.question}</p>
+                  <p className="text-xs text-muted mt-1">{formatDate(item.created_at)}</p>
                 </div>
+                <button
+                  onClick={() => setExpandedItem(item)}
+                  className="text-xs px-3 py-1.5 rounded-lg font-medium transition-all flex-shrink-0"
+                  style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: '#ffffff' }}
+                >
+                  Voir la réponse
+                </button>
               </div>
-
-              {item.answer ? (
-                <p className="text-xs text-muted line-clamp-2 leading-relaxed border-l-2 border-primary/30 pl-3">
-                  {item.answer.slice(0, 250)}
-                  {item.answer.length > 250 ? '...' : ''}
-                </p>
-              ) : (
-                <div className="flex items-center gap-2 text-xs text-amber-400">
-                  <LoadingDots />
-                  <span>En attente de réponse...</span>
-                </div>
-              )}
-
-              <p className="text-xs text-muted">{formatDate(item.created_at)}</p>
             </div>
           ))
         )}

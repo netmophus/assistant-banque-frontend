@@ -566,7 +566,7 @@ const FormationsTab = () => {
     setActiveStep(step);
   };
 
-  // ─── NovaBanque design tokens ────────────────────────────────────────────────
+  // ─── Miznas Banking design tokens ────────────────────────────────────────────────
   const nb = {
     deepNavy:    '#040B1E',
     darkNavy:    '#070E28',

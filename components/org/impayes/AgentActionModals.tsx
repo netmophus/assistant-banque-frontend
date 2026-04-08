@@ -288,6 +288,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
       case 'paiement': return '✅';
       case 'appel': return '📞';
       case 'sms': return '📱';
+      case 'sms_rappel_escalade': return '📱';
       case 'email': return '📧';
       case 'visite': return '🏢';
       case 'relance': return '🔄';
@@ -324,6 +325,7 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
       case 'paiement': return 'Paiement effectué';
       case 'appel': return 'Appel téléphonique';
       case 'sms': return 'SMS envoyé';
+      case 'sms_rappel_escalade': return 'SMS de rappel (escalade)';
       case 'email': return 'Email envoyé';
       case 'visite': return 'Visite client';
       case 'relance': return 'Relance effectuée';
@@ -374,36 +376,37 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
                 style={{
-                  padding: '6px 12px', background: 'rgba(255,255,255,0.05)',
+                  padding: '6px 12px', background: '#1e293b',
                   border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px',
-                  color: '#fff', fontSize: '0.85rem'
+                  color: '#e2e8f0', fontSize: '0.85rem'
                 }}
               >
-                <option value="all">Toutes les actions</option>
-                <option value="attribution">Attributions</option>
-                <option value="commentaire">Commentaires</option>
-                <option value="promesse">Promesses</option>
-                <option value="escalade">Escalades</option>
-                <option value="appel">Appels</option>
-                <option value="sms">SMS</option>
-                <option value="email">Emails</option>
-                <option value="visite">Visites</option>
+                <option value="all" style={{ background: '#1e293b', color: '#e2e8f0' }}>Toutes les actions</option>
+                <option value="attribution" style={{ background: '#1e293b', color: '#e2e8f0' }}>Attributions</option>
+                <option value="commentaire" style={{ background: '#1e293b', color: '#e2e8f0' }}>Commentaires</option>
+                <option value="promesse" style={{ background: '#1e293b', color: '#e2e8f0' }}>Promesses</option>
+                <option value="escalade" style={{ background: '#1e293b', color: '#e2e8f0' }}>Escalades</option>
+                <option value="appel" style={{ background: '#1e293b', color: '#e2e8f0' }}>Appels</option>
+                <option value="sms" style={{ background: '#1e293b', color: '#e2e8f0' }}>SMS</option>
+                <option value="sms_rappel_escalade" style={{ background: '#1e293b', color: '#e2e8f0' }}>SMS rappel escalade</option>
+                <option value="email" style={{ background: '#1e293b', color: '#e2e8f0' }}>Emails</option>
+                <option value="visite" style={{ background: '#1e293b', color: '#e2e8f0' }}>Visites</option>
               </select>
             </div>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <label style={{ fontSize: '0.85rem', color: '#9ca3af' }}>Trier:</label>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as 'date' | 'type')}
                 style={{
-                  padding: '6px 12px', background: 'rgba(255,255,255,0.05)',
+                  padding: '6px 12px', background: '#1e293b',
                   border: '1px solid rgba(255,255,255,0.2)', borderRadius: '6px',
-                  color: '#fff', fontSize: '0.85rem'
+                  color: '#e2e8f0', fontSize: '0.85rem'
                 }}
               >
-                <option value="date">Plus récent d'abord</option>
-                <option value="type">Par type d'action</option>
+                <option value="date" style={{ background: '#1e293b', color: '#e2e8f0' }}>Plus récent d'abord</option>
+                <option value="type" style={{ background: '#1e293b', color: '#e2e8f0' }}>Par type d'action</option>
               </select>
             </div>
             
@@ -539,32 +542,45 @@ export const HistoryModal: React.FC<HistoryModalProps> = ({
                       </div>
                     )}
                     
+                    {/* Corps du SMS */}
+                    {(item.type_action === 'sms' || item.type_action === 'sms_rappel_escalade') && item.corps_sms && (
+                      <div style={{
+                        marginTop: '8px', padding: '10px 12px',
+                        background: 'rgba(6,182,212,0.08)', border: '1px solid rgba(6,182,212,0.2)',
+                        borderRadius: '6px', fontSize: '0.82rem', color: '#cbd5e1', lineHeight: '1.5'
+                      }}>
+                        <div style={{ fontSize: '0.72rem', color: '#06b6d4', fontWeight: '700', marginBottom: '4px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                          📱 Corps du SMS — {item.telephone || ''}
+                        </div>
+                        {item.corps_sms}
+                      </div>
+                    )}
+
                     {/* Additional info */}
                     <div style={{ display: 'flex', gap: '16px', marginTop: '8px', flexWrap: 'wrap' }}>
                       {item.montant && (
-                        <div style={{ 
+                        <div style={{
                           fontSize: '0.8rem', color: '#22c55e', fontWeight: '600',
                           background: 'rgba(34,197,94,0.1)', padding: '4px 8px', borderRadius: '4px'
                         }}>
                           💰 {item.montant.toLocaleString()} FCFA
                         </div>
                       )}
-                      
-                      {item.resultat && (
-                        <div style={{ 
+                      {item.statut_sms && (
+                        <div style={{
+                          fontSize: '0.8rem', fontWeight: '600', padding: '4px 8px', borderRadius: '4px',
+                          color: item.statut_sms === 'SENT' ? '#22c55e' : item.statut_sms === 'FAILED' ? '#ef4444' : '#f59e0b',
+                          background: item.statut_sms === 'SENT' ? 'rgba(34,197,94,0.1)' : item.statut_sms === 'FAILED' ? 'rgba(239,68,68,0.1)' : 'rgba(245,158,11,0.1)',
+                        }}>
+                          {item.statut_sms === 'SENT' ? '✓ Envoyé' : item.statut_sms === 'FAILED' ? '✗ Échec' : '⏳ En attente'}
+                        </div>
+                      )}
+                      {item.resultat && !item.statut_sms && (
+                        <div style={{
                           fontSize: '0.8rem', color: '#f59e0b', fontWeight: '500',
                           background: 'rgba(245,158,11,0.1)', padding: '4px 8px', borderRadius: '4px'
                         }}>
                           📋 {item.resultat}
-                        </div>
-                      )}
-                      
-                      {item.statut && (
-                        <div style={{ 
-                          fontSize: '0.8rem', color: '#3b82f6', fontWeight: '500',
-                          background: 'rgba(59,130,246,0.1)', padding: '4px 8px', borderRadius: '4px'
-                        }}>
-                          🏷️ {item.statut}
                         </div>
                       )}
                     </div>

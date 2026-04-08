@@ -69,11 +69,11 @@ const bankTypes = [
 ];
 
 const features = [
-  { image: '/imageA.jpg', tag: 'Réglementation', title: 'Base de Connaissance Réglementaire', description: 'Base structurée regroupant les référentiels PCB et la documentation interne. L\'IA répond avec précision et conformité.' },
-  { image: '/imageB.jpg', tag: 'Crédit', title: 'Analyse de Crédit Intelligente', description: 'Accélère l\'analyse des dossiers Particuliers et PME/PMI. Structure automatiquement les données, identifie les risques et génère des synthèses pour la décision.' },
-  { image: '/imageC.jpg', tag: 'Recouvrement', title: 'Recouvrement Automatisé des Impayés', description: 'Automatise le recouvrement en 3 étapes : import et qualification, relances personnalisées par tranche de retard, suivi et restructuration des dossiers.' },
+  { image: '/imageA.jpg', tag: 'Réglementation', title: 'Base de Connaissance Réglementaire', description: 'Base centralisée regroupant les textes réglementaires, les référentiels PCB UEMOA et les documents internes de la banque. L\'IA fournit des réponses précises, rapides et conformes.' },
+  { image: '/imageB.jpg', tag: 'Crédit', title: 'Analyse de Crédit Assistée par l\'IA', description: 'Accélérez l\'étude des dossiers Particuliers, PME et PMI. La plateforme extrait les informations clés, met en évidence les points de vigilance et génère une synthèse d\'aide à la décision.' },
+  { image: '/imageC.jpg', tag: 'Recouvrement', title: 'Gestion Intelligente des Impayés', description: 'La plateforme centralise l\'import et la qualification des impayés, automatise les relances SMS, suit les régularisations et fournit les indicateurs clés de performance du recouvrement.' },
   { image: '/imageD.jpg', tag: 'Finance', title: 'États Financiers PCB UEMOA', description: 'Génère automatiquement le bilan, le compte de résultat et le hors-bilan. Calcule les ratios prudentiels, interprète les résultats et fournit des alertes et recommandations conformes.' },
-  { image: '/imageE.jpg', tag: 'Formation', title: 'Génération de Contenus de Formation', description: 'Produit des contenus pédagogiques adaptés au contexte UEMOA. Génère chapitres, modules et supports pour accélérer la montée en compétence des équipes.' },
+  { image: '/imageE.jpg', tag: 'Formation', title: 'Catalogue de Formations Spécialisées', description: 'Accédez à plus de 100 modules de formation spécialisés en banque et en finance, avec QCM intégrés pour renforcer l\'apprentissage et l\'évaluation des équipes, et créez vos propres formations avec l\'assistance de l\'IA.' },
 ];
 
 const metrics = [
@@ -84,29 +84,29 @@ const metrics = [
 ];
 
 const steps = [
-  { n: '1', title: 'Configurez votre espace', desc: 'Importez vos documents réglementaires, politiques internes et données financières. Paramétrez les accès par rôle en quelques minutes.' },
-  { n: '2', title: 'Analysez en temps réel',  desc: 'L\'IA traite vos données, génère les états financiers, analyse les dossiers de crédit et qualifie les impayés automatiquement.' },
-  { n: '3', title: 'Décidez avec confiance', desc: 'Obtenez des synthèses claires, des recommandations actionnables et des rapports conformes BCEAO prêts à soumettre.' },
+  { n: '1', title: 'Configurez votre espace', desc: 'Importez vos référentiels, vos documents internes, vos données financières et vos contenus de formation. Paramétrez les accès par rôle en quelques minutes.' },
+  { n: '2', title: 'Analysez avec l\'IA',  desc: 'L\'IA exploite vos données, analyse les dossiers de crédit, les états financiers PCB UEMOA et les impayés, puis produit des synthèses claires et actionnables.' },
+  { n: '3', title: 'Décidez avec confiance', desc: 'Obtenez des réponses fiables, des recommandations utiles et des restitutions conformes. Accélérez la prise de décision bancaire et renforcez la maîtrise des risques au quotidien.' },
 ];
 
 const benefits = [
-  { title: 'Gain de temps opérationnel',    desc: 'Réduction drastique des tâches répétitives. Accès instantané à l\'information réglementaire sans recherche manuelle.', icon: <IcBolt /> },
-  { title: 'Maîtrise du risque crédit',     desc: 'Analyses homogènes, documentées et reproductibles. Identification automatique des zones de risque dans les dossiers.', icon: <IcShield /> },
-  { title: 'Recouvrement optimisé',         desc: 'Structuration et automatisation du processus avec suivi de performance et identification des dossiers éligibles.', icon: <IcChart /> },
-  { title: 'Montée en compétence continue', desc: 'Accès à la demande aux formations adaptées au contexte UEMOA. Contenu généré automatiquement, cohérent et à jour.', icon: <IcUsers /> },
+  { title: 'Gain de temps opérationnel',    desc: 'Réduisez les tâches répétitives et accédez plus vite à l\'information réglementaire utile aux équipes.', icon: <IcBolt /> },
+  { title: 'Maîtrise du risque crédit',     desc: 'Obtenez des analyses homogènes, documentées et une détection rapide des zones de risque.', icon: <IcShield /> },
+  { title: 'Recouvrement optimisé',         desc: 'Automatisez les relances, suivez les impayés et mesurez la performance du recouvrement.', icon: <IcChart /> },
+  { title: 'Montée en compétence continue', desc: 'Accédez à des formations spécialisées avec QCM et créez vos contenus avec l\'assistance de l\'IA.', icon: <IcUsers /> },
 ];
 
 const security = [
-  { icon: <IcLock />,     title: 'Chiffrement AES-256',   desc: 'Données chiffrées en transit et au repos' },
-  { icon: <IcDatabase />, title: 'Hébergement Afrique',   desc: 'Infrastructure localisée dans la zone UEMOA' },
-  { icon: <IcEye />,      title: 'Audit Trail Complet',   desc: 'Traçabilité totale de toutes les actions' },
-  { icon: <IcGlobe />,    title: 'Conformité BCEAO',      desc: 'Aligné sur les instructions réglementaires' },
-  { icon: <IcShield />,   title: 'Accès Multi-niveaux',   desc: 'Contrôle des droits par rôle et entité' },
-  { icon: <IcChart />,    title: 'Disponibilité 99.9%',   desc: 'Infrastructure haute disponibilité 24/7' },
+  { icon: <IcLock />,     title: 'Chiffrement AES-256',           desc: 'Protection des données en transit et au repos.' },
+  { icon: <IcDatabase />, title: 'Protection des données sensibles', desc: 'Sécurisation des informations clients, des dossiers de crédit et des documents internes.' },
+  { icon: <IcEye />,      title: 'Traçabilité complète',           desc: 'Suivi exhaustif des actions, des traitements et des opérations sensibles.' },
+  { icon: <IcGlobe />,    title: 'Conformité PCB UEMOA',           desc: 'Production et exploitation des états financiers selon le référentiel PCB UEMOA.' },
+  { icon: <IcShield />,   title: 'Accès multi-niveaux',            desc: 'Gestion fine des droits par rôle, profil et entité.' },
+  { icon: <IcChart />,    title: 'Disponibilité 99,9 %',           desc: 'Infrastructure haute disponibilité avec supervision continue.' },
 ];
 
 const testimonials = [
-  { quote: 'NovaBanque a transformé notre processus d\'analyse de crédit. Ce qui prenait 3 jours se fait désormais en quelques heures. Un gain de productivité remarquable pour nos équipes.', name: 'Directeur des Risques', org: 'Banque Commerciale — Niger', initials: 'DR' },
+  { quote: 'Miznas Banking a transformé notre processus d\'analyse de crédit. Ce qui prenait 3 jours se fait désormais en quelques heures. Un gain de productivité remarquable pour nos équipes.', name: 'Directeur des Risques', org: 'Banque Commerciale — Niger', initials: 'DR' },
   { quote: 'La conformité réglementaire n\'a jamais été aussi simple. Les états financiers PCB se génèrent automatiquement avec une précision que nos auditeurs ont saluée.', name: 'Directrice Financière', org: 'Institution Financière — Niger', initials: 'DF' },
   { quote: 'Notre taux de recouvrement des impayés a progressé de 40% depuis l\'implémentation. L\'automatisation des relances et la qualification intelligente font la différence.', name: 'Responsable Recouvrement', org: 'Établissement Bancaire — Niger', initials: 'RR' },
 ];
@@ -186,10 +186,10 @@ export default function Home() {
           {/* Title */}
           <ScrollReveal direction="down" delay={100}>
             <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[96px] font-black mb-6 leading-[0.9] tracking-tight">
-              <span className="block text-white">Nova</span>
+              <span className="block text-white">Miznas</span>
               <span className="block text-[#C9A84C] animate-text-shimmer"
                 style={{ backgroundImage: 'linear-gradient(90deg,#C9A84C,#E8D08A,#C9A84C,#9A7A30,#C9A84C)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundSize: '200% auto' }}>
-                Banque
+                Banking
               </span>
             </h1>
           </ScrollReveal>
@@ -198,15 +198,14 @@ export default function Home() {
           <ScrollReveal direction="up" delay={200}>
             <p className="text-xl sm:text-2xl md:text-3xl mb-5 font-medium text-white/60 leading-snug max-w-3xl mx-auto">
               L&apos;intelligence artificielle au service de la{' '}
-              <span className="text-white font-bold">décision bancaire africaine</span>
+              <span className="text-white font-bold">décision bancaire</span>
             </p>
           </ScrollReveal>
 
           {/* Description */}
           <ScrollReveal direction="up" delay={280}>
-            <p className="text-base sm:text-lg mb-12 leading-relaxed text-white/40 max-w-2xl mx-auto">
-              Assistance réglementaire, analyse de crédit, recouvrement des impayés, états financiers PCB
-              UEMOA et formation — tout en un, en parfaite conformité BCEAO.
+            <p className="text-base sm:text-lg mb-12 leading-relaxed text-white/70 max-w-2xl mx-auto">
+              Assistance réglementaire, analyse de crédit, gestion des impayés, analyse des états financiers au format PCB UEMOA&nbsp;<span className="text-white font-semibold">—</span>&nbsp;Plus de 100 modules de formation spécialisés en banque et en finance, avec QCM intégrés.
             </p>
           </ScrollReveal>
 
@@ -234,7 +233,7 @@ export default function Home() {
           {/* Trust chips */}
           <ScrollReveal direction="fade" delay={420}>
             <div className="flex flex-wrap justify-center gap-2.5 mb-16">
-              {['BCEAO Compatible', 'PCB UEMOA', 'Données Sécurisées', 'Audit Trail', 'ISO 27001'].map((b) => (
+              {['Conforme PCB UEMOA', 'Données sécurisées', 'Traçabilité complète', 'Aligné ISO 27001'].map((b) => (
                 <span key={b} className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-white/50">
                   <IcCheck /> {b}
                 </span>
@@ -330,34 +329,51 @@ export default function Home() {
             </div>
           </ScrollReveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
             {features.map((f, i) => (
               <ScrollReveal key={i} direction="up" delay={i * 80}>
-                <div className="group relative overflow-hidden bg-white rounded-[28px] border border-[#E2E8F0] hover:border-[#1B3A8C]/30 transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#1B3A8C]/10 flex flex-col h-full">
-                  {/* Tag */}
-                  <div className="absolute top-4 right-4 z-20 px-3 py-1 bg-[#1B3A8C] rounded-full text-[10px] font-bold text-white uppercase tracking-wider">
-                    {f.tag}
-                  </div>
+                {/* Outer wrapper — animated gradient border */}
+                <div className="group relative rounded-[24px] p-[1.5px] transition-all duration-500 hover:scale-[1.02]"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(27,58,140,0.15), rgba(201,168,76,0.1), rgba(27,58,140,0.15))',
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, #1B3A8C, #C9A84C, #1B3A8C)';
+                    e.currentTarget.style.boxShadow = '0 8px 32px rgba(27,58,140,0.2), 0 0 20px rgba(201,168,76,0.1)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = 'linear-gradient(135deg, rgba(27,58,140,0.15), rgba(201,168,76,0.1), rgba(27,58,140,0.15))';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div className="relative overflow-hidden bg-white rounded-[23px] flex flex-col h-full">
+                    {/* Tag */}
+                    <div className="absolute top-4 right-4 z-20 px-3.5 py-1.5 rounded-full text-[10px] font-bold text-white uppercase tracking-wider"
+                      style={{ background: 'linear-gradient(135deg, #1B3A8C, #142E6E)' }}>
+                      {f.tag}
+                    </div>
 
-                  {/* Image */}
-                  <div className="relative h-52 w-full overflow-hidden flex-shrink-0">
-                    <div className="absolute inset-0 bg-gradient-to-t from-white/80 via-transparent to-transparent z-10" />
-                    <div className="absolute inset-0 bg-gradient-to-br from-[#1B3A8C]/10 via-transparent to-[#C9A84C]/5 z-10" />
-                    <Image
-                      src={f.image} alt={f.title} fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-700"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    />
-                  </div>
+                    {/* Image */}
+                    <div className="relative h-52 w-full overflow-hidden flex-shrink-0">
+                      <div className="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent z-10" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-[#1B3A8C]/10 via-transparent to-[#C9A84C]/5 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      <Image
+                        src={f.image} alt={f.title} fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-700"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      />
+                    </div>
 
-                  {/* Content */}
-                  <div className="relative p-7 flex flex-col flex-1">
-                    <h3 className="text-base font-bold text-[#0C1B3A] mb-3 group-hover:text-[#1B3A8C] transition-colors duration-300 leading-snug">
-                      {f.title}
-                    </h3>
-                    <p className="text-[#64748B] leading-relaxed text-sm flex-1">{f.description}</p>
-                    {/* Gold bottom line */}
-                    <div className="mt-6 h-0.5 w-0 group-hover:w-full bg-gradient-to-r from-[#1B3A8C] to-[#C9A84C] transition-all duration-500 rounded-full" />
+                    {/* Content */}
+                    <div className="relative p-7 flex flex-col flex-1">
+                      <h3 className="text-[15px] font-extrabold text-[#0C1B3A] mb-3 group-hover:text-[#1B3A8C] transition-colors duration-300 leading-snug">
+                        {f.title}
+                      </h3>
+                      <p className="text-[#64748B] leading-relaxed text-sm flex-1">{f.description}</p>
+                      {/* Animated gold bottom line */}
+                      <div className="mt-6 h-[2px] w-0 group-hover:w-full rounded-full transition-all duration-600"
+                        style={{ background: 'linear-gradient(90deg, #1B3A8C, #C9A84C, #1B3A8C)' }} />
+                    </div>
                   </div>
                 </div>
               </ScrollReveal>
@@ -412,7 +428,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <ScrollReveal direction="up" delay={0}>
             <div className="text-center mb-16">
-              <SectionLabel>Pourquoi NovaBanque ?</SectionLabel>
+              <SectionLabel>Pourquoi Miznas Banking ?</SectionLabel>
               <h2 className="text-4xl sm:text-5xl font-black text-[#0C1B3A] mb-4">
                 Conçu pour la performance bancaire
               </h2>
@@ -555,7 +571,7 @@ export default function Home() {
                 </h2>
                 <p className="text-lg text-white/50 mb-10 max-w-xl mx-auto leading-relaxed">
                   Rejoignez les institutions financières de la zone UEMOA qui font confiance à
-                  NovaBanque pour leurs opérations bancaires quotidiennes.
+                  Miznas Banking pour leurs opérations bancaires quotidiennes.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link href="/login"
@@ -566,7 +582,7 @@ export default function Home() {
                       Accéder à la plateforme <IcArrow />
                     </span>
                   </Link>
-                  <a href="mailto:support@novabanque.com"
+                  <a href="mailto:support@miznasbanking.com"
                     className="px-10 py-4 text-sm font-semibold text-white/70 hover:text-white rounded-2xl border border-white/15 hover:border-[#C9A84C]/40 bg-white/5 hover:bg-white/8 backdrop-blur-sm transition-all duration-300 hover:scale-105">
                     Contacter notre équipe
                   </a>

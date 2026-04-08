@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ── NovaBanque — Design Tokens ── */
+/* ── Miznas Banking — Design Tokens ── */
 :root {
   --bg: 10 20 52;       /* #0A1434 — bleu nuit royal */
   --surface: 15 30 72;  /* #0F1E48 — surface navy */
@@ -154,7 +154,7 @@ html {
 }
 .animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
 
-/* Grid pattern — NovaBanque navy */
+/* Grid pattern — Miznas Banking navy */
 .bg-grid-pattern {
   background-image:
     linear-gradient(rgba(27, 58, 140, 0.12) 1px, transparent 1px),

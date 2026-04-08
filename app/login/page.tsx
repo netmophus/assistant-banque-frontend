@@ -42,7 +42,7 @@ export default function LoginPage() {
       } else if (response.user.role === 'admin') {
         router.push('/org/dashboard');
       } else {
-        router.push('/user/dashboard');
+        router.push('/agent/mes-dossiers');
       }
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la connexion. Vérifiez vos identifiants.');

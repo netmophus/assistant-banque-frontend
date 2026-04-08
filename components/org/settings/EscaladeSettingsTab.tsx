@@ -11,7 +11,15 @@ interface EscaladeNiveauConfig {
   couleur: string;
   actions_auto: string[];
   responsable_escalade?: string;
+  agent_id?: string;
+  agent_nom?: string;
   actif: boolean;
+}
+
+interface OrgUser {
+  id: string;
+  full_name: string;
+  email: string;
 }
 
 interface EscaladeConfig {
@@ -67,8 +75,21 @@ const EscaladeSettingsTab = () => {
   const [errors, setErrors] = useState<string[]>([]);
   const [success, setSuccess] = useState('');
   const [config, setConfig] = useState<EscaladeConfig>(defaultConfig);
+  const [orgUsers, setOrgUsers] = useState<OrgUser[]>([]);
 
-  useEffect(() => { loadConfig(); }, []);
+  useEffect(() => {
+    loadConfig();
+    loadOrgUsers();
+  }, []);
+
+  const loadOrgUsers = async () => {
+    try {
+      const users = await apiClient.get<OrgUser[]>('/auth/users/org/simple');
+      setOrgUsers(Array.isArray(users) ? users : []);
+    } catch {
+      setOrgUsers([]);
+    }
+  };
 
   const loadConfig = async () => {
     setLoading(true);
@@ -266,6 +287,35 @@ const EscaladeSettingsTab = () => {
                     placeholder="Agent Recouvrement"
                     className="w-full px-3 py-2 bg-[#1a1f3a] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-[#d32f2f]/50"
                   />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5 px-2 py-1 bg-[#1e2d45] border border-[#2d4a6e]/50 rounded-md w-fit">
+                    Attribuer à <span className="text-[#64748B] font-normal">(auto)</span>
+                  </label>
+                  <select
+                    value={niveau.agent_id || ''}
+                    onChange={e => {
+                      const selected = orgUsers.find(u => u.id === e.target.value);
+                      const niveaux = [...config.niveaux];
+                      niveaux[index] = {
+                        ...niveaux[index],
+                        agent_id: e.target.value || undefined,
+                        agent_nom: selected?.full_name || undefined,
+                      };
+                      setConfig({ ...config, niveaux });
+                    }}
+                    className="w-full px-3 py-2 bg-[#1a1f3a] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:border-[#d32f2f]/50"
+                  >
+                    <option value="">— Aucune attribution automatique —</option>
+                    {orgUsers.map(u => (
+                      <option key={u.id} value={u.id}>{u.full_name}</option>
+                    ))}
+                  </select>
+                  {niveau.agent_id && (
+                    <p className="mt-1 text-[11px] text-[#22c55e]">
+                      Les dossiers seront attribués automatiquement à <strong>{niveau.agent_nom}</strong> lors du passage à ce niveau.
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-[#E2E8F0] mb-1.5 px-2 py-1 bg-[#1e2d45] border border-[#2d4a6e]/50 rounded-md w-fit">Couleur</label>

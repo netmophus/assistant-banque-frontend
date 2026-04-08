@@ -22,6 +22,15 @@ interface Portefeuille {
   promesses_en_cours: number;
 }
 
+const DOSSIERS_PER_PAGE = 10;
+
+const getNiveau = (jours: number) => {
+  if (jours >= 90) return { label: 'Douteux/NPL', detail: 'Contentieux', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' };
+  if (jours >= 60) return { label: 'Zone critique', detail: 'Mise en demeure', color: '#f97316', bg: 'rgba(249,115,22,0.12)' };
+  if (jours >= 30) return { label: 'Retard signif.', detail: 'Deuxième relance', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' };
+  return { label: 'Retard léger', detail: 'Première relance', color: '#22c55e', bg: 'rgba(34,197,94,0.12)' };
+};
+
 // Styles pour les options des selects
 const selectOptionStyle: React.CSSProperties = {
   background: '#1e293b',
@@ -32,11 +41,12 @@ const PortefeuilleTab = () => {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const userRole = currentUser?.role || 'user';
   const isAdmin = userRole === 'admin';
-  
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [portefeuilles, setPortefeuilles] = useState<Portefeuille[]>([]);
   const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
+  const [pagesByAgent, setPagesByAgent] = useState<Record<string, number>>({});
 
   // Formulaire attribution
   const [showForm, setShowForm] = useState(false);
@@ -222,8 +232,7 @@ const PortefeuilleTab = () => {
     try {
       // Charger l'historique depuis le backend
       const response = await apiClient.get<any>(`/impayes/journal?ref_credit=${dossier.ref_credit}`);
-      console.log('Historique response:', response.data);
-      setHistorique(response.data?.actions || []);
+      setHistorique(response?.actions || []);
     } catch (error) {
       console.error('Erreur chargement historique:', error);
       setHistorique([]);
@@ -280,6 +289,54 @@ const PortefeuilleTab = () => {
       console.error('Erreur ajout promesse:', error);
       throw error;
     }
+  };
+
+  const handleImprimerAgent = (pf: Portefeuille) => {
+    const date = new Date().toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+    const rows = pf.dossiers.map(d => {
+      const niv = getNiveau(d.jours_retard);
+      return `<tr>
+        <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0">${d.nom_client}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-family:monospace;font-size:11px">${d.ref_credit}</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0"><span style="padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;color:${niv.color};background:${niv.bg}">${niv.label}</span></td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;text-align:right;font-weight:600">${d.montant_impaye.toLocaleString()} FCFA</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;text-align:center;color:${niv.color};font-weight:700">${d.jours_retard}j</td>
+        <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0">${d.agence}</td>
+      </tr>`;
+    }).join('');
+
+    const html = `<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+      <title>Portefeuille — ${pf.agent_nom}</title>
+      <style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Segoe UI',Arial,sans-serif;color:#1e293b;font-size:12px;padding:28px}</style>
+    </head><body>
+      <div style="border-bottom:3px solid #3b82f6;padding-bottom:14px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:#3b82f6;margin-bottom:4px">Rapport de portefeuille</div>
+          <div style="font-size:20px;font-weight:800">${pf.agent_nom}</div>
+          <div style="font-size:11px;color:#64748b;margin-top:2px">Généré le ${date}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:22px;font-weight:800;color:#3b82f6">${pf.nombre_dossiers}</div>
+          <div style="font-size:10px;color:#64748b">dossiers</div>
+          <div style="font-size:14px;font-weight:700;color:#f59e0b;margin-top:4px">${pf.montant_total.toLocaleString()} FCFA</div>
+          <div style="font-size:10px;color:#64748b">montant total impayé</div>
+        </div>
+      </div>
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr style="background:#f8fafc">
+          <th style="padding:8px 10px;text-align:left;font-size:11px;color:#64748b;border-bottom:2px solid #e2e8f0">Client</th>
+          <th style="padding:8px 10px;text-align:left;font-size:11px;color:#64748b;border-bottom:2px solid #e2e8f0">Réf. crédit</th>
+          <th style="padding:8px 10px;text-align:left;font-size:11px;color:#64748b;border-bottom:2px solid #e2e8f0">Niveau</th>
+          <th style="padding:8px 10px;text-align:right;font-size:11px;color:#64748b;border-bottom:2px solid #e2e8f0">Montant impayé</th>
+          <th style="padding:8px 10px;text-align:center;font-size:11px;color:#64748b;border-bottom:2px solid #e2e8f0">Retard</th>
+          <th style="padding:8px 10px;text-align:left;font-size:11px;color:#64748b;border-bottom:2px solid #e2e8f0">Agence</th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </body></html>`;
+
+    const win = window.open('', '_blank');
+    if (win) { win.document.write(html); win.document.close(); win.print(); }
   };
 
   const totalDossiers = portefeuilles.reduce((s, p) => s + p.nombre_dossiers, 0);
@@ -439,106 +496,106 @@ const PortefeuilleTab = () => {
                 }}
                 onClick={() => setExpandedAgent(expandedAgent === pf.agent_id ? null : pf.agent_id)}
               >
-                <div>
-                  <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#fff', marginRight: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                  <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#fff' }}>
                     {pf.agent_nom}
                   </span>
-                  <span style={{ color: '#9ca3af', fontSize: '0.8rem' }}>({pf.agent_id})</span>
-                </div>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                  <span style={{ color: '#3b82f6', fontWeight: '600' }}>{pf.nombre_dossiers} dossiers</span>
-                  <span style={{ color: '#f59e0b', fontWeight: '600' }}>{pf.montant_total.toLocaleString()} FCFA</span>
+                  <span style={{ color: '#3b82f6', fontWeight: '600', fontSize: '0.85rem' }}>{pf.nombre_dossiers} dossiers</span>
+                  <span style={{ color: '#f59e0b', fontWeight: '600', fontSize: '0.85rem' }}>{pf.montant_total.toLocaleString()} FCFA</span>
                   {pf.promesses_en_cours > 0 && (
                     <span style={{ color: '#8b5cf6', fontSize: '0.8rem' }}>{pf.promesses_en_cours} promesses</span>
                   )}
+                </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleImprimerAgent(pf); }}
+                    style={{ padding: '4px 10px', background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '6px', color: '#60a5fa', fontSize: '0.75rem', cursor: 'pointer', fontWeight: '600' }}
+                    title="Imprimer le rapport de cet agent"
+                  >
+                    🖨️ Rapport
+                  </button>
                   <span style={{ color: '#6b7280', fontSize: '1.2rem' }}>
                     {expandedAgent === pf.agent_id ? '▲' : '▼'}
                   </span>
                 </div>
               </div>
 
-              {expandedAgent === pf.agent_id && (
-                <div style={{ padding: '0 20px 16px 20px' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                      <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
-                        <th style={thStyle}>Client</th>
-                        <th style={thStyle}>Ref</th>
-                        <th style={thStyle}>Montant</th>
-                        <th style={thStyle}>Retard</th>
-                        <th style={thStyle}>Agence</th>
-                        <th style={{ ...thStyle, textAlign: 'center' }}>Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {pf.dossiers.map((d) => (
-                        <tr key={d.ref_credit} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                          <td style={tdStyle}>{d.nom_client}</td>
-                          <td style={{ ...tdStyle, fontSize: '0.8rem', color: '#9ca3af' }}>{d.ref_credit}</td>
-                          <td style={{ ...tdStyle, fontWeight: '600' }}>{d.montant_impaye.toLocaleString()} FCFA</td>
-                          <td style={tdStyle}>{d.jours_retard}j</td>
-                          <td style={tdStyle}>{d.agence}</td>
-                          <td style={{ ...tdStyle, textAlign: 'center' }}>
-                            <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                              {/* Actions pour tous */}
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleAddComment(d); }}
-                                style={{
-                                  padding: '3px 8px', background: 'rgba(59,130,246,0.2)',
-                                  color: '#60a5fa', border: 'none', borderRadius: '4px',
-                                  fontSize: '0.7rem', cursor: 'pointer',
-                                }}
-                                title="Ajouter un commentaire"
-                              >
-                                💬
-                              </button>
-                              
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleAddPromesse(d); }}
-                                style={{
-                                  padding: '3px 8px', background: 'rgba(34,197,94,0.2)',
-                                  color: '#4ade80', border: 'none', borderRadius: '4px',
-                                  fontSize: '0.7rem', cursor: 'pointer',
-                                }}
-                                title="Enregistrer une promesse"
-                              >
-                                💰
-                              </button>
-                              
-                              <button
-                                onClick={(e) => { e.stopPropagation(); handleViewHistory(d); }}
-                                style={{
-                                  padding: '3px 8px', background: 'rgba(168,85,247,0.2)',
-                                  color: '#a78bfa', border: 'none', borderRadius: '4px',
-                                  fontSize: '0.7rem', cursor: 'pointer',
-                                }}
-                                title="Voir l'historique"
-                              >
-                                📊
-                              </button>
-                              
-                              {/* Action admin uniquement */}
-                              {isAdmin && (
-                                <button
-                                  onClick={(e) => { e.stopPropagation(); handleDesattribuer(pf.agent_id, [d.ref_credit]); }}
-                                  style={{
-                                    padding: '3px 8px', background: 'rgba(239,68,68,0.2)',
-                                    color: '#f87171', border: 'none', borderRadius: '4px',
-                                    fontSize: '0.7rem', cursor: 'pointer',
-                                  }}
-                                  title="Retirer le dossier"
-                                >
-                                  ❌
-                                </button>
-                              )}
-                            </div>
-                          </td>
+              {expandedAgent === pf.agent_id && (() => {
+                const currentPage = pagesByAgent[pf.agent_id] || 1;
+                const totalPages = Math.ceil(pf.dossiers.length / DOSSIERS_PER_PAGE);
+                const paginated = pf.dossiers.slice((currentPage - 1) * DOSSIERS_PER_PAGE, currentPage * DOSSIERS_PER_PAGE);
+                return (
+                  <div style={{ padding: '0 20px 16px 20px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
+                          <th style={thStyle}>Client</th>
+                          <th style={thStyle}>Réf.</th>
+                          <th style={thStyle}>Niveau</th>
+                          <th style={thStyle}>Montant impayé</th>
+                          <th style={thStyle}>Retard</th>
+                          <th style={thStyle}>Agence</th>
+                          <th style={{ ...thStyle, textAlign: 'center' }}>Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
+                      </thead>
+                      <tbody>
+                        {paginated.map((d) => {
+                          const niv = getNiveau(d.jours_retard);
+                          return (
+                            <tr key={d.ref_credit} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                              <td style={tdStyle}>{d.nom_client}</td>
+                              <td style={{ ...tdStyle, fontSize: '0.8rem', color: '#9ca3af' }}>{d.ref_credit}</td>
+                              <td style={tdStyle}>
+                                <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: '600', color: niv.color, background: niv.bg }}>
+                                  {niv.label} <span style={{ fontWeight: '400', opacity: 0.8 }}>({niv.detail})</span>
+                                </span>
+                              </td>
+                              <td style={{ ...tdStyle, fontWeight: '600' }}>{d.montant_impaye.toLocaleString()} FCFA</td>
+                              <td style={{ ...tdStyle, color: niv.color, fontWeight: '600' }}>{d.jours_retard}j</td>
+                              <td style={tdStyle}>{d.agence}</td>
+                              <td style={{ ...tdStyle, textAlign: 'center' }}>
+                                <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
+                                  <button onClick={(e) => { e.stopPropagation(); handleAddComment(d); }}
+                                    style={{ padding: '3px 8px', background: 'rgba(59,130,246,0.2)', color: '#60a5fa', border: 'none', borderRadius: '4px', fontSize: '0.7rem', cursor: 'pointer' }}
+                                    title="Commentaire">💬</button>
+                                  <button onClick={(e) => { e.stopPropagation(); handleAddPromesse(d); }}
+                                    style={{ padding: '3px 8px', background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: 'none', borderRadius: '4px', fontSize: '0.7rem', cursor: 'pointer' }}
+                                    title="Promesse">💰</button>
+                                  <button onClick={(e) => { e.stopPropagation(); handleViewHistory(d); }}
+                                    style={{ padding: '3px 8px', background: 'rgba(168,85,247,0.2)', color: '#a78bfa', border: 'none', borderRadius: '4px', fontSize: '0.7rem', cursor: 'pointer' }}
+                                    title="Historique">📊</button>
+                                  {isAdmin && (
+                                    <button onClick={(e) => { e.stopPropagation(); handleDesattribuer(pf.agent_id, [d.ref_credit]); }}
+                                      style={{ padding: '3px 8px', background: 'rgba(239,68,68,0.2)', color: '#f87171', border: 'none', borderRadius: '4px', fontSize: '0.7rem', cursor: 'pointer' }}
+                                      title="Retirer">❌</button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
+                        <button
+                          disabled={currentPage === 1}
+                          onClick={(e) => { e.stopPropagation(); setPagesByAgent(p => ({ ...p, [pf.agent_id]: currentPage - 1 })); }}
+                          style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', color: currentPage === 1 ? '#4b5563' : '#cbd5e1', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}
+                        >←</button>
+                        <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>Page {currentPage} / {totalPages}</span>
+                        <button
+                          disabled={currentPage === totalPages}
+                          onClick={(e) => { e.stopPropagation(); setPagesByAgent(p => ({ ...p, [pf.agent_id]: currentPage + 1 })); }}
+                          style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', color: currentPage === totalPages ? '#4b5563' : '#cbd5e1', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}
+                        >→</button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           ))}
         </div>

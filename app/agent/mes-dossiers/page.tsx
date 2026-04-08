@@ -238,6 +238,7 @@ export default function MesDossiersPage() {
             onSubmit={handlePromesseSubmit}
             refCredit={selectedDossier.ref_credit}
             nomClient={selectedDossier.nom_client}
+            montantImpaye={selectedDossier.montant_impaye}
           />
           <HistoryModal
             isOpen={showHistory}

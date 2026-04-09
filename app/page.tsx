@@ -4,7 +4,6 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useEffect, useState, useRef } from 'react';
 import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
 import ScrollReveal from '@/components/home/ScrollReveal';
 import { authApi } from '@/lib/api/auth';
 
@@ -593,7 +592,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }

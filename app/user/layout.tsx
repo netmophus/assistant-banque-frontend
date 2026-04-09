@@ -3,7 +3,6 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
 import { authApi } from '@/lib/api/auth';
 
 export default function UserLayout({
@@ -36,7 +35,6 @@ export default function UserLayout({
         {children}
       </main>
 
-      <Footer />
     </div>
   );
 }

@@ -15,16 +15,16 @@ export default function Footer() {
 
       <div className="relative w-full px-6 sm:px-10 lg:px-16 pt-6 pb-5">
 
-        {/* Main grid */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
+        {/* Main grid — centré */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8 items-start justify-items-center text-center">
 
           {/* Brand */}
-          <div className="md:col-span-5">
+          <div className="md:col-span-4 flex flex-col items-center">
             <Link href="/" className="inline-flex items-center gap-3 mb-4 group">
               <div className="group-hover:drop-shadow-[0_0_10px_rgba(201,168,76,0.6)] transition-all duration-300">
                 <Logo size={38} />
               </div>
-              <div className="flex flex-col leading-tight">
+              <div className="flex flex-col leading-tight text-left">
                 <span className="text-lg font-black text-white tracking-wide">
                   Miznas<span className="text-[#C9A84C]"> Banking</span>
                 </span>
@@ -34,12 +34,12 @@ export default function Footer() {
               </div>
             </Link>
 
-            <p className="text-xs text-white/55 leading-relaxed max-w-sm mb-4">
+            <p className="text-xs text-white/55 leading-relaxed max-w-xs mb-4">
               L'intelligence artificielle au service de la décision bancaire.
               Conforme PCB-UEMOA, sécurité maximale, performance garantie.
             </p>
 
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex justify-center flex-wrap gap-1.5">
               {[
                 { label: 'PCB UEMOA', icon: '📊' },
                 { label: 'ISO 27001', icon: '🔒' },
@@ -55,37 +55,41 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Navigation */}
-          <div className="md:col-span-3">
-            <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C9A84C] mb-4 flex items-center gap-2">
-              <span className="w-4 h-px bg-[#C9A84C]/50 inline-block" />
-              Navigation
-            </h3>
-            <ul className="space-y-2.5">
-              {[
-                { label: 'Fonctionnalités', href: '/#features' },
-                { label: 'Avantages', href: '/#benefits' },
-                { label: 'Tableau de bord', href: '/user/dashboard' },
-                { label: 'Se connecter', href: '/login' },
-              ].map((link) => (
-                <li key={link.label}>
-                  <Link
-                    href={link.href}
-                    className="group flex items-center gap-2 text-xs text-white/60 hover:text-white transition-colors duration-200"
-                  >
-                    <span className="w-1 h-1 rounded-full bg-[#1B3A8C] group-hover:bg-[#C9A84C] transition-colors flex-shrink-0" />
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {/* Navigation — encadrée */}
+          <div className="md:col-span-4 flex flex-col items-center">
+            <div className="rounded-2xl border border-[#C9A84C]/20 bg-[#1B3A8C]/8 px-8 py-5 w-full max-w-xs">
+              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C9A84C] mb-4 flex items-center justify-center gap-2">
+                <span className="w-4 h-px bg-[#C9A84C]/50 inline-block" />
+                Navigation
+                <span className="w-4 h-px bg-[#C9A84C]/50 inline-block" />
+              </h3>
+              <ul className="space-y-2.5">
+                {[
+                  { label: 'Fonctionnalités', href: '/#features' },
+                  { label: 'Avantages', href: '/#benefits' },
+                  { label: 'Tableau de bord', href: '/user/dashboard' },
+                  { label: 'Se connecter', href: '/login' },
+                ].map((link) => (
+                  <li key={link.label}>
+                    <Link
+                      href={link.href}
+                      className="group flex items-center justify-center gap-2 text-xs text-white/60 hover:text-white transition-colors duration-200"
+                    >
+                      <span className="w-1 h-1 rounded-full bg-[#1B3A8C] group-hover:bg-[#C9A84C] transition-colors flex-shrink-0" />
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* Contact */}
-          <div className="md:col-span-4">
+          <div className="md:col-span-4 flex flex-col items-center">
             <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C9A84C] mb-4 flex items-center gap-2">
               <span className="w-4 h-px bg-[#C9A84C]/50 inline-block" />
               Contact & Support
+              <span className="w-4 h-px bg-[#C9A84C]/50 inline-block" />
             </h3>
             <ul className="space-y-3">
               <li>
@@ -116,14 +120,15 @@ export default function Footer() {
         {/* Divider */}
         <div className="h-px bg-gradient-to-r from-transparent via-[#C9A84C]/25 to-transparent mb-4" />
 
-        {/* Bottom bar */}
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+        {/* Bottom bar — centré */}
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] shadow-[0_0_6px_rgba(34,197,94,0.6)]" />
             <p className="text-[10px] text-white/40">
               © {currentYear} Miznas Banking · Tous droits réservés
             </p>
           </div>
+          <span className="hidden sm:block w-px h-3 bg-white/15" />
           <div className="flex items-center gap-5 text-[10px] text-white/40">
             {['Confidentialité', 'Conditions d\'utilisation', 'Mentions légales'].map((label) => (
               <a key={label} href="#" className="hover:text-white/80 transition-colors duration-200">

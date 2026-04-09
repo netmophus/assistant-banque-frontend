@@ -57,7 +57,7 @@ export default function Footer() {
 
           {/* Navigation — encadrée */}
           <div className="md:col-span-4 flex flex-col items-center">
-            <div className="rounded-2xl border border-[#C9A84C]/20 bg-[#1B3A8C]/8 px-8 py-5 w-full max-w-xs">
+            <div className="rounded-2xl border border-[#2563EB] bg-[#1B3A8C]/15 px-8 py-5 w-full max-w-xs">
               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C9A84C] mb-4 flex items-center justify-center gap-2">
                 <span className="w-4 h-px bg-[#C9A84C]/50 inline-block" />
                 Navigation

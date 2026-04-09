@@ -204,21 +204,6 @@ const RepartitionCharts: React.FC<RepartitionChartsProps> = ({
           '#10b981'
         )}
 
-        {/* Répartition par gestionnaires */}
-        {renderRepartitionCard(
-          'Gestionnaires',
-          repartitionGestionnaires,
-          '👤',
-          '#8b5cf6'
-        )}
-
-        {/* Répartition par produits */}
-        {renderRepartitionCard(
-          'Produits',
-          repartitionProduits,
-          '📦',
-          '#ef4444'
-        )}
       </div>
     </div>
   );

@@ -1154,20 +1154,6 @@ const DashboardTab = () => {
             </div>
           ) : (
             <>
-              {/* Statistiques détaillées */}
-              <DetailedStats 
-                kpis={dashboardDetaille?.kpis || {
-                  total_montant_impaye: statistiques?.total_montant_impaye || 0,
-                  total_credits: statistiques?.total_credits || 0,
-                  total_encours: 0,
-                  montant_moyen_par_credit: 0,
-                  ratio_impaye_encours_moyen: statistiques?.ratio_impaye_encours_moyen || 0,
-                  candidats_restructuration: statistiques?.candidats_restructuration || 0,
-                  taux_impayes: 0
-                }} 
-                evolution={dashboardDetaille?.evolution}
-              />
-
               {/* Répartitions détaillées */}
               <RepartitionCharts 
                 repartitionTranches={dashboardDetaille?.repartition_tranches || statistiques?.repartition_tranches || {}}

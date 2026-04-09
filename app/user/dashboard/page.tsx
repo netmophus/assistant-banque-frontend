@@ -561,13 +561,6 @@ export default function UserDashboard() {
 
   const statCards = [
     {
-      id: 'knowledge',
-      label: 'Questions posées',
-      value: stats.questionsAsked,
-      icon: <IcChat />,
-      highlight: true,
-    },
-    {
       id: 'formations',
       label: 'Formations complétées',
       value: stats.formationsCompleted,
@@ -579,13 +572,6 @@ export default function UserDashboard() {
       label: 'Dossiers analysés',
       value: stats.creditsAnalyzed,
       icon: <IcCard />,
-      highlight: false,
-    },
-    {
-      id: 'documents',
-      label: 'Documents accessibles',
-      value: stats.documentsAccessible,
-      icon: <IcFolder />,
       highlight: false,
     },
   ];

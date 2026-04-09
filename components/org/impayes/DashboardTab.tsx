@@ -1192,11 +1192,6 @@ const DashboardTab = () => {
                 />
               </div>
 
-              {/* Statistiques SMS et Recouvrement */}
-              <StatsSMSRecouvrement 
-                statistiquesSMS={dashboardDetaille?.statistiques_sms}
-                indicateursRecouvrement={dashboardDetaille?.indicateurs_recouvrement}
-              />
             </>
           )}
         </div>

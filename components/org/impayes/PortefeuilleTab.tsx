@@ -25,16 +25,10 @@ interface Portefeuille {
 const DOSSIERS_PER_PAGE = 10;
 
 const getNiveau = (jours: number) => {
-  if (jours >= 90) return { label: 'Douteux/NPL', detail: 'Contentieux', color: '#ef4444', bg: 'rgba(239,68,68,0.12)' };
-  if (jours >= 60) return { label: 'Zone critique', detail: 'Mise en demeure', color: '#f97316', bg: 'rgba(249,115,22,0.12)' };
-  if (jours >= 30) return { label: 'Retard signif.', detail: 'Deuxième relance', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)' };
-  return { label: 'Retard léger', detail: 'Première relance', color: '#22c55e', bg: 'rgba(34,197,94,0.12)' };
-};
-
-// Styles pour les options des selects
-const selectOptionStyle: React.CSSProperties = {
-  background: '#1e293b',
-  color: '#fff',
+  if (jours >= 90) return { label: 'Douteux/NPL', detail: 'Contentieux', color: '#ef4444', bg: 'rgba(239,68,68,0.12)', tw: { text: 'text-red-400', bg: 'bg-red-500/10', border: 'border-red-500/20' } };
+  if (jours >= 60) return { label: 'Zone critique', detail: 'Mise en demeure', color: '#f97316', bg: 'rgba(249,115,22,0.12)', tw: { text: 'text-orange-400', bg: 'bg-orange-500/10', border: 'border-orange-500/20' } };
+  if (jours >= 30) return { label: 'Retard signif.', detail: 'Deuxième relance', color: '#f59e0b', bg: 'rgba(245,158,11,0.12)', tw: { text: 'text-amber-400', bg: 'bg-amber-500/10', border: 'border-amber-500/20' } };
+  return { label: 'Retard léger', detail: 'Première relance', color: '#22c55e', bg: 'rgba(34,197,94,0.12)', tw: { text: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/20' } };
 };
 
 const PortefeuilleTab = () => {
@@ -82,13 +76,12 @@ const PortefeuilleTab = () => {
         console.error('Erreur lors de la récupération de l\'utilisateur:', error);
       }
     };
-    
+
     fetchUser();
     loadPortefeuilles();
   }, []);
 
   useEffect(() => {
-    // Charger les départements uniquement pour les admins
     if (currentUser?.role === 'admin') {
       loadDepartments();
     }
@@ -228,9 +221,8 @@ const PortefeuilleTab = () => {
     setSelectedDossier(dossier);
     setShowHistoryModal(true);
     setLoadingHistory(true);
-    
+
     try {
-      // Charger l'historique depuis le backend
       const response = await apiClient.get<any>(`/impayes/journal?ref_credit=${dossier.ref_credit}`);
       setHistorique(response?.actions || []);
     } catch (error) {
@@ -249,8 +241,7 @@ const PortefeuilleTab = () => {
         description: commentaire,
         utilisateur: currentUser?.full_name || currentUser?.email
       });
-      
-      // Recharger l'historique si la modal est ouverte
+
       if (showHistoryModal && selectedDossier) {
         await handleViewHistory(selectedDossier);
       }
@@ -262,7 +253,6 @@ const PortefeuilleTab = () => {
 
   const handlePromesseSubmit = async (montant: number, datePromesse: string, commentaire: string) => {
     try {
-      // Créer la promesse
       await apiClient.post('/impayes/promesses', {
         ref_credit: selectedDossier?.ref_credit,
         nom_client: selectedDossier?.nom_client,
@@ -271,8 +261,7 @@ const PortefeuilleTab = () => {
         commentaire: commentaire,
         utilisateur: currentUser?.full_name || currentUser?.email
       });
-      
-      // Ajouter au journal
+
       await apiClient.post('/impayes/journal', {
         ref_credit: selectedDossier?.ref_credit,
         type_action: 'promesse',
@@ -280,8 +269,7 @@ const PortefeuilleTab = () => {
         utilisateur: currentUser?.full_name || currentUser?.email,
         montant: montant
       });
-      
-      // Recharger l'historique si la modal est ouverte
+
       if (showHistoryModal && selectedDossier) {
         await handleViewHistory(selectedDossier);
       }
@@ -343,265 +331,300 @@ const PortefeuilleTab = () => {
   const totalMontant = portefeuilles.reduce((s, p) => s + p.montant_total, 0);
 
   return (
-    <div>
-      {/* Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-        <div style={cardStyle}>
-          <div style={cardLabel}>Agents</div>
-          <div style={{ ...cardValue, color: '#3b82f6' }}>{portefeuilles.length}</div>
-        </div>
-        <div style={cardStyle}>
-          <div style={cardLabel}>Dossiers attribues</div>
-          <div style={{ ...cardValue, color: '#22c55e' }}>{totalDossiers}</div>
-        </div>
-        <div style={cardStyle}>
-          <div style={cardLabel}>Montant total</div>
-          <div style={{ ...cardValue, color: '#f59e0b', fontSize: '1rem' }}>{totalMontant.toLocaleString()} FCFA</div>
-        </div>
+    <div className="space-y-5">
+
+      {/* ── KPI Cards ───────────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {[
+          { label: 'Agents',            value: portefeuilles.length,              accent: '#3b82f6', border: 'border-blue-500/20',    glow: 'from-blue-500/8' },
+          { label: 'Dossiers attribués', value: totalDossiers,                     accent: '#22c55e', border: 'border-emerald-500/20', glow: 'from-emerald-500/8' },
+          { label: 'Montant total',      value: `${totalMontant.toLocaleString('fr-FR')} FCFA`, accent: '#f59e0b', border: 'border-amber-500/20', glow: 'from-amber-500/8' },
+        ].map(k => (
+          <div key={k.label} className={`relative overflow-hidden rounded-2xl border ${k.border} bg-gradient-to-br ${k.glow} to-transparent p-4`}>
+            <div className="absolute -right-3 -top-3 h-14 w-14 rounded-full opacity-20" style={{ background: k.accent, filter: 'blur(16px)' }} />
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{k.label}</p>
+            <p className="mt-1 text-xl font-black tabular-nums" style={{ color: k.accent }}>{k.value}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Actions */}
+      {/* ── Bouton attribution (admin) ───────────────────────────────────────── */}
       {isAdmin && (
-        <div style={{ marginBottom: '16px' }}>
+        <div>
           <button
             onClick={() => setShowForm(!showForm)}
-            style={{
-              padding: '8px 18px',
-              background: showForm ? 'rgba(255,255,255,0.1)' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-              color: '#fff', border: 'none', borderRadius: '8px',
-              fontWeight: '600', fontSize: '0.85rem', cursor: 'pointer',
-            }}
+            className={`rounded-xl px-4 py-2 text-sm font-semibold transition-all ${
+              showForm
+                ? 'border border-white/10 bg-white/5 text-slate-300 hover:bg-white/10'
+                : 'bg-blue-600 text-white hover:bg-blue-500 shadow-lg shadow-blue-500/20'
+            }`}
           >
             {showForm ? 'Fermer' : '+ Attribuer des dossiers'}
           </button>
         </div>
       )}
 
-      {/* Formulaire */}
+      {/* ── Formulaire attribution ───────────────────────────────────────────── */}
       {showForm && isAdmin && (
         <form
           onSubmit={handleAttribuer}
-          style={{
-            background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.3)',
-            borderRadius: '12px', padding: '20px', marginBottom: '20px',
-          }}
+          className="rounded-2xl border border-blue-500/25 bg-blue-500/5 p-5 space-y-4"
         >
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
+          <p className="text-sm font-bold text-blue-300">Attribution de dossiers</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
-              <label style={labelStyle}>Département *</label>
-              <select value={formDepartmentId} onChange={(e) => setFormDepartmentId(e.target.value)} style={inputStyle} required>
-                <option value="" style={selectOptionStyle}>Sélectionner...</option>
-                {departments.map((d) => (
-                  <option key={d.id} value={d.id} style={selectOptionStyle}>
-                    {d.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label style={labelStyle}>Service</label>
-              <select 
-                value={formServiceId} 
-                onChange={(e) => setFormServiceId(e.target.value)} 
-                style={inputStyle}
-                disabled={!formDepartmentId}
+              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Département *</label>
+              <select
+                value={formDepartmentId}
+                onChange={(e) => setFormDepartmentId(e.target.value)}
+                required
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/40 transition-all cursor-pointer"
               >
-                <option value="" style={selectOptionStyle}>Tous les services</option>
-                {services.map((s) => (
-                  <option key={s.id} value={s.id} style={selectOptionStyle}>
-                    {s.name}
-                  </option>
+                <option value="" className="bg-[#0f1629]">Sélectionner...</option>
+                {departments.map((d) => (
+                  <option key={d.id} value={d.id} className="bg-[#0f1629]">{d.name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label style={labelStyle}>Agent *</label>
-              <select 
-                value={formAgentId} 
+              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Service</label>
+              <select
+                value={formServiceId}
+                onChange={(e) => setFormServiceId(e.target.value)}
+                disabled={!formDepartmentId}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/40 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <option value="" className="bg-[#0f1629]">Tous les services</option>
+                {services.map((s) => (
+                  <option key={s.id} value={s.id} className="bg-[#0f1629]">{s.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Agent *</label>
+              <select
+                value={formAgentId}
                 onChange={(e) => {
                   const agentId = e.target.value;
                   setFormAgentId(agentId);
                   const selectedAgent = agents.find(a => a.id === agentId);
                   setFormAgentNom(selectedAgent?.full_name || '');
-                }} 
-                style={inputStyle} 
+                }}
                 required
                 disabled={!formDepartmentId}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:border-blue-500/40 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <option value="" style={selectOptionStyle}>Sélectionner...</option>
+                <option value="" className="bg-[#0f1629]">Sélectionner...</option>
                 {agents.map((a) => (
-                  <option key={a.id} value={a.id} style={selectOptionStyle}>
-                    {a.full_name}
-                  </option>
+                  <option key={a.id} value={a.id} className="bg-[#0f1629]">{a.full_name}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label style={labelStyle}>Nom Agent</label>
-              <input 
-                value={formAgentNom} 
-                onChange={(e) => setFormAgentNom(e.target.value)} 
-                style={inputStyle} 
-                placeholder="Auto-rempli" 
-                readOnly 
+              <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Nom agent</label>
+              <input
+                value={formAgentNom}
+                onChange={(e) => setFormAgentNom(e.target.value)}
+                placeholder="Auto-rempli"
+                readOnly
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-400 placeholder-slate-600 focus:outline-none transition-all"
               />
             </div>
           </div>
-          <div style={{ marginBottom: '12px' }}>
-            <label style={labelStyle}>References credits (separees par virgule)</label>
+          <div>
+            <label className="mb-1 block text-[11px] font-semibold uppercase tracking-wider text-slate-500">Références crédits (séparées par virgule)</label>
             <textarea
               value={formRefs}
               onChange={(e) => setFormRefs(e.target.value)}
-              style={{ ...inputStyle, minHeight: '60px', resize: 'vertical' }}
               placeholder="REF-001, REF-002, REF-003"
+              rows={3}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-blue-500/40 transition-all resize-y"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            style={{
-              padding: '10px 24px',
-              background: loading ? '#4b5563' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
-              color: '#fff', border: 'none', borderRadius: '8px',
-              fontWeight: '600', cursor: loading ? 'not-allowed' : 'pointer',
-            }}
+            className="rounded-xl bg-blue-600 px-5 py-2 text-sm font-bold text-white hover:bg-blue-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/20"
           >
             {loading ? 'Attribution...' : 'Attribuer'}
           </button>
         </form>
       )}
 
+      {/* ── Erreur ──────────────────────────────────────────────────────────── */}
       {error && (
-        <div style={{ padding: '12px', background: 'rgba(239,68,68,0.15)', borderRadius: '8px', color: '#f87171', marginBottom: '12px' }}>{error}</div>
-      )}
-
-      {loading && portefeuilles.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#CBD5E1' }}>Chargement...</div>
-      ) : portefeuilles.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>Aucun portefeuille configure</div>
-      ) : (
-        <div style={{ display: 'grid', gap: '12px' }}>
-          {portefeuilles.map((pf) => (
-            <div
-              key={pf.agent_id}
-              style={{
-                background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '12px', overflow: 'hidden',
-              }}
-            >
-              <div
-                style={{
-                  padding: '16px 20px', display: 'flex', justifyContent: 'space-between',
-                  alignItems: 'center', cursor: 'pointer', flexWrap: 'wrap', gap: '8px',
-                }}
-                onClick={() => setExpandedAgent(expandedAgent === pf.agent_id ? null : pf.agent_id)}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '1.1rem', fontWeight: '700', color: '#fff' }}>
-                    {pf.agent_nom}
-                  </span>
-                  <span style={{ color: '#3b82f6', fontWeight: '600', fontSize: '0.85rem' }}>{pf.nombre_dossiers} dossiers</span>
-                  <span style={{ color: '#f59e0b', fontWeight: '600', fontSize: '0.85rem' }}>{pf.montant_total.toLocaleString()} FCFA</span>
-                  {pf.promesses_en_cours > 0 && (
-                    <span style={{ color: '#8b5cf6', fontSize: '0.8rem' }}>{pf.promesses_en_cours} promesses</span>
-                  )}
-                </div>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleImprimerAgent(pf); }}
-                    style={{ padding: '4px 10px', background: 'rgba(59,130,246,0.15)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '6px', color: '#60a5fa', fontSize: '0.75rem', cursor: 'pointer', fontWeight: '600' }}
-                    title="Imprimer le rapport de cet agent"
-                  >
-                    🖨️ Rapport
-                  </button>
-                  <span style={{ color: '#6b7280', fontSize: '1.2rem' }}>
-                    {expandedAgent === pf.agent_id ? '▲' : '▼'}
-                  </span>
-                </div>
-              </div>
-
-              {expandedAgent === pf.agent_id && (() => {
-                const currentPage = pagesByAgent[pf.agent_id] || 1;
-                const totalPages = Math.ceil(pf.dossiers.length / DOSSIERS_PER_PAGE);
-                const paginated = pf.dossiers.slice((currentPage - 1) * DOSSIERS_PER_PAGE, currentPage * DOSSIERS_PER_PAGE);
-                return (
-                  <div style={{ padding: '0 20px 16px 20px' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                      <thead>
-                        <tr style={{ background: 'rgba(255,255,255,0.03)' }}>
-                          <th style={thStyle}>Client</th>
-                          <th style={thStyle}>Réf.</th>
-                          <th style={thStyle}>Niveau</th>
-                          <th style={thStyle}>Montant impayé</th>
-                          <th style={thStyle}>Retard</th>
-                          <th style={thStyle}>Agence</th>
-                          <th style={{ ...thStyle, textAlign: 'center' }}>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {paginated.map((d) => {
-                          const niv = getNiveau(d.jours_retard);
-                          return (
-                            <tr key={d.ref_credit} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                              <td style={tdStyle}>{d.nom_client}</td>
-                              <td style={{ ...tdStyle, fontSize: '0.8rem', color: '#9ca3af' }}>{d.ref_credit}</td>
-                              <td style={tdStyle}>
-                                <span style={{ padding: '2px 8px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: '600', color: niv.color, background: niv.bg }}>
-                                  {niv.label} <span style={{ fontWeight: '400', opacity: 0.8 }}>({niv.detail})</span>
-                                </span>
-                              </td>
-                              <td style={{ ...tdStyle, fontWeight: '600' }}>{d.montant_impaye.toLocaleString()} FCFA</td>
-                              <td style={{ ...tdStyle, color: niv.color, fontWeight: '600' }}>{d.jours_retard}j</td>
-                              <td style={tdStyle}>{d.agence}</td>
-                              <td style={{ ...tdStyle, textAlign: 'center' }}>
-                                <div style={{ display: 'flex', gap: '4px', justifyContent: 'center', flexWrap: 'wrap' }}>
-                                  <button onClick={(e) => { e.stopPropagation(); handleAddComment(d); }}
-                                    style={{ padding: '3px 8px', background: 'rgba(59,130,246,0.2)', color: '#60a5fa', border: 'none', borderRadius: '4px', fontSize: '0.7rem', cursor: 'pointer' }}
-                                    title="Commentaire">💬</button>
-                                  <button onClick={(e) => { e.stopPropagation(); handleAddPromesse(d); }}
-                                    style={{ padding: '3px 8px', background: 'rgba(34,197,94,0.2)', color: '#4ade80', border: 'none', borderRadius: '4px', fontSize: '0.7rem', cursor: 'pointer' }}
-                                    title="Promesse">💰</button>
-                                  <button onClick={(e) => { e.stopPropagation(); handleViewHistory(d); }}
-                                    style={{ padding: '3px 8px', background: 'rgba(168,85,247,0.2)', color: '#a78bfa', border: 'none', borderRadius: '4px', fontSize: '0.7rem', cursor: 'pointer' }}
-                                    title="Historique">📊</button>
-                                  {isAdmin && (
-                                    <button onClick={(e) => { e.stopPropagation(); handleDesattribuer(pf.agent_id, [d.ref_credit]); }}
-                                      style={{ padding: '3px 8px', background: 'rgba(239,68,68,0.2)', color: '#f87171', border: 'none', borderRadius: '4px', fontSize: '0.7rem', cursor: 'pointer' }}
-                                      title="Retirer">❌</button>
-                                  )}
-                                </div>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px', marginTop: '12px' }}>
-                        <button
-                          disabled={currentPage === 1}
-                          onClick={(e) => { e.stopPropagation(); setPagesByAgent(p => ({ ...p, [pf.agent_id]: currentPage - 1 })); }}
-                          style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', color: currentPage === 1 ? '#4b5563' : '#cbd5e1', cursor: currentPage === 1 ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}
-                        >←</button>
-                        <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>Page {currentPage} / {totalPages}</span>
-                        <button
-                          disabled={currentPage === totalPages}
-                          onClick={(e) => { e.stopPropagation(); setPagesByAgent(p => ({ ...p, [pf.agent_id]: currentPage + 1 })); }}
-                          style={{ padding: '4px 10px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '6px', color: currentPage === totalPages ? '#4b5563' : '#cbd5e1', cursor: currentPage === totalPages ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}
-                        >→</button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
-            </div>
-          ))}
+        <div className="flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+          <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /></svg>
+          {error}
         </div>
       )}
 
-      {/* Modales */}
+      {/* ── Liste portefeuilles ──────────────────────────────────────────────── */}
+      {loading && portefeuilles.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+          <div className="mb-4 h-10 w-10 animate-spin rounded-full border-[3px] border-blue-500/20 border-t-blue-500" />
+          <p className="text-sm">Chargement des portefeuilles…</p>
+        </div>
+      ) : portefeuilles.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+            <svg className="w-6 h-6 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+          </div>
+          <p className="text-sm font-semibold text-slate-300">Aucun portefeuille configuré</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {portefeuilles.map((pf) => {
+            const isOpen = expandedAgent === pf.agent_id;
+            const currentPage = pagesByAgent[pf.agent_id] || 1;
+            const totalPages = Math.ceil(pf.dossiers.length / DOSSIERS_PER_PAGE);
+            const paginated = pf.dossiers.slice((currentPage - 1) * DOSSIERS_PER_PAGE, currentPage * DOSSIERS_PER_PAGE);
+
+            return (
+              <div
+                key={pf.agent_id}
+                className="overflow-hidden rounded-2xl border border-white/[0.07] bg-white/[0.03] transition-all duration-200 hover:border-white/12"
+              >
+                {/* ── Header agent ── */}
+                <div
+                  className="flex flex-wrap items-center justify-between gap-3 px-5 py-4 cursor-pointer"
+                  onClick={() => setExpandedAgent(isOpen ? null : pf.agent_id)}
+                >
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/15">
+                      <svg className="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    </div>
+                    <span className="text-base font-bold text-white">{pf.agent_nom}</span>
+                    <span className="rounded-full border border-blue-500/25 bg-blue-500/10 px-2.5 py-0.5 text-xs font-semibold text-blue-400">
+                      {pf.nombre_dossiers} dossier{pf.nombre_dossiers > 1 ? 's' : ''}
+                    </span>
+                    <span className="text-xs font-semibold text-amber-400 tabular-nums">
+                      {pf.montant_total.toLocaleString('fr-FR')} FCFA
+                    </span>
+                    {pf.promesses_en_cours > 0 && (
+                      <span className="text-xs text-violet-400">{pf.promesses_en_cours} promesse{pf.promesses_en_cours > 1 ? 's' : ''}</span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleImprimerAgent(pf); }}
+                      className="rounded-lg border border-blue-500/25 bg-blue-500/10 px-3 py-1.5 text-[11px] font-semibold text-blue-400 hover:bg-blue-500/20 transition-colors"
+                    >
+                      Rapport
+                    </button>
+                    <svg className={`w-4 h-4 text-slate-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* ── Expanded dossiers ── */}
+                {isOpen && (
+                  <div className="border-t border-white/5 bg-white/[0.02]">
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead>
+                          <tr className="border-b border-white/5">
+                            {['Client', 'Réf.', 'Niveau', 'Montant impayé', 'Retard', 'Agence', 'Actions'].map(h => (
+                              <th key={h} className="bg-white/[0.02] px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">{h}</th>
+                            ))}
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {paginated.map((d, idx) => {
+                            const niv = getNiveau(d.jours_retard);
+                            return (
+                              <tr key={d.ref_credit} className={`border-b border-white/[0.03] transition-colors hover:bg-white/[0.04] ${idx % 2 !== 0 ? 'bg-white/[0.015]' : ''}`}>
+                                <td className="px-4 py-3 max-w-[160px] truncate text-sm font-medium text-slate-200">{d.nom_client}</td>
+                                <td className="px-4 py-3">
+                                  <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[11px] font-semibold text-white/90">{d.ref_credit}</span>
+                                </td>
+                                <td className="px-4 py-3">
+                                  <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${niv.tw.text} ${niv.tw.bg} ${niv.tw.border}`}>
+                                    {niv.label}
+                                    <span className="ml-1 font-normal opacity-70">({niv.detail})</span>
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-right">
+                                  <span className="font-bold text-white/90 tabular-nums">{d.montant_impaye.toLocaleString('fr-FR')}</span>
+                                  <span className="ml-1 text-[10px] text-slate-600">FCFA</span>
+                                </td>
+                                <td className="px-4 py-3 text-center">
+                                  <span className={`inline-flex items-center justify-center rounded-full border px-2.5 py-0.5 text-[11px] font-bold tabular-nums ${niv.tw.text} ${niv.tw.bg} ${niv.tw.border}`}>
+                                    {d.jours_retard}j
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 text-xs text-slate-300">{d.agence}</td>
+                                <td className="px-4 py-3">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); handleAddComment(d); }}
+                                      className="rounded-lg border border-blue-500/25 bg-blue-500/10 px-2.5 py-1 text-[11px] font-semibold text-blue-400 hover:bg-blue-500/20 transition-colors"
+                                      title="Commentaire"
+                                    >
+                                      Comm.
+                                    </button>
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); handleAddPromesse(d); }}
+                                      className="rounded-lg border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-400 hover:bg-emerald-500/20 transition-colors"
+                                      title="Promesse"
+                                    >
+                                      Promesse
+                                    </button>
+                                    <button
+                                      onClick={(e) => { e.stopPropagation(); handleViewHistory(d); }}
+                                      className="rounded-lg border border-violet-500/25 bg-violet-500/10 px-2.5 py-1 text-[11px] font-semibold text-violet-400 hover:bg-violet-500/20 transition-colors"
+                                      title="Historique"
+                                    >
+                                      Hist.
+                                    </button>
+                                    {isAdmin && (
+                                      <button
+                                        onClick={(e) => { e.stopPropagation(); handleDesattribuer(pf.agent_id, [d.ref_credit]); }}
+                                        className="rounded-lg border border-red-500/25 bg-red-500/10 px-2.5 py-1 text-[11px] font-semibold text-red-400 hover:bg-red-500/20 transition-colors"
+                                        title="Retirer"
+                                      >
+                                        Retirer
+                                      </button>
+                                    )}
+                                  </div>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Pagination */}
+                    {totalPages > 1 && (
+                      <div className="flex items-center justify-center gap-3 border-t border-white/5 px-5 py-3">
+                        <button
+                          disabled={currentPage === 1}
+                          onClick={(e) => { e.stopPropagation(); setPagesByAgent(p => ({ ...p, [pf.agent_id]: currentPage - 1 })); }}
+                          className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          ←
+                        </button>
+                        <span className="text-xs text-slate-500">Page {currentPage} / {totalPages}</span>
+                        <button
+                          disabled={currentPage === totalPages}
+                          onClick={(e) => { e.stopPropagation(); setPagesByAgent(p => ({ ...p, [pf.agent_id]: currentPage + 1 })); }}
+                          className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                        >
+                          →
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ── Modales ─────────────────────────────────────────────────────────── */}
       {selectedDossier && (
         <>
           <CommentModal
@@ -611,7 +634,7 @@ const PortefeuilleTab = () => {
             refCredit={selectedDossier.ref_credit}
             nomClient={selectedDossier.nom_client}
           />
-          
+
           <PromesseModal
             isOpen={showPromesseModal}
             onClose={() => setShowPromesseModal(false)}
@@ -620,7 +643,7 @@ const PortefeuilleTab = () => {
             nomClient={selectedDossier.nom_client}
             montantImpaye={selectedDossier.montant_impaye}
           />
-          
+
           <HistoryModal
             isOpen={showHistoryModal}
             onClose={() => setShowHistoryModal(false)}
@@ -634,22 +657,5 @@ const PortefeuilleTab = () => {
     </div>
   );
 };
-
-const cardStyle: React.CSSProperties = {
-  background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-  borderRadius: '10px', padding: '14px', textAlign: 'center',
-};
-const cardLabel: React.CSSProperties = { fontSize: '0.75rem', color: '#9ca3af', marginBottom: '4px' };
-const cardValue: React.CSSProperties = { fontSize: '1.3rem', fontWeight: '700' };
-const labelStyle: React.CSSProperties = { color: '#CBD5E1', fontSize: '0.8rem', display: 'block', marginBottom: '4px' };
-const inputStyle: React.CSSProperties = {
-  padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.2)',
-  background: 'rgba(255,255,255,0.05)', color: '#fff', fontSize: '0.85rem', width: '100%',
-};
-const thStyle: React.CSSProperties = {
-  padding: '8px 10px', textAlign: 'left', color: '#9ca3af', fontSize: '0.75rem',
-  fontWeight: '600', borderBottom: '1px solid rgba(255,255,255,0.08)',
-};
-const tdStyle: React.CSSProperties = { padding: '8px 10px', color: '#CBD5E1', fontSize: '0.85rem' };
 
 export default PortefeuilleTab;

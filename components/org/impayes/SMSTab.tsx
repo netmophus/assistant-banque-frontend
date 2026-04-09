@@ -23,670 +23,296 @@ interface SMSStats {
   total: number;
 }
 
+const STATUS_CONFIG = {
+  PENDING: { label: 'En attente', color: 'text-amber-400',  bg: 'bg-amber-500/10',  border: 'border-amber-500/25',  dot: 'bg-amber-400' },
+  SENT:    { label: 'Envoyé',     color: 'text-emerald-400',bg: 'bg-emerald-500/10', border: 'border-emerald-500/25', dot: 'bg-emerald-400' },
+  FAILED:  { label: 'Échoué',     color: 'text-red-400',    bg: 'bg-red-500/10',     border: 'border-red-500/25',     dot: 'bg-red-400' },
+};
+
 const SMSTab = () => {
-  const { isMobile } = useResponsive();
+  const { isMobile }  = useResponsive();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [availableDates, setAvailableDates] = useState<string[]>([]);
-  const [selectedDateSituation, setSelectedDateSituation] = useState<string>('');
-  const [smsFilter, setSmsFilter] = useState<string>('');
-  const [smsStats, setSmsStats] = useState<SMSStats>({ pending: 0, sent: 0, failed: 0, total: 0 });
-  const [allMessages, setAllMessages] = useState<SMSMessage[]>([]);
-  const [allMessagesTotal, setAllMessagesTotal] = useState(0);
-  const [allMessagesPage, setAllMessagesPage] = useState(1);
+  const [error, setError]     = useState('');
+  const [availableDates, setAvailableDates]         = useState<string[]>([]);
+  const [selectedDateSituation, setSelectedDateSituation] = useState('');
+  const [smsFilter, setSmsFilter]                   = useState('');
+  const [smsStats, setSmsStats]                     = useState<SMSStats>({ pending: 0, sent: 0, failed: 0, total: 0 });
+  const [allMessages, setAllMessages]               = useState<SMSMessage[]>([]);
+  const [allMessagesTotal, setAllMessagesTotal]     = useState(0);
+  const [allMessagesPage, setAllMessagesPage]       = useState(1);
   const allMessagesLimit = 20;
 
   const getAuthHeaders = (): HeadersInit => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-    const headers: HeadersInit = {
-      'Content-Type': 'application/json',
-    };
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    return headers;
+    return { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) };
   };
 
-  useEffect(() => {
-    loadAvailableDates();
-    loadSmsStats();
-  }, []);
-
-  useEffect(() => {
-    loadAllMessages();
-  }, [allMessagesPage, smsFilter]);
+  useEffect(() => { loadAvailableDates(); loadSmsStats(); }, []);
+  useEffect(() => { loadAllMessages(); }, [allMessagesPage, smsFilter]);
 
   const loadAvailableDates = async () => {
     try {
-      const response = await fetch('/api/impayes/dates-situation', {
-        headers: getAuthHeaders(),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const dates = data.dates || [];
+      const r = await fetch('/api/impayes/dates-situation', { headers: getAuthHeaders() });
+      if (r.ok) {
+        const d = await r.json();
+        const dates = d.dates || [];
         setAvailableDates(dates);
-        if (dates.length > 0) {
-          setSelectedDateSituation(dates[0]);
-        }
+        if (dates.length > 0) setSelectedDateSituation(dates[0]);
       }
-    } catch (err) {
-      console.error('Erreur lors du chargement des dates:', err);
-    }
+    } catch {}
   };
 
   const loadSmsStats = async () => {
     try {
-      const response = await fetch('/api/impayes/messages/stats', {
-        headers: getAuthHeaders(),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSmsStats({
-          pending: data.pending || 0,
-          sent: data.sent || 0,
-          failed: data.failed || 0,
-          total: data.total || 0,
-        });
+      const r = await fetch('/api/impayes/messages/stats', { headers: getAuthHeaders() });
+      if (r.ok) {
+        const d = await r.json();
+        setSmsStats({ pending: d.pending || 0, sent: d.sent || 0, failed: d.failed || 0, total: d.total || 0 });
       }
-    } catch (err) {
-      console.error('Erreur lors du chargement des statistiques SMS:', err);
-    }
+    } catch {}
   };
 
   const loadAllMessages = async () => {
-    setLoading(true);
-    setError('');
+    setLoading(true); setError('');
     try {
-      const params = new URLSearchParams({
-        limit: allMessagesLimit.toString(),
-        skip: ((allMessagesPage - 1) * allMessagesLimit).toString(),
-      });
-
-      if (smsFilter) {
-        params.append('status', smsFilter);
-      }
-
-      const response = await fetch(`/api/impayes/messages/all?${params}`, {
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors du chargement des messages');
-      }
-
-      const data = await response.json();
-      setAllMessages(data.data || data || []);
-      setAllMessagesTotal(data.total || (data.data || data).length);
-    } catch (err: any) {
-      console.error('Erreur lors du chargement des messages:', err);
-      setError(err.message || 'Erreur lors du chargement des messages');
+      const p = new URLSearchParams({ limit: allMessagesLimit.toString(), skip: ((allMessagesPage - 1) * allMessagesLimit).toString() });
+      if (smsFilter) p.append('status', smsFilter);
+      const r = await fetch(`/api/impayes/messages/all?${p}`, { headers: getAuthHeaders() });
+      if (!r.ok) throw new Error('Erreur chargement messages');
+      const d = await r.json();
+      setAllMessages(d.data || d || []);
+      setAllMessagesTotal(d.total || (d.data || d).length);
+    } catch (e: any) {
+      setError(e.message || 'Erreur chargement');
     } finally {
       setLoading(false);
     }
   };
 
   const handleSendSMS = async () => {
-    const totalPending = smsStats.pending || allMessages.filter((m) => m.status === 'PENDING').length;
-    if (totalPending === 0) {
-      alert('Aucun message en attente');
-      return;
-    }
-
-    if (!window.confirm(`Voulez-vous envoyer ${totalPending} SMS en attente ?`)) {
-      return;
-    }
-
+    const totalPending = smsStats.pending || allMessages.filter(m => m.status === 'PENDING').length;
+    if (totalPending === 0) { alert('Aucun message en attente'); return; }
+    if (!window.confirm(`Voulez-vous envoyer ${totalPending} SMS en attente ?`)) return;
     setLoading(true);
     try {
-      const response = await fetch('/api/impayes/messages/send', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Erreur lors de l\'envoi');
-      }
-
-      const data = await response.json();
-      let detailMessage = data.message || 'SMS envoyés avec succès';
-
-      if (data.errors_detail && data.errors_detail.length > 0) {
-        detailMessage += '\n\nErreurs détaillées:\n' + data.errors_detail.slice(0, 5).join('\n');
-        if (data.errors_detail.length > 5) {
-          detailMessage += `\n... et ${data.errors_detail.length - 5} autres erreurs`;
-        }
-      }
-
-      alert(detailMessage);
-      loadSmsStats();
-      loadAllMessages();
-    } catch (err: any) {
-      alert('Erreur: ' + (err.message || 'Erreur lors de l\'envoi'));
-    } finally {
-      setLoading(false);
-    }
+      const r = await fetch('/api/impayes/messages/send', { method: 'POST', headers: getAuthHeaders() });
+      if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || 'Erreur envoi'); }
+      const d = await r.json();
+      let msg = d.message || 'SMS envoyés avec succès';
+      if (d.errors_detail?.length > 0) { msg += '\n\nErreurs:\n' + d.errors_detail.slice(0, 5).join('\n'); if (d.errors_detail.length > 5) msg += `\n... et ${d.errors_detail.length - 5} autres`; }
+      alert(msg); loadSmsStats(); loadAllMessages();
+    } catch (e: any) { alert('Erreur: ' + (e.message || 'Erreur envoi')); }
+    finally { setLoading(false); }
   };
 
   const handleRegenerateSMS = async () => {
-    if (!selectedDateSituation) {
-      alert('Veuillez sélectionner une date de situation pour régénérer les SMS');
-      return;
-    }
-
-    if (
-      !window.confirm(
-        `Voulez-vous régénérer les SMS pour la date ${selectedDateSituation} ?\n\nLes SMS existants (non envoyés) seront conservés, seuls les SMS manquants seront créés.`
-      )
-    ) {
-      return;
-    }
-
+    if (!selectedDateSituation) { alert('Veuillez sélectionner une date de situation'); return; }
+    if (!window.confirm(`Régénérer les SMS pour le ${selectedDateSituation} ?\n\nLes SMS existants (non envoyés) seront conservés.`)) return;
     setLoading(true);
     try {
-      const params = new URLSearchParams({ date_situation: selectedDateSituation });
-      const response = await fetch(`/api/impayes/messages/regenerate?${params}`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Erreur lors de la régénération');
-      }
-
-      const data = await response.json();
-      alert(data.message || 'SMS régénérés avec succès');
-      loadSmsStats();
-      loadAllMessages();
-    } catch (err: any) {
-      alert('Erreur: ' + (err.message || 'Erreur lors de la régénération'));
-    } finally {
-      setLoading(false);
-    }
+      const r = await fetch(`/api/impayes/messages/regenerate?date_situation=${selectedDateSituation}`, { method: 'POST', headers: getAuthHeaders() });
+      if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || 'Erreur régénération'); }
+      const d = await r.json(); alert(d.message || 'SMS régénérés'); loadSmsStats(); loadAllMessages();
+    } catch (e: any) { alert('Erreur: ' + e.message); }
+    finally { setLoading(false); }
   };
 
   const handleDeleteMessage = async (messageId: string) => {
-    if (!window.confirm('Voulez-vous vraiment supprimer ce SMS ?')) {
-      return;
-    }
-
+    if (!window.confirm('Supprimer ce SMS ?')) return;
     setLoading(true);
     try {
-      const response = await fetch(`/api/impayes/messages/${messageId}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Erreur lors de la suppression');
-      }
-
-      alert('SMS supprimé avec succès');
-      loadSmsStats();
-      loadAllMessages();
-    } catch (err: any) {
-      alert('Erreur: ' + (err.message || 'Erreur lors de la suppression'));
-    } finally {
-      setLoading(false);
-    }
+      const r = await fetch(`/api/impayes/messages/${messageId}`, { method: 'DELETE', headers: getAuthHeaders() });
+      if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || 'Erreur suppression'); }
+      alert('SMS supprimé'); loadSmsStats(); loadAllMessages();
+    } catch (e: any) { alert('Erreur: ' + e.message); }
+    finally { setLoading(false); }
   };
 
   const handleBulkDelete = async () => {
-    const totalToDelete = smsFilter
-      ? smsFilter === 'PENDING'
-        ? smsStats.pending
-        : smsFilter === 'SENT'
-          ? smsStats.sent
-          : smsStats.failed
-      : smsStats.total;
-
-    if (totalToDelete === 0) {
-      alert('Aucun SMS à supprimer');
-      return;
-    }
-
-    const filterLabel = smsFilter
-      ? smsFilter === 'PENDING'
-        ? 'en attente'
-        : smsFilter === 'SENT'
-          ? 'envoyés'
-          : 'échoués'
-      : 'tous';
-
-    if (!window.confirm(`Voulez-vous vraiment supprimer TOUS les SMS ${filterLabel} (${totalToDelete}) ?`)) {
-      return;
-    }
-
+    const totalToDelete = smsFilter ? (smsFilter === 'PENDING' ? smsStats.pending : smsFilter === 'SENT' ? smsStats.sent : smsStats.failed) : smsStats.total;
+    if (totalToDelete === 0) { alert('Aucun SMS à supprimer'); return; }
+    const filterLabel = smsFilter === 'PENDING' ? 'en attente' : smsFilter === 'SENT' ? 'envoyés' : smsFilter === 'FAILED' ? 'échoués' : 'tous';
+    if (!window.confirm(`Supprimer TOUS les SMS ${filterLabel} (${totalToDelete}) ?`)) return;
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (smsFilter) {
-        params.append('status', smsFilter);
-      } else {
-        params.append('status', 'ALL');
-      }
-
-      const response = await fetch(`/api/impayes/messages/bulk-delete?${params}`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || 'Erreur lors de la suppression');
-      }
-
-      const data = await response.json();
-      alert(data.message || 'SMS supprimés avec succès');
-      loadSmsStats();
-      loadAllMessages();
-    } catch (err: any) {
-      alert('Erreur: ' + (err.message || 'Erreur lors de la suppression'));
-    } finally {
-      setLoading(false);
-    }
+      const p = new URLSearchParams(); p.append('status', smsFilter || 'ALL');
+      const r = await fetch(`/api/impayes/messages/bulk-delete?${p}`, { method: 'POST', headers: getAuthHeaders() });
+      if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.detail || 'Erreur'); }
+      const d = await r.json(); alert(d.message || 'SMS supprimés'); loadSmsStats(); loadAllMessages();
+    } catch (e: any) { alert('Erreur: ' + e.message); }
+    finally { setLoading(false); }
   };
 
-  const filteredMessages = smsFilter ? allMessages.filter((m) => m.status === smsFilter) : allMessages;
-  const totalPending = smsStats.pending || allMessages.filter((m) => m.status === 'PENDING').length;
+  const filteredMessages = smsFilter ? allMessages.filter(m => m.status === smsFilter) : allMessages;
+  const totalPending = smsStats.pending || allMessages.filter(m => m.status === 'PENDING').length;
+  const totalToDelete = smsFilter ? (smsFilter === 'PENDING' ? smsStats.pending : smsFilter === 'SENT' ? smsStats.sent : smsStats.failed) : smsStats.total;
 
   return (
-    <div>
-      {/* En-tête avec actions */}
-      <div
-        style={{
-          marginBottom: '20px',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '10px',
-          padding: '1rem',
-          background: 'rgba(255, 255, 255, 0.05)',
-          borderRadius: '12px',
-          border: '1px solid rgba(211, 47, 47, 0.2)',
-        }}
-      >
-        <h3 style={{ margin: 0, color: '#fff', fontSize: isMobile ? '1.2rem' : '1.5rem' }}>Gestion des SMS</h3>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-          <select
-            value={smsFilter}
-            onChange={(e) => {
-              setSmsFilter(e.target.value);
-              setAllMessagesPage(1);
-            }}
-            style={{
-              padding: '8px 12px',
-              borderRadius: '8px',
-              border: '2px solid rgba(211, 47, 47, 0.3)',
-              background: 'rgba(255, 255, 255, 0.1)',
-              color: '#fff',
-              fontSize: '0.9rem',
-              cursor: 'pointer',
-            }}
-          >
-            <option value="" style={{ background: '#1a1f3a', color: '#fff' }}>
-              Tous les SMS
-            </option>
-            <option value="PENDING" style={{ background: '#1a1f3a', color: '#fff' }}>
-              En attente
-            </option>
-            <option value="SENT" style={{ background: '#1a1f3a', color: '#fff' }}>
-              Envoyés
-            </option>
-            <option value="FAILED" style={{ background: '#1a1f3a', color: '#fff' }}>
-              Échoués
-            </option>
-          </select>
+    <div className="space-y-5">
 
-          {selectedDateSituation && (
-            <button
-              onClick={handleRegenerateSMS}
-              disabled={loading}
-              style={{
-                padding: '10px 20px',
-                background: loading ? '#888' : 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontWeight: '600',
-                fontSize: '0.9rem',
-              }}
-              title={`Régénérer les SMS pour la date ${selectedDateSituation}`}
-            >
-              {loading ? '⏳ Régénération...' : '🔄 Régénérer SMS'}
-            </button>
-          )}
-
-          {totalPending > 0 && (
-            <button
-              onClick={handleSendSMS}
-              disabled={loading}
-              style={{
-                padding: '10px 20px',
-                background: loading ? '#888' : 'linear-gradient(135deg, #4caf50 0%, #2e7d32 100%)',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontWeight: '600',
-                fontSize: '0.9rem',
-              }}
-            >
-              {loading ? '⏳ Envoi...' : `📤 Envoyer ${totalPending} SMS`}
-            </button>
-          )}
-
-          {(() => {
-            const totalToDelete = smsFilter
-              ? smsFilter === 'PENDING'
-                ? smsStats.pending
-                : smsFilter === 'SENT'
-                  ? smsStats.sent
-                  : smsStats.failed
-              : smsStats.total;
-
-            return (
-              totalToDelete > 0 && (
-                <button
-                  onClick={handleBulkDelete}
-                  disabled={loading}
-                  style={{
-                    padding: '10px 20px',
-                    background: loading ? '#888' : 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    fontWeight: '600',
-                    fontSize: '0.9rem',
-                  }}
-                >
-                  {loading
-                    ? '⏳ Suppression...'
-                    : `🗑️ Supprimer tout${smsFilter ? ` (${smsFilter === 'PENDING' ? 'en attente' : smsFilter === 'SENT' ? 'envoyés' : 'échoués'})` : ''} (${totalToDelete})`}
-                </button>
-              )
-            );
-          })()}
-        </div>
+      {/* ── KPI Cards ───────────────────────────────────────────────────────── */}
+      <div className={`grid gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-4'}`}>
+        {[
+          { label: 'En attente', value: smsStats.pending, accent: '#f59e0b', border: 'border-amber-500/20',   glow: 'from-amber-500/8' },
+          { label: 'Envoyés',    value: smsStats.sent,    accent: '#22c55e', border: 'border-emerald-500/20', glow: 'from-emerald-500/8' },
+          { label: 'Échoués',    value: smsStats.failed,  accent: '#ef4444', border: 'border-red-500/20',     glow: 'from-red-500/8' },
+          { label: 'Total',      value: smsStats.total || allMessagesTotal, accent: '#3b82f6', border: 'border-blue-500/20', glow: 'from-blue-500/8' },
+        ].map(k => (
+          <div key={k.label} className={`relative overflow-hidden rounded-2xl border ${k.border} bg-gradient-to-br ${k.glow} to-transparent p-5`}>
+            <div className="absolute -right-4 -top-4 h-20 w-20 rounded-full opacity-15" style={{ background: k.accent, filter: 'blur(20px)' }} />
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">{k.label}</p>
+            <p className="mt-1 text-2xl font-black tabular-nums" style={{ color: k.accent }}>{k.value}</p>
+            <p className="mt-0.5 text-[11px] text-slate-500">messages</p>
+          </div>
+        ))}
       </div>
 
-      {/* Statistiques SMS */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: isMobile ? '1fr' : 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '15px',
-          marginBottom: '20px',
-        }}
-      >
-        <div
-          style={{
-            background: 'rgba(255, 152, 0, 0.1)',
-            padding: '15px',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            border: '1px solid rgba(255, 152, 0, 0.2)',
-          }}
+      {/* ── Barre d'actions ─────────────────────────────────────────────────── */}
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+        <select
+          value={smsFilter}
+          onChange={e => { setSmsFilter(e.target.value); setAllMessagesPage(1); }}
+          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white cursor-pointer focus:outline-none focus:border-[#d32f2f]/40 transition-all"
         >
-          <div style={{ fontSize: '0.9rem', color: '#CBD5E1', marginBottom: '5px' }}>En attente</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#ff9800' }}>
-            {smsStats.pending || allMessages.filter((m) => m.status === 'PENDING').length}
-          </div>
-        </div>
-        <div
-          style={{
-            background: 'rgba(76, 175, 80, 0.1)',
-            padding: '15px',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            border: '1px solid rgba(76, 175, 80, 0.2)',
-          }}
-        >
-          <div style={{ fontSize: '0.9rem', color: '#CBD5E1', marginBottom: '5px' }}>Envoyés</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#4caf50' }}>
-            {smsStats.sent || allMessages.filter((m) => m.status === 'SENT').length}
-          </div>
-        </div>
-        <div
-          style={{
-            background: 'rgba(244, 67, 54, 0.1)',
-            padding: '15px',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            border: '1px solid rgba(244, 67, 54, 0.2)',
-          }}
-        >
-          <div style={{ fontSize: '0.9rem', color: '#CBD5E1', marginBottom: '5px' }}>Échoués</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#f44336' }}>
-            {smsStats.failed || allMessages.filter((m) => m.status === 'FAILED').length}
-          </div>
-        </div>
-        <div
-          style={{
-            background: 'rgba(33, 150, 243, 0.1)',
-            padding: '15px',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-            border: '1px solid rgba(33, 150, 243, 0.2)',
-          }}
-        >
-          <div style={{ fontSize: '0.9rem', color: '#CBD5E1', marginBottom: '5px' }}>Total</div>
-          <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#2196f3' }}>
-            {smsStats.total || allMessagesTotal || allMessages.length}
-          </div>
-        </div>
+          <option value="" className="bg-[#0f1629]">Tous les SMS</option>
+          <option value="PENDING" className="bg-[#0f1629]">En attente</option>
+          <option value="SENT" className="bg-[#0f1629]">Envoyés</option>
+          <option value="FAILED" className="bg-[#0f1629]">Échoués</option>
+        </select>
+
+        {selectedDateSituation && (
+          <button onClick={handleRegenerateSMS} disabled={loading}
+            className="flex items-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-xs font-bold text-amber-400 hover:bg-amber-500/20 disabled:opacity-50 transition-all">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+            {loading ? 'Régénération…' : 'Régénérer SMS'}
+          </button>
+        )}
+
+        {totalPending > 0 && (
+          <button onClick={handleSendSMS} disabled={loading}
+            className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 px-4 py-2 text-xs font-bold text-white hover:opacity-90 disabled:opacity-50 transition-all">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" /></svg>
+            {loading ? 'Envoi…' : `Envoyer ${totalPending} SMS`}
+          </button>
+        )}
+
+        {totalToDelete > 0 && (
+          <button onClick={handleBulkDelete} disabled={loading}
+            className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs font-bold text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-all ml-auto">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            {loading ? 'Suppression…' : `Supprimer${smsFilter ? ` (${smsFilter === 'PENDING' ? 'en attente' : smsFilter === 'SENT' ? 'envoyés' : 'échoués'})` : ' tout'} (${totalToDelete})`}
+          </button>
+        )}
       </div>
 
+      {/* ── Erreur ──────────────────────────────────────────────────────────── */}
       {error && (
-        <div
-          style={{
-            padding: '1rem',
-            background: 'rgba(211, 47, 47, 0.2)',
-            color: '#ff6b6b',
-            borderRadius: '12px',
-            marginBottom: '1rem',
-            border: '1px solid rgba(211, 47, 47, 0.3)',
-          }}
-        >
-          ⚠️ {error}
-        </div>
+        <div className="flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-400">{error}</div>
       )}
 
-      {/* Liste des SMS */}
-      <div
-        style={{
-          background: 'rgba(255, 255, 255, 0.05)',
-          padding: '20px',
-          borderRadius: '16px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          border: '1px solid rgba(211, 47, 47, 0.2)',
-        }}
-      >
-        <h4 style={{ marginBottom: '15px', color: '#fff', fontSize: isMobile ? '1.1rem' : '1.3rem' }}>
-          {smsFilter === '' && `Tous les SMS (${smsStats.total || allMessagesTotal || allMessages.length})`}
-          {smsFilter === 'PENDING' && `SMS en attente (${smsStats.pending || allMessagesTotal || allMessages.length})`}
-          {smsFilter === 'SENT' && `SMS envoyés (${smsStats.sent || allMessagesTotal || allMessages.length})`}
-          {smsFilter === 'FAILED' && `SMS échoués (${smsStats.failed || allMessagesTotal || allMessages.length})`}
-        </h4>
+      {/* ── Table SMS ───────────────────────────────────────────────────────── */}
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-md overflow-hidden">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+          <div>
+            <h3 className="text-sm font-bold text-white">
+              {smsFilter === 'PENDING' ? 'SMS en attente' : smsFilter === 'SENT' ? 'SMS envoyés' : smsFilter === 'FAILED' ? 'SMS échoués' : 'Tous les SMS'}
+            </h3>
+            <p className="text-[11px] text-slate-500 mt-0.5">{allMessagesTotal} message{allMessagesTotal > 1 ? 's' : ''}</p>
+          </div>
+          {loading && (
+            <div className="flex items-center gap-2 text-xs text-slate-400">
+              <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-[#d32f2f]/30 border-t-[#d32f2f]" />
+              Actualisation…
+            </div>
+          )}
+        </div>
 
-        {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#CBD5E1' }}>
-            <p>Chargement...</p>
+        {loading && filteredMessages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+            <div className="mb-4 h-10 w-10 animate-spin rounded-full border-[3px] border-[#d32f2f]/20 border-t-[#d32f2f]" />
+            <p className="text-sm">Chargement…</p>
           </div>
         ) : filteredMessages.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '40px', color: '#CBD5E1' }}>
-            <p style={{ fontSize: '1.1rem', marginBottom: '10px' }}>Aucun SMS trouvé</p>
-            <p style={{ fontSize: '0.9rem', color: '#718096' }}>
-              {smsFilter === 'PENDING' && "Aucun SMS en attente. Les SMS sont générés automatiquement lors de l'import si :"}
-              {smsFilter === 'PENDING' && (
-                <ul style={{ textAlign: 'left', display: 'inline-block', marginTop: '10px', color: '#CBD5E1' }}>
-                  <li>Le client a un numéro de téléphone valide</li>
-                  <li>Un modèle SMS est configuré pour la tranche de retard</li>
-                </ul>
-              )}
-              {smsFilter !== 'PENDING' && 'Aucun SMS avec ce statut.'}
-            </p>
+          <div className="flex flex-col items-center justify-center py-16 text-slate-400">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-white/5">
+              <svg className="w-6 h-6 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+            </div>
+            <p className="text-sm font-semibold text-slate-300">Aucun SMS trouvé</p>
+            {smsFilter === 'PENDING' && (
+              <p className="mt-2 max-w-xs text-center text-xs text-slate-500">
+                Les SMS sont générés automatiquement lors de l'import si le client a un numéro valide et qu'un modèle est configuré.
+              </p>
+            )}
           </div>
         ) : (
           <>
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', color: '#CBD5E1' }}>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ background: 'rgba(211, 47, 47, 0.1)' }}>
-                    <th style={{ padding: '10px', textAlign: 'left', borderBottom: '2px solid rgba(211, 47, 47, 0.3)', color: '#fff' }}>
-                      Statut
-                    </th>
-                    <th style={{ padding: '10px', textAlign: 'left', borderBottom: '2px solid rgba(211, 47, 47, 0.3)', color: '#fff' }}>
-                      Destinataire
-                    </th>
-                    <th style={{ padding: '10px', textAlign: 'left', borderBottom: '2px solid rgba(211, 47, 47, 0.3)', color: '#fff' }}>
-                      Crédit
-                    </th>
-                    <th style={{ padding: '10px', textAlign: 'left', borderBottom: '2px solid rgba(211, 47, 47, 0.3)', color: '#fff' }}>
-                      Message (Longueur)
-                    </th>
-                    <th style={{ padding: '10px', textAlign: 'left', borderBottom: '2px solid rgba(211, 47, 47, 0.3)', color: '#fff' }}>
-                      Date
-                    </th>
-                    <th style={{ padding: '10px', textAlign: 'left', borderBottom: '2px solid rgba(211, 47, 47, 0.3)', color: '#fff' }}>
-                      Erreur
-                    </th>
-                    <th style={{ padding: '10px', textAlign: 'center', borderBottom: '2px solid rgba(211, 47, 47, 0.3)', color: '#fff' }}>
-                      Action
-                    </th>
+                  <tr className="border-b border-white/5">
+                    {['Statut','Destinataire','Crédit','Message','Date','Erreur','Action'].map(h => (
+                      <th key={h} className="bg-white/[0.02] px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-slate-500">{h}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredMessages.map((msg) => (
-                    <tr key={msg.id} style={{ borderBottom: '1px solid rgba(211, 47, 47, 0.1)' }}>
-                      <td style={{ padding: '10px' }}>
-                        {msg.status === 'PENDING' && (
-                          <span
-                            style={{
-                              padding: '4px 8px',
-                              background: 'rgba(255, 152, 0, 0.2)',
-                              color: '#ff9800',
-                              borderRadius: '4px',
-                              fontSize: '0.85rem',
-                              fontWeight: 'bold',
-                            }}
-                          >
-                            ⏳ En attente
+                  {filteredMessages.map((msg, idx) => {
+                    const sc = STATUS_CONFIG[msg.status];
+                    return (
+                      <tr key={msg.id} className={`border-b border-white/[0.03] transition-colors hover:bg-white/[0.04] ${idx % 2 !== 0 ? 'bg-white/[0.015]' : ''}`}>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-semibold ${sc.bg} ${sc.color} ${sc.border}`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${sc.dot}`} />
+                            {sc.label}
                           </span>
-                        )}
-                        {msg.status === 'SENT' && (
-                          <span
-                            style={{
-                              padding: '4px 8px',
-                              background: 'rgba(76, 175, 80, 0.2)',
-                              color: '#4caf50',
-                              borderRadius: '4px',
-                              fontSize: '0.85rem',
-                              fontWeight: 'bold',
-                            }}
-                          >
-                            ✅ Envoyé
-                          </span>
-                        )}
-                        {msg.status === 'FAILED' && (
-                          <span
-                            style={{
-                              padding: '4px 8px',
-                              background: 'rgba(244, 67, 54, 0.2)',
-                              color: '#f44336',
-                              borderRadius: '4px',
-                              fontSize: '0.85rem',
-                              fontWeight: 'bold',
-                            }}
-                          >
-                            ❌ Échoué
-                          </span>
-                        )}
-                      </td>
-                      <td style={{ padding: '10px', color: '#CBD5E1' }}>{msg.to}</td>
-                      <td style={{ padding: '10px', color: '#CBD5E1' }}>{msg.linked_credit}</td>
-                      <td style={{ padding: '10px', maxWidth: '500px' }}>
-                        <div style={{ marginBottom: '4px', fontSize: '0.8rem', color: '#CBD5E1', fontWeight: 'bold' }}>
-                          {msg.body?.length || 0} caractère(s)
-                        </div>
-                        <div
-                          style={{
-                            wordBreak: 'break-word',
-                            whiteSpace: 'pre-wrap',
-                            fontSize: '0.9rem',
-                            lineHeight: '1.4',
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            padding: '8px',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(211, 47, 47, 0.2)',
-                            maxHeight: '200px',
-                            overflowY: 'auto',
-                            color: '#CBD5E1',
-                          }}
-                        >
-                          {msg.body || '-'}
-                        </div>
-                      </td>
-                      <td style={{ padding: '10px', fontSize: '0.85rem', color: '#CBD5E1' }}>
-                        {msg.created_at ? new Date(msg.created_at).toLocaleString('fr-FR') : '-'}
-                        {msg.sent_at && (
-                          <div style={{ fontSize: '0.8rem', color: '#718096', marginTop: '2px' }}>
-                            Envoyé: {new Date(msg.sent_at).toLocaleString('fr-FR')}
+                        </td>
+                        <td className="px-4 py-3 font-mono text-xs text-slate-300">{msg.to}</td>
+                        <td className="px-4 py-3">
+                          <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-[11px] font-semibold text-white/80">{msg.linked_credit}</span>
+                        </td>
+                        <td className="px-4 py-3 max-w-xs">
+                          <p className="text-[10px] text-slate-500 mb-1">{msg.body?.length || 0} car.</p>
+                          <div className="max-h-24 overflow-y-auto rounded-lg border border-white/5 bg-white/[0.03] p-2 text-xs text-slate-300 leading-relaxed whitespace-pre-wrap break-words">
+                            {msg.body || '—'}
                           </div>
-                        )}
-                      </td>
-                      <td style={{ padding: '10px', fontSize: '0.85rem', color: '#f44336' }}>
-                        {msg.error_message || '-'}
-                      </td>
-                      <td style={{ padding: '10px', textAlign: 'center' }}>
-                        {msg.status === 'SENT' ? (
-                          <span style={{ fontSize: '0.85rem', color: '#718096' }} title="Les SMS envoyés sont conservés dans l'historique">
-                            📜 Archivé
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => handleDeleteMessage(msg.message_id)}
-                            disabled={loading}
-                            style={{
-                              padding: '6px 12px',
-                              background: 'linear-gradient(135deg, #f44336 0%, #d32f2f 100%)',
-                              color: '#fff',
-                              border: 'none',
-                              borderRadius: '8px',
-                              cursor: loading ? 'not-allowed' : 'pointer',
-                              fontSize: '0.85rem',
-                              fontWeight: '600',
-                            }}
-                            title="Supprimer ce SMS"
-                          >
-                            🗑️ Supprimer
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-slate-400 whitespace-nowrap">
+                          <div>{msg.created_at ? new Date(msg.created_at).toLocaleDateString('fr-FR') : '—'}</div>
+                          {msg.sent_at && <div className="text-[10px] text-slate-600 mt-0.5">{new Date(msg.sent_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</div>}
+                        </td>
+                        <td className="px-4 py-3 max-w-[120px] truncate text-xs text-red-400">
+                          {msg.error_message || <span className="text-slate-700">—</span>}
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {msg.status === 'SENT' ? (
+                            <span className="text-[11px] text-slate-600">Archivé</span>
+                          ) : (
+                            <button
+                              onClick={() => handleDeleteMessage(msg.message_id)}
+                              disabled={loading}
+                              className="rounded-lg border border-red-500/25 bg-red-500/10 px-2.5 py-1 text-[11px] font-semibold text-red-400 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
+                            >
+                              Supprimer
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
 
             {allMessagesTotal > allMessagesLimit && (
-              <Pagination
-                currentPage={allMessagesPage}
-                totalItems={allMessagesTotal}
-                itemsPerPage={allMessagesLimit}
-                currentItemsCount={filteredMessages.length}
-                onPageChange={(page) => {
-                  setAllMessagesPage(page);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-              />
+              <div className="border-t border-white/5 px-5 py-3">
+                <Pagination
+                  currentPage={allMessagesPage}
+                  totalItems={allMessagesTotal}
+                  itemsPerPage={allMessagesLimit}
+                  currentItemsCount={filteredMessages.length}
+                  onPageChange={p => { setAllMessagesPage(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                />
+              </div>
             )}
           </>
         )}
@@ -696,4 +322,3 @@ const SMSTab = () => {
 };
 
 export default SMSTab;
-

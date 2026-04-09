@@ -13,12 +13,12 @@ export default function Footer() {
       <div className="absolute top-0 right-0 w-[300px] h-[150px] bg-[#1B3A8C]/10 rounded-full blur-[70px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[200px] h-[120px] bg-[#1B3A8C]/8 rounded-full blur-[60px] pointer-events-none" />
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-5">
+      <div className="relative w-full px-6 sm:px-10 lg:px-16 pt-6 pb-5">
 
         {/* Main grid */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-8">
 
-          {/* Brand — large */}
+          {/* Brand */}
           <div className="md:col-span-5">
             <Link href="/" className="inline-flex items-center gap-3 mb-4 group">
               <div className="group-hover:drop-shadow-[0_0_10px_rgba(201,168,76,0.6)] transition-all duration-300">
@@ -34,12 +34,11 @@ export default function Footer() {
               </div>
             </Link>
 
-            <p className="text-xs text-white/55 leading-relaxed max-w-xs mb-4">
+            <p className="text-xs text-white/55 leading-relaxed max-w-sm mb-4">
               L'intelligence artificielle au service de la décision bancaire.
               Conforme PCB-UEMOA, sécurité maximale, performance garantie.
             </p>
 
-            {/* Badges compliance */}
             <div className="flex flex-wrap gap-1.5">
               {[
                 { label: 'PCB UEMOA', icon: '📊' },
@@ -114,7 +113,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Divider or */}
+        {/* Divider */}
         <div className="h-px bg-gradient-to-r from-transparent via-[#C9A84C]/25 to-transparent mb-4" />
 
         {/* Bottom bar */}

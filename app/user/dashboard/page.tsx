@@ -999,7 +999,23 @@ export default function UserDashboard() {
                                                       const questionKey = `${formationId}::module::${moduleId}::q::${qIndex}`;
                                                       const selectedIndex = qcmAnswers[questionKey];
                                                       const hasAnswered = typeof selectedIndex === 'number';
-                                                      const correctIndex = typeof q.correct_answer === 'number' ? q.correct_answer : undefined;
+
+                                                      // Normaliser options : objet {A,B,C,D} → tableau ou tableau direct
+                                                      const optionsArray: string[] = Array.isArray(q.options)
+                                                        ? q.options
+                                                        : q.options && typeof q.options === 'object'
+                                                          ? ['A','B','C','D'].map((k: string) => q.options[k]).filter(Boolean)
+                                                          : [];
+
+                                                      // Normaliser correct_answer : lettre "B" → index 1, ou nombre direct
+                                                      const letterToIndex: Record<string, number> = { A: 0, B: 1, C: 2, D: 3 };
+                                                      const correctIndex: number | undefined =
+                                                        typeof q.correct_answer === 'number'
+                                                          ? q.correct_answer
+                                                          : typeof q.reponse_correcte === 'string'
+                                                            ? letterToIndex[q.reponse_correcte.toUpperCase()]
+                                                            : undefined;
+
                                                       const isCorrect = hasAnswered && typeof correctIndex === 'number' && selectedIndex === correctIndex;
 
                                                       return (
@@ -1023,7 +1039,7 @@ export default function UserDashboard() {
                                                           </div>
 
                                                           <div className="mt-3 grid grid-cols-1 gap-2">
-                                                            {(q.options || []).map((opt: string, optIndex: number) => {
+                                                            {optionsArray.map((opt: string, optIndex: number) => {
                                                               const isSelected = hasAnswered && selectedIndex === optIndex;
                                                               const isCorrectOption = hasAnswered && typeof correctIndex === 'number' && correctIndex === optIndex;
 

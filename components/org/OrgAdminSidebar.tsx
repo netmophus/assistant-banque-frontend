@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { authApi } from '@/lib/api/auth';
 
 interface MenuItem {
   id: string;
@@ -57,6 +58,14 @@ export default function OrgAdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['parametrage']);
+  const [isCatalogueAdmin, setIsCatalogueAdmin] = useState(false);
+
+  useEffect(() => {
+    const user = authApi.getCurrentUser();
+    if (user?.organization_code === 'CATALOGUE' || user?.organization_name === 'Catalogue Global') {
+      setIsCatalogueAdmin(true);
+    }
+  }, []);
 
   const toggleMenu = (menuId: string) => {
     setExpandedMenus(prev =>
@@ -86,6 +95,19 @@ export default function OrgAdminSidebar() {
   return (
     <aside className="hidden md:block w-64 bg-gradient-to-b from-[#1a1f3a] via-[#1a1f3a]/95 to-[#1a1f3a] border-r border-[#2563EB]/30 h-screen fixed left-0 top-0 pt-20 overflow-y-auto z-40">
       <nav className="p-4 space-y-2">
+        {isCatalogueAdmin && (
+          <Link
+            href="/org/catalogue"
+            className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
+              isActive('/org/catalogue')
+                ? 'bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#F59E0B] text-white shadow-md'
+                : 'text-[#CBD5E1] hover:text-white hover:bg-white/5'
+            }`}
+          >
+            <span className="text-xl">📦</span>
+            <span>Catalogue</span>
+          </Link>
+        )}
         {menuItems.map((item) => (
           <div key={item.id}>
             {item.submenu ? (

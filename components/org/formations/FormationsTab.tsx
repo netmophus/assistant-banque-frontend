@@ -404,6 +404,8 @@ const FormationsTab = () => {
 
       setShowFormationForm(true);
       setEditingFormationId(formationId);
+      setView('form');
+      setActiveStep('infos');
       setExpandedEditModuleIndex(null);
       setExpandedEditChapterKey(null);
       const nextForm: FormationForm = {
@@ -415,6 +417,8 @@ const FormationsTab = () => {
       };
       setFormationForm(nextForm);
       setLastSavedSnapshot(serializeFormationForm(nextForm));
+      setError('');
+      setMessage('');
     } catch (err: any) {
       setMessage('');
       setError(err.message || 'Erreur lors du chargement de la formation');

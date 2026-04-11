@@ -312,11 +312,11 @@ export default function DepartmentsServicesManagement() {
 
   return (
     <ScrollReveal direction="up" delay={0}>
-      <div className="bg-gradient-to-br from-[#1a1f3a]/80 via-[#2563EB]/10 to-[#1a1f3a]/80 backdrop-blur-lg rounded-[28px] border border-[#2563EB]/30 p-8">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-3xl font-black text-white mb-2">Départements & Services</h2>
-            <p className="text-[#CBD5E1]">
+      <div className="bg-gradient-to-br from-[#1a1f3a]/80 via-[#2563EB]/10 to-[#1a1f3a]/80 backdrop-blur-lg rounded-[28px] border border-[#2563EB]/30 p-4 sm:p-8">
+        <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-xl sm:text-3xl font-black text-white mb-2">Départements & Services</h2>
+            <p className="text-[#CBD5E1] text-sm sm:text-base">
               Gérez la structure organisationnelle : créez des départements, des services et assignez les utilisateurs.
             </p>
           </div>
@@ -326,10 +326,10 @@ export default function DepartmentsServicesManagement() {
               setDeptForm({ name: '', code: '', description: '' });
               setShowDeptModal(true);
             }}
-            className="group relative px-6 py-3 text-white rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 cursor-pointer z-10"
+            className="group relative px-5 py-2.5 text-white rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 cursor-pointer z-10 flex-shrink-0 text-sm font-semibold"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#F59E0B] opacity-90 group-hover:opacity-100 pointer-events-none"></div>
-            <span className="relative z-10 font-semibold pointer-events-none">+ Département</span>
+            <span className="relative z-10 pointer-events-none">+ Département</span>
           </button>
         </div>
 
@@ -373,34 +373,34 @@ export default function DepartmentsServicesManagement() {
                   className="bg-white/5 rounded-xl border border-white/10 overflow-hidden"
                 >
                   <div className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
-                        <div className="text-3xl">🏢</div>
-                        <div>
-                          <h3 className="text-lg font-bold text-white">{dept.name}</h3>
-                          <p className="text-sm text-[#CBD5E1]">
-                            Code: {dept.code} • {deptServices.length} service(s) • {deptUsers.length} utilisateur(s) direct(s)
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <div className="text-2xl sm:text-3xl flex-shrink-0">🏢</div>
+                        <div className="min-w-0">
+                          <h3 className="text-base sm:text-lg font-bold text-white truncate">{dept.name}</h3>
+                          <p className="text-xs sm:text-sm text-[#CBD5E1]">
+                            Code: {dept.code} • {deptServices.length} service(s) • {deptUsers.length} direct(s)
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center space-x-2">
+                      <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
                         <button
                           onClick={() => openCreateService(dept.id)}
-                          className="px-4 py-2 bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 text-[#7C3AED] font-semibold rounded-lg border border-[#7C3AED]/30 transition-all cursor-pointer text-sm"
+                          className="px-3 py-1.5 bg-[#7C3AED]/20 hover:bg-[#7C3AED]/30 text-[#7C3AED] font-semibold rounded-lg border border-[#7C3AED]/30 transition-all cursor-pointer text-xs sm:text-sm"
                         >
                           + Service
                         </button>
                         <button
                           onClick={() => openEditDepartment(dept)}
-                          className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-lg border border-white/10 transition-all cursor-pointer text-sm"
+                          className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-lg border border-white/10 transition-all cursor-pointer text-xs sm:text-sm"
                         >
                           Modifier
                         </button>
                         <button
                           onClick={() => setExpandedDept(isExpanded ? null : dept.id)}
-                          className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-lg border border-white/10 transition-all cursor-pointer text-sm"
+                          className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-lg border border-white/10 transition-all cursor-pointer text-xs sm:text-sm"
                         >
-                          {isExpanded ? 'Masquer' : 'Voir détails'}
+                          {isExpanded ? 'Masquer' : 'Détails'}
                         </button>
                       </div>
                     </div>

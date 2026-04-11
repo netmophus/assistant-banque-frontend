@@ -41,7 +41,7 @@ const orgAdminMenuItems: MenuItem[] = [
       },
       {
         id: 'pcb',
-        label: 'PCB & Ratios',
+        label: 'États PCB UEMOA & ratios',
         icon: '📊',
         path: '/org/settings/pcb',
       },
@@ -147,7 +147,7 @@ export default function Navbar() {
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo Miznas Banking */}
+          {/* Logo Miznas Pilot */}
           <Link
             href="/"
             className="group flex items-center space-x-3 transition-transform duration-300 hover:scale-105"
@@ -155,9 +155,9 @@ export default function Navbar() {
             <div className="transition-all duration-300 group-hover:scale-110 group-hover:drop-shadow-[0_0_8px_rgba(201,168,76,0.5)]">
               <Logo size={40} />
             </div>
-            <div className="flex flex-col leading-tight">
+            <div className="hidden sm:flex flex-col leading-tight">
               <span className="text-lg sm:text-xl font-black text-white tracking-wide">
-                Miznas<span className="text-[#C9A84C]"> Banking</span>
+                Miznas<span className="text-[#C9A84C]"> Pilot</span>
               </span>
               <span className="text-[10px] font-semibold text-white/40 uppercase tracking-[0.15em] hidden sm:block">
                 L'IA au service de la décision bancaire

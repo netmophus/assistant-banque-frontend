@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import api from "./api";
 import StockManagementTab from "./components/stock/StockManagementTab";
+import "./OrgAdminDashboardPage.css";
 
 function OrgAdminDashboardPage({ onLogout }) {
   const [user, setUser] = useState(null);
@@ -713,50 +714,24 @@ function OrgAdminDashboardPage({ onLogout }) {
 
   if (loading) {
     return (
-      <div style={{ padding: "24px", textAlign: "center" }}>
+      <div className="org-loading">
         <p>Chargement...</p>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        padding: "24px",
-        backgroundColor: "#f5f5f5",
-      }}
-    >
-      <div
-        style={{
-          maxWidth: "1200px",
-          margin: "0 auto",
-          background: "#ffffff",
-          padding: "24px",
-          borderRadius: "8px",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-        }}
-      >
+    <div className="org-dashboard-wrapper">
+      <div className="org-dashboard-card">
         {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "24px",
-            paddingBottom: "16px",
-            borderBottom: "2px solid #e0e0e0",
-          }}
-        >
-          <div>
-            <h2 style={{ margin: 0 }}>🏦 Dashboard Administrateur</h2>
+        <div className="org-dashboard-header">
+          <div className="org-dashboard-header-info">
+            <h2>🏦 Dashboard Administrateur</h2>
             {user && (
-              <p style={{ margin: "4px 0 0 0", color: "#666" }}>
-                {user.full_name} ({user.email})
-              </p>
+              <p>{user.full_name} ({user.email})</p>
             )}
             {user && (
-              <p style={{ margin: "4px 0 0 0", color: "#666", fontSize: "0.9rem" }}>
+              <p className="small">
                 Organisation: <strong>{user.organization_name || user.organization_id}</strong>
               </p>
             )}
@@ -764,126 +739,42 @@ function OrgAdminDashboardPage({ onLogout }) {
           <button
             type="button"
             onClick={handleLogout}
-            style={{
-              padding: "8px 16px",
-              borderRadius: "4px",
-              border: "1px solid #b00020",
-              backgroundColor: "#fff",
-              color: "#b00020",
-              cursor: "pointer",
-              fontWeight: "bold",
-            }}
+            className="btn-logout"
           >
             Déconnexion
           </button>
         </div>
 
         {error && (
-          <div
-            style={{
-              marginBottom: "16px",
-              padding: "12px",
-              backgroundColor: "#ffe6e6",
-              color: "#b00020",
-              borderRadius: "4px",
-            }}
-          >
+          <div className="org-error-banner">
             {error}
           </div>
         )}
 
         {/* Onglets */}
-        <div style={{ display: "flex", marginBottom: "24px", borderBottom: "1px solid #e0e0e0" }}>
-          <button
-            onClick={() => setActiveTab("departments")}
-            style={{
-              padding: "12px 24px",
-              border: "none",
-              backgroundColor: activeTab === "departments" ? "#e3f2fd" : "transparent",
-              borderBottom: activeTab === "departments" ? "2px solid #1976d2" : "none",
-              cursor: "pointer",
-              fontSize: "1rem",
-              fontWeight: activeTab === "departments" ? "bold" : "normal",
-              color: activeTab === "departments" ? "#1976d2" : "#555",
-            }}
-          >
-            Départements ({departments.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("services")}
-            style={{
-              padding: "12px 24px",
-              border: "none",
-              backgroundColor: activeTab === "services" ? "#e8f5e9" : "transparent",
-              borderBottom: activeTab === "services" ? "2px solid #388e3c" : "none",
-              cursor: "pointer",
-              fontSize: "1rem",
-              fontWeight: activeTab === "services" ? "bold" : "normal",
-              color: activeTab === "services" ? "#388e3c" : "#555",
-            }}
-          >
-            Services
-          </button>
-          <button
-            onClick={() => setActiveTab("users")}
-            style={{
-              padding: "12px 24px",
-              border: "none",
-              backgroundColor: activeTab === "users" ? "#fff3e0" : "transparent",
-              borderBottom: activeTab === "users" ? "2px solid #f57c00" : "none",
-              cursor: "pointer",
-              fontSize: "1rem",
-              fontWeight: activeTab === "users" ? "bold" : "normal",
-              color: activeTab === "users" ? "#f57c00" : "#555",
-            }}
-          >
-            Utilisateurs ({users.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("formations")}
-            style={{
-              padding: "12px 24px",
-              border: "none",
-              backgroundColor: activeTab === "formations" ? "#f3e5f5" : "transparent",
-              borderBottom: activeTab === "formations" ? "2px solid #9c27b0" : "none",
-              cursor: "pointer",
-              fontSize: "1rem",
-              fontWeight: activeTab === "formations" ? "bold" : "normal",
-              color: activeTab === "formations" ? "#9c27b0" : "#555",
-            }}
-          >
-            📚 Formations ({formations.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("ressources")}
-            style={{
-              padding: "12px 24px",
-              border: "none",
-              backgroundColor: activeTab === "ressources" ? "#e1f5fe" : "transparent",
-              borderBottom: activeTab === "ressources" ? "2px solid #0288d1" : "none",
-              cursor: "pointer",
-              fontSize: "1rem",
-              fontWeight: activeTab === "ressources" ? "bold" : "normal",
-              color: activeTab === "ressources" ? "#0288d1" : "#555",
-            }}
-          >
-            📋 Ressources ({ressources.length})
-          </button>
-          <button
-            onClick={() => setActiveTab("stock")}
-            style={{
-              padding: "12px 24px",
-              border: "none",
-              backgroundColor: activeTab === "stock" ? "#fff3e0" : "transparent",
-              borderBottom: activeTab === "stock" ? "2px solid #ff9800" : "none",
-              cursor: "pointer",
-              fontSize: "1rem",
-              fontWeight: activeTab === "stock" ? "bold" : "normal",
-              color: activeTab === "stock" ? "#ff9800" : "#555",
-            }}
-          >
-            📦 Gestion de Stock
-          </button>
+        <div className="org-tabs-bar">
+          {[
+            { key: "departments", label: `Départements (${departments.length})`, color: "#1976d2", bg: "#e3f2fd" },
+            { key: "services", label: "Services", color: "#388e3c", bg: "#e8f5e9" },
+            { key: "users", label: `Utilisateurs (${users.length})`, color: "#f57c00", bg: "#fff3e0" },
+            { key: "formations", label: `📚 Formations (${formations.length})`, color: "#9c27b0", bg: "#f3e5f5" },
+            { key: "ressources", label: `📋 Ressources (${ressources.length})`, color: "#0288d1", bg: "#e1f5fe" },
+            { key: "stock", label: "📦 Gestion de Stock", color: "#ff9800", bg: "#fff3e0" },
+          ].map(({ key, label, color, bg }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className="org-tab-btn"
+              style={{
+                backgroundColor: activeTab === key ? bg : "transparent",
+                borderBottom: activeTab === key ? `2px solid ${color}` : "2px solid transparent",
+                fontWeight: activeTab === key ? "bold" : "normal",
+                color: activeTab === key ? color : "#555",
+              }}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {/* Statistiques de la licence */}
@@ -900,7 +791,7 @@ function OrgAdminDashboardPage({ onLogout }) {
             <h3 style={{ margin: "0 0 12px 0", color: "#2e7d32" }}>
               📊 Statistiques de la licence
             </h3>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "16px" }}>
+            <div className="org-stats-grid">
               <div>
                 <p style={{ margin: "4px 0", fontSize: "0.9rem", color: "#666" }}>
                   Plan: <strong>{stats.license_plan}</strong>
@@ -936,7 +827,7 @@ function OrgAdminDashboardPage({ onLogout }) {
         {/* Contenu des onglets */}
         {activeTab === "departments" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <div className="org-section-header">
               <h3>📁 Départements</h3>
               <button
                 type="button"
@@ -966,12 +857,7 @@ function OrgAdminDashboardPage({ onLogout }) {
             {showDeptForm && (
               <form
                 onSubmit={handleCreateDepartment}
-                style={{
-                  padding: "16px",
-                  backgroundColor: "#f9f9f9",
-                  borderRadius: "4px",
-                  marginBottom: "16px",
-                }}
+                className="org-form-box"
               >
                 <div style={{ marginBottom: "12px" }}>
                   <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold" }}>
@@ -1027,19 +913,14 @@ function OrgAdminDashboardPage({ onLogout }) {
               </form>
             )}
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "16px" }}>
+            <div className="org-cards-grid">
               {departments.map((dept) => (
                 <div
                   key={dept.id}
-                  style={{
-                    padding: "16px",
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "4px",
-                    backgroundColor: "#fafafa",
-                  }}
+                  className="org-card"
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "8px" }}>
-                    <h4 style={{ margin: 0 }}>{dept.name}</h4>
+                  <div className="org-card-header">
+                    <h4>{dept.name}</h4>
                     <button
                       type="button"
                       onClick={() => handleEditDepartment(dept)}
@@ -1104,7 +985,7 @@ function OrgAdminDashboardPage({ onLogout }) {
 
             {selectedDeptForService && (
               <>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                <div className="org-section-header">
                   <h3>
                     Services du département: {departments.find((d) => d.id === selectedDeptForService)?.name}
                   </h3>
@@ -1137,12 +1018,7 @@ function OrgAdminDashboardPage({ onLogout }) {
                 {showServiceForm && (
                   <form
                     onSubmit={handleCreateService}
-                    style={{
-                      padding: "16px",
-                      backgroundColor: "#f9f9f9",
-                      borderRadius: "4px",
-                      marginBottom: "16px",
-                    }}
+                    className="org-form-box"
                   >
                     <div style={{ marginBottom: "12px" }}>
                       <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold" }}>
@@ -1198,19 +1074,14 @@ function OrgAdminDashboardPage({ onLogout }) {
                   </form>
                 )}
 
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "16px" }}>
+                <div className="org-cards-grid">
                   {services.map((service) => (
                     <div
                       key={service.id}
-                      style={{
-                        padding: "16px",
-                        border: "1px solid #e0e0e0",
-                        borderRadius: "4px",
-                        backgroundColor: "#fafafa",
-                      }}
+                      className="org-card"
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "8px" }}>
-                        <h4 style={{ margin: 0 }}>{service.name}</h4>
+                      <div className="org-card-header">
+                        <h4>{service.name}</h4>
                         <button
                           type="button"
                           onClick={() => handleEditService(service)}
@@ -1253,7 +1124,7 @@ function OrgAdminDashboardPage({ onLogout }) {
 
         {activeTab === "users" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <div className="org-section-header">
               <h3>👥 Utilisateurs de l'organisation</h3>
             <button
               type="button"
@@ -1284,12 +1155,7 @@ function OrgAdminDashboardPage({ onLogout }) {
           {showUserForm && (
             <form
               onSubmit={handleCreateUser}
-              style={{
-                padding: "16px",
-                backgroundColor: "#f9f9f9",
-                borderRadius: "4px",
-                marginBottom: "16px",
-              }}
+              className="org-form-box"
             >
               <div style={{ marginBottom: "12px" }}>
                 <label style={{ display: "block", marginBottom: "4px", fontWeight: "bold" }}>
@@ -1394,29 +1260,25 @@ function OrgAdminDashboardPage({ onLogout }) {
             </form>
           )}
 
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <div className="org-table-container">
+            <table className="org-table">
               <thead>
-                <tr style={{ borderBottom: "2px solid #e0e0e0" }}>
-                  <th style={{ padding: "12px", textAlign: "left", fontWeight: "bold" }}>Email</th>
-                  <th style={{ padding: "12px", textAlign: "left", fontWeight: "bold" }}>Nom</th>
-                  <th style={{ padding: "12px", textAlign: "left", fontWeight: "bold" }}>Département</th>
-                  <th style={{ padding: "12px", textAlign: "left", fontWeight: "bold" }}>Service</th>
-                  <th style={{ padding: "12px", textAlign: "left", fontWeight: "bold" }}>Rôle</th>
+                <tr>
+                  <th>Email</th>
+                  <th>Nom</th>
+                  <th>Département</th>
+                  <th>Service</th>
+                  <th>Rôle</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                    <td style={{ padding: "12px" }}>{u.email}</td>
-                    <td style={{ padding: "12px" }}>{u.full_name}</td>
-                    <td style={{ padding: "12px" }}>
-                      {u.department_name || "-"}
-                    </td>
-                    <td style={{ padding: "12px" }}>
-                      {u.service_name || "-"}
-                    </td>
-                    <td style={{ padding: "12px" }}>
+                  <tr key={u.id}>
+                    <td>{u.email}</td>
+                    <td>{u.full_name}</td>
+                    <td>{u.department_name || "-"}</td>
+                    <td>{u.service_name || "-"}</td>
+                    <td>
                       <span
                         style={{
                           padding: "4px 8px",
@@ -1446,7 +1308,7 @@ function OrgAdminDashboardPage({ onLogout }) {
 
         {activeTab === "formations" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <div className="org-section-header">
               <h3>📚 Formations</h3>
               <button
                 type="button"
@@ -1602,9 +1464,9 @@ function OrgAdminDashboardPage({ onLogout }) {
                         border: "1px solid #e0e0e0",
                       }}
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                      <div className="org-module-header">
                         <h5 style={{ margin: 0, color: "#7b1fa2" }}>Module {moduleIndex + 1}</h5>
-                        <div style={{ display: "flex", gap: "6px" }}>
+                        <div className="org-module-actions">
                           {editingFormationId && formationForm.modules[moduleIndex].id && (
                             <button
                               type="button"
@@ -1981,8 +1843,8 @@ function OrgAdminDashboardPage({ onLogout }) {
                         boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                       }}
                     >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                        <div style={{ flex: 1 }}>
+                      <div className="org-card-header" style={{ alignItems: "flex-start" }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
                           <h5 style={{ margin: "0 0 8px 0", color: "#9c27b0" }}>{formation.titre}</h5>
                           {formation.description && (
                             <p style={{ margin: "0 0 8px 0", color: "#666", fontSize: "0.9rem" }}>
@@ -2017,7 +1879,7 @@ function OrgAdminDashboardPage({ onLogout }) {
                             </span>
                           </div>
                         </div>
-                        <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                        <div className="org-module-actions">
                           <button
                             type="button"
                             onClick={() => handleEditFormation(formation)}
@@ -2084,18 +1946,7 @@ function OrgAdminDashboardPage({ onLogout }) {
             {/* Modal d'affectation aux départements */}
             {showAssignForm && selectedFormationForAssign && (
               <div
-                style={{
-                  position: "fixed",
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundColor: "rgba(0,0,0,0.5)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  zIndex: 1000,
-                }}
+                className="org-modal-overlay"
                 onClick={() => {
                   setShowAssignForm(false);
                   setSelectedFormationForAssign(null);
@@ -2103,15 +1954,7 @@ function OrgAdminDashboardPage({ onLogout }) {
                 }}
               >
                 <div
-                  style={{
-                    backgroundColor: "#fff",
-                    padding: "24px",
-                    borderRadius: "8px",
-                    maxWidth: "500px",
-                    width: "90%",
-                    maxHeight: "80vh",
-                    overflowY: "auto",
-                  }}
+                  className="org-modal-content"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <h3 style={{ marginTop: 0 }}>Affecter la formation aux départements</h3>
@@ -2147,7 +1990,7 @@ function OrgAdminDashboardPage({ onLogout }) {
                       </label>
                     ))}
                   </div>
-                  <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+                  <div className="org-modal-actions">
                     <button
                       type="button"
                       onClick={() => {
@@ -2207,7 +2050,7 @@ function OrgAdminDashboardPage({ onLogout }) {
 
         {activeTab === "ressources" && (
           <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
+            <div className="org-section-header" style={{ marginBottom: "24px" }}>
               <h3>📋 Ressources de l'organisation</h3>
               <button
                 type="button"
@@ -2510,8 +2353,8 @@ function OrgAdminDashboardPage({ onLogout }) {
                       boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
                     }}
                   >
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start" }}>
-                      <div style={{ flex: 1 }}>
+                    <div className="org-card-header" style={{ alignItems: "flex-start" }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
                         <h4 style={{ margin: "0 0 8px 0", color: "#0288d1", fontSize: "1.2rem" }}>
                           {ressource.titre}
                         </h4>
@@ -2534,7 +2377,7 @@ function OrgAdminDashboardPage({ onLogout }) {
                           )}
                         </div>
                       </div>
-                      <div style={{ display: "flex", gap: "8px" }}>
+                      <div className="org-module-actions">
                         <button
                           type="button"
                           onClick={() => {
@@ -2596,34 +2439,17 @@ function OrgAdminDashboardPage({ onLogout }) {
 
             {/* Modal d'affectation aux départements */}
             {showAssignRessourceForm && selectedRessourceForAssign && (
-              <div style={{
-                position: "fixed",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: "rgba(0, 0, 0, 0.5)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                zIndex: 1000,
-              }}
-              onClick={() => {
-                setShowAssignRessourceForm(false);
-                setSelectedRessourceForAssign(null);
-                setSelectedDepartmentsForRessource([]);
-              }}
+              <div
+                className="org-modal-overlay"
+                onClick={() => {
+                  setShowAssignRessourceForm(false);
+                  setSelectedRessourceForAssign(null);
+                  setSelectedDepartmentsForRessource([]);
+                }}
               >
                 <div
-                  style={{
-                    backgroundColor: "#fff",
-                    borderRadius: "8px",
-                    padding: "24px",
-                    maxWidth: "600px",
-                    width: "90%",
-                    maxHeight: "80vh",
-                    overflowY: "auto",
-                  }}
+                  className="org-modal-content"
+                  style={{ maxWidth: "600px" }}
                   onClick={(e) => e.stopPropagation()}
                 >
                   <h3 style={{ marginTop: 0, marginBottom: "16px", color: "#0288d1" }}>
@@ -2665,7 +2491,7 @@ function OrgAdminDashboardPage({ onLogout }) {
                       </label>
                     ))}
                   </div>
-                  <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+                  <div className="org-modal-actions">
                     <button
                       type="button"
                       onClick={() => {

@@ -300,7 +300,7 @@ export default function QuestionsPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C9A84C]">Fahimta AI</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#C9A84C]">Miznas AI</span>
                     <span className="w-1 h-1 rounded-full bg-[#C9A84C]/50" />
                     <span className="text-[10px] font-semibold text-white/50 uppercase tracking-wider">Base de connaissances</span>
                   </div>
@@ -427,7 +427,7 @@ export default function QuestionsPage() {
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
-                        Poser la question à Fahimta AI
+                        Poser la question à Miznas AI
                       </>
                     )}
                   </button>
@@ -446,7 +446,7 @@ export default function QuestionsPage() {
                     <div className="w-7 h-7 rounded-xl bg-[#C9A84C]/15 border border-[#C9A84C]/25 flex items-center justify-center">
                       <svg className="w-3.5 h-3.5 text-[#C9A84C]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
                     </div>
-                    <h2 className="text-sm font-black text-white">Réponse de Fahimta AI</h2>
+                    <h2 className="text-sm font-black text-white">Réponse de Miznas AI</h2>
                     {currentQuestion.status === 'answered' && currentQuestion.answer && (
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-green-500/12 border border-green-500/25 text-green-400">✓ Répondu</span>
                     )}
@@ -479,7 +479,7 @@ export default function QuestionsPage() {
                     <div className="p-4 rounded-2xl border" style={{ background: 'rgba(15,30,72,0.5)', borderColor: 'rgba(201,168,76,0.15)' }}>
                       <div className="flex items-center gap-2 mb-3 pb-2 border-b" style={{ borderColor: 'rgba(201,168,76,0.15)' }}>
                         <span className="w-5 h-5 rounded-full bg-[#C9A84C]/15 border border-[#C9A84C]/25 flex items-center justify-center text-[8px] font-black text-[#C9A84C]">FA</span>
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#C9A84C]">Fahimta AI</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-[#C9A84C]">Miznas AI</span>
                       </div>
                       <FormattedAnswer answer={currentQuestion.answer} />
                     </div>

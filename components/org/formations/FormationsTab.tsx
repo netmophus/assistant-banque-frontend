@@ -54,6 +54,9 @@ interface Formation {
   status: 'draft' | 'published' | 'archived';
   modules_count?: number;
   modules?: Module[];
+  bloc_numero?: number | null;
+  bloc_titre?: string | null;
+  bloc_label?: string | null;
 }
 
 interface Department {
@@ -66,7 +69,23 @@ interface FormationForm {
   titre: string;
   description: string;
   modules: Module[];
+  bloc_numero: number | '';
+  bloc_titre: string;
 }
+
+// Blocs prédéfinis PCB-UEMOA
+const BLOCS_PREDEFINIS = [
+  { numero: 1, titre: 'Plan Comptable Bancaire (PCB révisé)' },
+  { numero: 2, titre: 'Réglementation prudentielle UEMOA' },
+  { numero: 3, titre: 'Gestion du risque de crédit' },
+  { numero: 4, titre: 'Gestion des impayés et recouvrement' },
+  { numero: 5, titre: 'Analyse financière et scoring bancaire' },
+  { numero: 6, titre: 'Conformité et lutte contre le blanchiment' },
+  { numero: 7, titre: 'Opérations de trésorerie et marchés' },
+  { numero: 8, titre: 'Financement des PME et microfinance' },
+  { numero: 9, titre: 'Gouvernance et contrôle interne bancaire' },
+  { numero: 10, titre: 'Transformation digitale et innovation bancaire' },
+];
 
 const FormationsTab = () => {
   const { isMobile } = useResponsive();
@@ -75,7 +94,12 @@ const FormationsTab = () => {
   const [message, setMessage] = useState('');
   const [formations, setFormations] = useState<Formation[]>([]);
   const [departments, setDepartments] = useState<Department[]>([]);
+  // 'blocs' = vue principale groupée | 'select-bloc' = choisir un bloc | 'form' = wizard
+  const [view, setView] = useState<'blocs' | 'select-bloc' | 'form'>('blocs');
   const [showFormationForm, setShowFormationForm] = useState(false);
+  const [selectedBlocForNew, setSelectedBlocForNew] = useState<{ bloc_numero: number | ''; bloc_titre: string } | null>(null);
+  const [newBlocNumero, setNewBlocNumero] = useState<number | ''>('');
+  const [newBlocTitre, setNewBlocTitre] = useState('');
   const [editingFormationId, setEditingFormationId] = useState<string | null>(null);
   const [activeStep, setActiveStep] = useState<'infos' | 'modules' | 'preview' | 'publish'>('infos');
   const [showPreview, setShowPreview] = useState(false);
@@ -87,6 +111,8 @@ const FormationsTab = () => {
     titre: '',
     description: '',
     modules: [],
+    bloc_numero: '',
+    bloc_titre: '',
   });
   const [showAssignForm, setShowAssignForm] = useState(false);
   const [selectedFormationForAssign, setSelectedFormationForAssign] = useState<Formation | null>(null);
@@ -114,6 +140,8 @@ const FormationsTab = () => {
     const normalized = {
       titre: form?.titre || '',
       description: form?.description || '',
+      bloc_numero: form?.bloc_numero || null,
+      bloc_titre: form?.bloc_titre || '',
       modules: (form?.modules || []).map((m) => ({
         titre: m?.titre || '',
         chapitres: (m?.chapitres || []).map((c) => ({
@@ -215,6 +243,8 @@ const FormationsTab = () => {
       description: formationForm.description || null,
       organization_id: currentUser?.organization_id,
       modules: modulesToSend,
+      bloc_numero: formationForm.bloc_numero !== '' ? Number(formationForm.bloc_numero) : null,
+      bloc_titre: formationForm.bloc_titre || null,
     };
   };
 
@@ -380,6 +410,8 @@ const FormationsTab = () => {
         titre: fullFormation.titre || '',
         description: fullFormation.description || '',
         modules: modulesWithIds,
+        bloc_numero: fullFormation.bloc_numero ?? '',
+        bloc_titre: fullFormation.bloc_titre || '',
       };
       setFormationForm(nextForm);
       setLastSavedSnapshot(serializeFormationForm(nextForm));
@@ -536,8 +568,12 @@ const FormationsTab = () => {
   };
 
   const resetForm = () => {
-    setFormationForm({ titre: '', description: '', modules: [] });
+    setFormationForm({ titre: '', description: '', modules: [], bloc_numero: '', bloc_titre: '' });
     setShowFormationForm(false);
+    setView('blocs');
+    setSelectedBlocForNew(null);
+    setNewBlocNumero('');
+    setNewBlocTitre('');
     setEditingFormationId(null);
     setLastSavedSnapshot('');
     setActiveStep('infos');
@@ -546,6 +582,42 @@ const FormationsTab = () => {
     setExpandedPreviewChapterKey(null);
     setExpandedEditModuleIndex(null);
     setExpandedEditChapterKey(null);
+  };
+
+  // ── Grouper les formations par bloc ───────────────────────────────────────
+  const groupedFormations = React.useMemo(() => {
+    const groups: Record<string, { bloc_numero: number | null; bloc_titre: string | null; bloc_label: string; formations: Formation[] }> = {};
+    for (const f of formations) {
+      const key = f.bloc_numero != null ? String(f.bloc_numero) : '__sans_bloc__';
+      if (!groups[key]) {
+        groups[key] = {
+          bloc_numero: f.bloc_numero ?? null,
+          bloc_titre: f.bloc_titre ?? null,
+          bloc_label: f.bloc_label ?? (f.bloc_numero != null ? `BLOC ${f.bloc_numero}` : 'Sans bloc'),
+          formations: [],
+        };
+      }
+      groups[key].formations.push(f);
+    }
+    // Trier : blocs numérotés d'abord, puis sans bloc
+    return Object.values(groups).sort((a, b) => {
+      if (a.bloc_numero == null) return 1;
+      if (b.bloc_numero == null) return -1;
+      return (a.bloc_numero as number) - (b.bloc_numero as number);
+    });
+  }, [formations]);
+
+  // ── Ouvrir la création dans un bloc donné ────────────────────────────────
+  const openFormInBloc = (bloc: { bloc_numero: number | ''; bloc_titre: string }) => {
+    setSelectedBlocForNew(bloc);
+    setFormationForm({ titre: '', description: '', modules: [], bloc_numero: bloc.bloc_numero, bloc_titre: bloc.bloc_titre });
+    setEditingFormationId(null);
+    setLastSavedSnapshot('');
+    setActiveStep('infos');
+    setShowFormationForm(true);
+    setView('form');
+    setError('');
+    setMessage('');
   };
 
   const canGoToStep = (step: 'infos' | 'modules' | 'preview' | 'publish') => {
@@ -566,7 +638,7 @@ const FormationsTab = () => {
     setActiveStep(step);
   };
 
-  // ─── Miznas Banking design tokens ────────────────────────────────────────────────
+  // ─── Miznas Pilot design tokens ──────────────────────────────────────────────────
   const nb = {
     deepNavy:    '#040B1E',
     darkNavy:    '#070E28',
@@ -1065,36 +1137,33 @@ const FormationsTab = () => {
         <button
           type="button"
           onClick={() => {
-            if (showFormationForm && editingFormationId) {
+            if (view === 'form' && editingFormationId) {
               if (isDirty) {
                 setMessage('');
                 setError('Tu as des modifications non sauvegardées. Sauvegarde le brouillon avant de fermer.');
                 return;
               }
               resetForm();
-            } else if (showFormationForm) {
+            } else if (view !== 'blocs') {
               resetForm();
             } else {
-              setShowFormationForm(true);
-              setFormationForm({ titre: '', description: '', modules: [] });
-              setEditingFormationId(null);
-              setLastSavedSnapshot('');
-              setExpandedEditModuleIndex(null);
-              setExpandedEditChapterKey(null);
+              setView('select-bloc');
+              setNewBlocNumero('');
+              setNewBlocTitre('');
               setError('');
               setMessage('');
             }
           }}
           style={btnPrimary}
         >
-          {showFormationForm && editingFormationId ? (
+          {view === 'form' && editingFormationId ? (
             'Fermer'
-          ) : showFormationForm ? (
-            'Annuler'
+          ) : view !== 'blocs' ? (
+            '← Retour'
           ) : (
             <>
               <IconPlus size={15} color="#fff" />
-              Créer une formation
+              Nouvelle formation
             </>
           )}
         </button>
@@ -1138,8 +1207,138 @@ const FormationsTab = () => {
         </div>
       )}
 
+      {/* ── Vue : Sélection de bloc ── */}
+      {view === 'select-bloc' && (
+        <div style={{ padding: '24px', background: nb.darkNavy, borderRadius: '16px', border: '1px solid rgba(201,168,76,0.2)', marginBottom: '24px' }}>
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#C9A84C' }} />
+            <span style={{ color: '#C9A84C', fontSize: '0.72rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+              Étape 1 sur 2
+            </span>
+          </div>
+          <h4 style={{ margin: '0 0 6px 0', color: '#fff', fontWeight: 800, fontSize: '1.2rem' }}>
+            Dans quel bloc créer cette formation ?
+          </h4>
+          <p style={{ margin: '0 0 20px 0', color: 'rgba(255,255,255,0.5)', fontSize: '0.88rem' }}>
+            Sélectionnez un bloc existant ou définissez un nouveau bloc.
+          </p>
+
+          {/* Blocs existants (extraits des formations) */}
+          {groupedFormations.filter(g => g.bloc_numero != null).length > 0 && (
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '10px' }}>
+                Blocs existants
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {groupedFormations.filter(g => g.bloc_numero != null).map(g => (
+                  <button
+                    key={g.bloc_numero}
+                    type="button"
+                    onClick={() => openFormInBloc({ bloc_numero: g.bloc_numero as number, bloc_titre: g.bloc_titre || '' })}
+                    style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '12px 16px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left',
+                      background: 'rgba(201,168,76,0.07)', border: '1px solid rgba(201,168,76,0.25)',
+                      color: '#fff', width: '100%', transition: 'all 0.15s',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'rgba(201,168,76,0.14)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'rgba(201,168,76,0.07)')}
+                  >
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#C9A84C' }}>{g.bloc_label}</div>
+                      <div style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.45)', marginTop: '2px' }}>
+                        {g.formations.length} formation{g.formations.length > 1 ? 's' : ''}
+                      </div>
+                    </div>
+                    <span style={{ color: '#C9A84C', fontSize: '1.1rem' }}>→</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Blocs prédéfinis non utilisés */}
+          {(() => {
+            const usedNums = new Set(groupedFormations.filter(g => g.bloc_numero != null).map(g => g.bloc_numero));
+            const unused = BLOCS_PREDEFINIS.filter(b => !usedNums.has(b.numero));
+            if (!unused.length) return null;
+            return (
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '10px' }}>
+                  Blocs prédéfinis PCB-UEMOA
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {unused.map(b => (
+                    <button
+                      key={b.numero}
+                      type="button"
+                      onClick={() => openFormInBloc({ bloc_numero: b.numero, bloc_titre: b.titre })}
+                      style={{
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                        padding: '10px 14px', borderRadius: '10px', cursor: 'pointer', textAlign: 'left',
+                        background: 'rgba(27,58,140,0.2)', border: '1px solid rgba(27,58,140,0.4)',
+                        color: '#fff', width: '100%', transition: 'all 0.15s',
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(27,58,140,0.35)')}
+                      onMouseLeave={e => (e.currentTarget.style.background = 'rgba(27,58,140,0.2)')}
+                    >
+                      <span style={{ fontSize: '0.9rem' }}>
+                        <span style={{ color: '#C9A84C', fontWeight: 700 }}>BLOC {b.numero}</span>
+                        {' — '}{b.titre}
+                      </span>
+                      <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '1rem' }}>→</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
+          {/* Nouveau bloc personnalisé */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '16px' }}>
+            <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '10px' }}>
+              Créer un nouveau bloc
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '10px', marginBottom: '10px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', fontWeight: 600 }}>N° Bloc</label>
+                <input type="number" min={1} max={99}
+                  value={newBlocNumero}
+                  onChange={e => setNewBlocNumero(e.target.value === '' ? '' : Number(e.target.value))}
+                  style={{ ...inputStyle, textAlign: 'center' } as React.CSSProperties}
+                  placeholder="Ex: 11"
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '5px', color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem', fontWeight: 600 }}>Titre du bloc</label>
+                <input type="text"
+                  value={newBlocTitre}
+                  onChange={e => setNewBlocTitre(e.target.value)}
+                  style={inputStyle as React.CSSProperties}
+                  placeholder="Ex: Financement de projet et LBO"
+                />
+              </div>
+            </div>
+            <button
+              type="button"
+              disabled={!newBlocNumero || !newBlocTitre.trim()}
+              onClick={() => openFormInBloc({ bloc_numero: newBlocNumero as number, bloc_titre: newBlocTitre.trim() })}
+              style={{
+                ...btnPrimary,
+                opacity: (!newBlocNumero || !newBlocTitre.trim()) ? 0.45 : 1,
+                cursor: (!newBlocNumero || !newBlocTitre.trim()) ? 'not-allowed' : 'pointer',
+              } as React.CSSProperties}
+            >
+              <IconPlus size={14} color="#fff" />
+              Créer dans ce bloc
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── Wizard form ── */}
-      {showFormationForm && (
+      {view === 'form' && showFormationForm && (
         <form
           onSubmit={handleCreateFormation}
           style={{
@@ -1300,6 +1499,29 @@ const FormationsTab = () => {
                     Informations de base
                   </div>
 
+                  {/* Bloc — lecture seule (pré-sélectionné à l'étape précédente) */}
+                  {selectedBlocForNew && (
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '10px 14px', borderRadius: '10px', marginBottom: '16px',
+                      background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.25)',
+                    }}>
+                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#C9A84C', flexShrink: 0 }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.4)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '2px' }}>Bloc</div>
+                        <div style={{ color: '#C9A84C', fontWeight: 700, fontSize: '0.92rem' }}>
+                          {selectedBlocForNew.bloc_numero !== '' && selectedBlocForNew.bloc_titre
+                            ? `BLOC ${selectedBlocForNew.bloc_numero} — ${selectedBlocForNew.bloc_titre}`
+                            : selectedBlocForNew.bloc_titre || `BLOC ${selectedBlocForNew.bloc_numero}`}
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => { setView('select-bloc'); setShowFormationForm(false); }}
+                        style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.35)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+                        Changer
+                      </button>
+                    </div>
+                  )}
+
                   <div style={{ marginBottom: '16px' }}>
                     <label
                       style={{
@@ -1340,6 +1562,120 @@ const FormationsTab = () => {
                       style={textareaStyle}
                       placeholder="Décris l'objectif, la cible, et les résultats attendus..."
                     />
+                  </div>
+
+                  {/* ── Sélecteur de Bloc ── */}
+                  <div style={{
+                    marginBottom: '20px',
+                    padding: '16px',
+                    borderRadius: '12px',
+                    background: 'rgba(201,168,76,0.05)',
+                    border: '1px solid rgba(201,168,76,0.2)',
+                  }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '14px',
+                    }}>
+                      <div style={{
+                        width: '6px', height: '6px', borderRadius: '50%',
+                        background: '#C9A84C',
+                      }} />
+                      <span style={{
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.12em',
+                        textTransform: 'uppercase' as const,
+                        color: '#C9A84C',
+                      }}>
+                        Bloc de formation
+                      </span>
+                    </div>
+
+                    {/* Sélection rapide d'un bloc prédéfini */}
+                    <label style={{ display: 'block', marginBottom: '6px', fontWeight: 600, color: 'rgba(255,255,255,0.7)', fontSize: '0.88rem' }}>
+                      Sélectionner un bloc prédéfini <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 400 }}>(optionnel)</span>
+                    </label>
+                    <select
+                      value={formationForm.bloc_numero !== '' ? `${formationForm.bloc_numero}` : ''}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (!val) {
+                          setFormationForm({ ...formationForm, bloc_numero: '', bloc_titre: '' });
+                        } else {
+                          const found = BLOCS_PREDEFINIS.find(b => String(b.numero) === val);
+                          setFormationForm({
+                            ...formationForm,
+                            bloc_numero: Number(val),
+                            bloc_titre: found?.titre || formationForm.bloc_titre,
+                          });
+                        }
+                      }}
+                      style={{
+                        ...inputStyle,
+                        marginBottom: '12px',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <option value="">-- Choisir un bloc --</option>
+                      {BLOCS_PREDEFINIS.map(b => (
+                        <option key={b.numero} value={String(b.numero)}>
+                          BLOC {b.numero} — {b.titre}
+                        </option>
+                      ))}
+                      <option value="custom">Bloc personnalisé…</option>
+                    </select>
+
+                    {/* Champs manuels */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '10px' }}>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem' }}>
+                          N° Bloc
+                        </label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={99}
+                          value={formationForm.bloc_numero}
+                          onChange={(e) => setFormationForm({ ...formationForm, bloc_numero: e.target.value === '' ? '' : Number(e.target.value) })}
+                          style={{ ...inputStyle, textAlign: 'center' }}
+                          placeholder="1"
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600, color: 'rgba(255,255,255,0.6)', fontSize: '0.82rem' }}>
+                          Titre du bloc
+                        </label>
+                        <input
+                          type="text"
+                          value={formationForm.bloc_titre}
+                          onChange={(e) => setFormationForm({ ...formationForm, bloc_titre: e.target.value })}
+                          style={inputStyle}
+                          placeholder="Ex: Plan Comptable Bancaire (PCB révisé)"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Aperçu du label */}
+                    {(formationForm.bloc_numero !== '' || formationForm.bloc_titre) && (
+                      <div style={{
+                        marginTop: '10px',
+                        padding: '8px 12px',
+                        borderRadius: '8px',
+                        background: 'rgba(201,168,76,0.1)',
+                        border: '1px solid rgba(201,168,76,0.3)',
+                        fontSize: '0.82rem',
+                        color: '#C9A84C',
+                        fontWeight: 600,
+                      }}>
+                        {formationForm.bloc_numero !== '' && formationForm.bloc_titre
+                          ? `BLOC ${formationForm.bloc_numero} — ${formationForm.bloc_titre}`
+                          : formationForm.bloc_numero !== ''
+                          ? `BLOC ${formationForm.bloc_numero}`
+                          : formationForm.bloc_titre}
+                      </div>
+                    )}
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -1980,11 +2316,16 @@ const FormationsTab = () => {
         </form>
       )}
 
-      {/* ── Formations list ── */}
-      <div>
-        <h4 style={{ marginBottom: '16px', color: '#fff', fontWeight: 900, fontSize: isMobile ? '1.1rem' : '1.25rem' }}>
-          Liste des formations
-        </h4>
+      {/* ── Formations list — visible uniquement sur la vue blocs ── */}
+      {view === 'blocs' && <div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+          <h4 style={{ margin: 0, color: '#fff', fontWeight: 900, fontSize: isMobile ? '1.1rem' : '1.25rem' }}>
+            Formations par bloc
+          </h4>
+          <span style={{ padding: '2px 10px', borderRadius: '999px', background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.3)', color: '#C9A84C', fontSize: '0.78rem', fontWeight: 700 }}>
+            {formations.length} formation{formations.length > 1 ? 's' : ''}
+          </span>
+        </div>
 
         {formations.length === 0 ? (
           <div
@@ -2004,8 +2345,50 @@ const FormationsTab = () => {
             <span style={{ fontSize: '0.95rem' }}>Aucune formation créée pour le moment.</span>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            {formations.map((formation) => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {groupedFormations.map((group) => (
+              <div key={group.bloc_numero ?? '__sans_bloc__'}>
+                {/* ── En-tête du bloc ── */}
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: '12px',
+                  marginBottom: '12px', paddingBottom: '10px',
+                  borderBottom: '1px solid rgba(201,168,76,0.15)',
+                }}>
+                  {group.bloc_numero != null ? (
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: '8px',
+                      padding: '5px 14px', borderRadius: '20px',
+                      background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.3)',
+                    }}>
+                      <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#C9A84C' }} />
+                      <span style={{ color: '#C9A84C', fontWeight: 800, fontSize: '0.92rem' }}>{group.bloc_label}</span>
+                    </div>
+                  ) : (
+                    <span style={{ color: 'rgba(255,255,255,0.35)', fontWeight: 700, fontSize: '0.85rem', fontStyle: 'italic' }}>Sans bloc</span>
+                  )}
+                  <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.78rem' }}>
+                    {group.formations.length} formation{group.formations.length > 1 ? 's' : ''}
+                  </span>
+                  {/* Bouton ajouter dans ce bloc */}
+                  {group.bloc_numero != null && (
+                    <button
+                      type="button"
+                      onClick={() => openFormInBloc({ bloc_numero: group.bloc_numero as number, bloc_titre: group.bloc_titre || '' })}
+                      style={{
+                        marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '5px',
+                        padding: '4px 10px', borderRadius: '8px', cursor: 'pointer', fontSize: '0.78rem', fontWeight: 600,
+                        background: 'rgba(201,168,76,0.08)', border: '1px solid rgba(201,168,76,0.2)', color: '#C9A84C',
+                      }}
+                    >
+                      <IconPlus size={12} color="#C9A84C" />
+                      Ajouter
+                    </button>
+                  )}
+                </div>
+
+                {/* ── Formations du bloc ── */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {group.formations.map((formation) => (
               <div
                 key={formation.id || formation.titre}
                 style={{
@@ -2028,6 +2411,24 @@ const FormationsTab = () => {
                   }}
                 >
                   <div style={{ flex: 1, minWidth: '200px' }}>
+                    {formation.bloc_label && (
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '5px',
+                        marginBottom: '6px',
+                        padding: '3px 10px',
+                        borderRadius: '20px',
+                        background: 'rgba(201,168,76,0.1)',
+                        border: '1px solid rgba(201,168,76,0.3)',
+                        fontSize: '0.72rem',
+                        fontWeight: 700,
+                        color: '#C9A84C',
+                        letterSpacing: '0.05em',
+                      }}>
+                        {formation.bloc_label}
+                      </div>
+                    )}
                     <h5 style={{ margin: '0 0 6px 0', color: '#fff', fontWeight: 800, fontSize: isMobile ? '1rem' : '1.1rem' }}>
                       {formation.titre}
                     </h5>
@@ -2179,10 +2580,13 @@ const FormationsTab = () => {
                   </div>
                 </div>
               </div>
+              ))}
+                </div>
+              </div>
             ))}
           </div>
         )}
-      </div>
+      </div>}
 
       {/* ── Assign modal ── */}
       {showAssignForm && selectedFormationForAssign && (

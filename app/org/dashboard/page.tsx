@@ -293,7 +293,7 @@ export default function OrgAdminDashboard() {
       </ScrollReveal>
 
       {/* ── KPI Cards ── */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         {kpis.map((kpi, i) => (
           <ScrollReveal key={kpi.id} direction="up" delay={i * 80}>
             <button
@@ -327,14 +327,14 @@ export default function OrgAdminDashboard() {
 
       {/* ── Tab Nav ── */}
       <ScrollReveal direction="up" delay={200}>
-        <div className="rounded-2xl p-1.5 mb-6 flex gap-1.5"
+        <div className="rounded-2xl p-1.5 mb-6 flex flex-col sm:flex-row gap-1.5"
           style={{ background: '#0A1434', border: '1px solid rgba(27,58,140,0.3)' }}>
           {tabs.map((tab) => {
             const isActive = activeSection === tab.id;
             return (
               <button key={tab.id}
                 onClick={() => setActiveSection(tab.id)}
-                className="relative flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2"
+                className="relative flex-1 px-5 py-2.5 rounded-xl text-sm font-bold transition-all duration-300 flex items-center justify-center gap-2"
                 style={isActive
                   ? { background: 'linear-gradient(135deg, #1B3A8C, #C9A84C)', color: '#ffffff', boxShadow: '0 4px 16px rgba(27,58,140,0.3)' }
                   : { background: 'transparent', color: 'rgba(255,255,255,0.45)' }}>
@@ -362,27 +362,27 @@ export default function OrgAdminDashboard() {
             <div className="rounded-3xl overflow-hidden"
               style={{ borderTop: '2px solid rgba(27,58,140,0.35)', borderRight: '2px solid rgba(27,58,140,0.35)', borderBottom: '2px solid rgba(27,58,140,0.35)', borderLeft: '4px solid #1B3A8C', background: '#070E28', boxShadow: '0 0 28px rgba(27,58,140,0.10)' }}>
               {/* Header */}
-              <div className="px-6 py-5 flex items-center justify-between"
+              <div className="px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 style={{ borderBottom: '1px solid rgba(27,58,140,0.2)', background: 'rgba(27,58,140,0.08)' }}>
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl bg-[#1B3A8C] border border-[#C9A84C]/20 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-5 h-5 text-[#C9A84C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-[#1B3A8C] border border-[#C9A84C]/20 flex items-center justify-center flex-shrink-0">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#C9A84C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                     </svg>
                   </div>
-                  <div>
-                    <h2 className="text-lg font-black text-white">Utilisateurs</h2>
+                  <div className="min-w-0">
+                    <h2 className="text-base sm:text-lg font-black text-white">Utilisateurs</h2>
                     <p className="text-xs text-white/50">{users.length} membre{users.length > 1 ? 's' : ''}{license ? ` / ${license.max_users} max` : ''}</p>
                   </div>
                 </div>
                 <button onClick={() => handleOpenUserModal()}
-                  className="px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.02]"
+                  className="w-full sm:w-auto px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all hover:scale-[1.02]"
                   style={{ background: 'linear-gradient(135deg, #1B3A8C 0%, #2e5bb8 50%, #C9A84C 100%)', boxShadow: '0 4px 16px rgba(27,58,140,0.3)' }}>
                   + Créer
                 </button>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {loading ? (
                   <div className="text-center py-12 text-white/40 text-sm">Chargement…</div>
                 ) : users.length === 0 ? (
@@ -402,11 +402,11 @@ export default function OrgAdminDashboard() {
                   </div>
                 ) : (
                   <div className="overflow-x-auto rounded-xl" style={{ border: '1px solid rgba(27,58,140,0.2)' }}>
-                    <table className="w-full">
+                    <table className="w-full" style={{ minWidth: '480px' }}>
                       <thead>
                         <tr style={{ background: 'rgba(27,58,140,0.08)' }}>
                           {['Utilisateur', 'Email', 'Rôle', 'Actions'].map((h, i) => (
-                            <th key={h} className={`py-3 px-4 text-[10px] font-black uppercase tracking-[0.15em] text-white/40 ${i === 3 ? 'text-right' : 'text-left'}`}>{h}</th>
+                            <th key={h} className={`py-3 px-2 sm:px-4 text-[10px] font-black uppercase tracking-[0.15em] text-white/40 ${i === 3 ? 'text-right' : 'text-left'}`}>{h}</th>
                           ))}
                         </tr>
                       </thead>
@@ -424,7 +424,7 @@ export default function OrgAdminDashboard() {
                                 <span className="text-white font-semibold text-sm">{user.full_name}</span>
                               </div>
                             </td>
-                            <td className="py-3.5 px-4 text-white/60 text-sm">{user.email}</td>
+                            <td className="py-3.5 px-2 sm:px-4 text-white/60 text-sm">{user.email}</td>
                             <td className="py-3.5 px-4">
                               <span className="px-3 py-1 rounded-lg text-xs font-bold"
                                 style={user.role === 'admin'
@@ -433,9 +433,9 @@ export default function OrgAdminDashboard() {
                                 {user.role === 'admin' ? 'Admin' : 'Utilisateur'}
                               </span>
                             </td>
-                            <td className="py-3.5 px-4 text-right">
+                            <td className="py-3.5 px-2 sm:px-4 text-right">
                               <button onClick={() => handleOpenUserModal(user)}
-                                className="px-4 py-2 rounded-lg text-sm font-semibold text-white/70 hover:text-white transition-all"
+                                className="px-3 py-2 rounded-lg text-sm font-semibold text-white/70 hover:text-white transition-all"
                                 style={{ background: 'rgba(27,58,140,0.15)', border: '1px solid rgba(27,58,140,0.25)' }}>
                                 Modifier
                               </button>
@@ -462,22 +462,22 @@ export default function OrgAdminDashboard() {
             <div className="rounded-3xl overflow-hidden"
               style={{ borderTop: '2px solid rgba(201,168,76,0.3)', borderRight: '2px solid rgba(201,168,76,0.3)', borderBottom: '2px solid rgba(201,168,76,0.3)', borderLeft: '4px solid #C9A84C', background: '#070E28', boxShadow: '0 0 28px rgba(201,168,76,0.06)' }}>
               {/* Header */}
-              <div className="px-6 py-5 flex items-center justify-between"
+              <div className="px-4 sm:px-6 py-4 sm:py-5 flex flex-wrap items-center justify-between gap-3"
                 style={{ borderBottom: '1px solid rgba(201,168,76,0.15)', background: 'rgba(201,168,76,0.05)' }}>
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                     style={{ background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)' }}>
-                    <svg className="w-5 h-5 text-[#C9A84C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#C9A84C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                     </svg>
                   </div>
-                  <div>
-                    <h2 className="text-lg font-black text-white">Licence</h2>
+                  <div className="min-w-0">
+                    <h2 className="text-base sm:text-lg font-black text-white">Licence</h2>
                     <p className="text-xs text-white/50">{license ? `Plan ${license.plan}` : 'Aucune licence'}</p>
                   </div>
                 </div>
                 {license && (
-                  <span className="px-3.5 py-1.5 rounded-xl text-xs font-black"
+                  <span className="px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl text-xs font-black flex-shrink-0"
                     style={daysLeft > 30
                       ? { background: 'rgba(5,150,105,0.12)', color: '#059669', border: '1px solid rgba(5,150,105,0.25)' }
                       : daysLeft > 7
@@ -488,7 +488,7 @@ export default function OrgAdminDashboard() {
                 )}
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 {!license ? (
                   <div className="text-center py-16">
                     <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center"
@@ -519,14 +519,14 @@ export default function OrgAdminDashboard() {
                     </div>
 
                     {/* Details grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                       {[
                         { label: 'Plan', value: license.plan, color: '#C9A84C' },
                         { label: 'Statut', value: license.status === 'active' ? 'Active' : license.status, color: license.status === 'active' ? '#059669' : '#D97706' },
                         { label: 'Utilisateurs', value: `${users.length}/${license.max_users}`, color: '#1B3A8C' },
                         { label: 'Capacité', value: `${usagePercent}%`, color: usagePercent > 80 ? '#EF4444' : usagePercent > 60 ? '#D97706' : '#059669' },
                       ].map(({ label, value, color }) => (
-                        <div key={label} className="p-4 rounded-xl" style={{ background: '#040B1E', border: '1px solid rgba(27,58,140,0.2)' }}>
+                        <div key={label} className="p-3 sm:p-4 rounded-xl" style={{ background: '#040B1E', border: '1px solid rgba(27,58,140,0.2)' }}>
                           <div className="text-[10px] font-black uppercase tracking-[0.15em] text-white/40 mb-1">{label}</div>
                           <div className="text-lg font-black" style={{ color }}>{value}</div>
                         </div>
@@ -549,7 +549,7 @@ export default function OrgAdminDashboard() {
                     {license.features && license.features.length > 0 && (
                       <div className="p-5 rounded-2xl" style={{ background: 'rgba(27,58,140,0.06)', border: '1px solid rgba(27,58,140,0.2)' }}>
                         <h3 className="text-xs font-black uppercase tracking-[0.15em] text-white/60 mb-4">Fonctionnalités incluses</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                           {license.features.map((feature, index) => (
                             <div key={index} className="flex items-center gap-2.5 text-sm">
                               <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
@@ -574,12 +574,12 @@ export default function OrgAdminDashboard() {
 
       {/* ── User Modal ── */}
       {showUserModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/70 backdrop-blur-md"
           onClick={() => setShowUserModal(false)}>
           <div className="w-full max-w-md max-h-[90vh] overflow-y-auto rounded-2xl"
             style={{ background: '#0A1434', border: '1px solid rgba(27,58,140,0.4)', boxShadow: '0 24px 64px rgba(0,0,0,0.5)' }}
             onClick={(e) => e.stopPropagation()}>
-            <div className="p-6">
+            <div className="p-4 sm:p-6">
               {/* Modal header */}
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
@@ -651,7 +651,7 @@ export default function OrgAdminDashboard() {
                   </select>
                 </div>
 
-                <div className="flex gap-3 pt-2">
+                <div className="flex flex-col sm:flex-row gap-3 pt-2">
                   <button type="button" onClick={() => setShowUserModal(false)}
                     className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white/60 hover:text-white transition-all"
                     style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>

@@ -71,7 +71,7 @@ export default function TabPermissionsSection() {
       const essentialTabs: Tab[] = [
         { id: 'questions', name: 'Base de Connaissances & IA', icon: '📚' },
         { id: 'credit', name: 'Analyse de Dossier de Crédit', icon: '💳' },
-        { id: 'pcb', name: 'PCB & Ratios', icon: '📊' },
+        { id: 'pcb', name: 'États PCB UEMOA & ratios', icon: '📊' },
         { id: 'impayes', name: 'Gestion des Impayés', icon: '💸' },
         { id: 'formations', name: 'Modules de Formation', icon: '📚' }
       ];

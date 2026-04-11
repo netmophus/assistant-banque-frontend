@@ -287,11 +287,11 @@ export default function QuotasManagementSection() {
 
             {/* Quotas par Département */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-white">Quotas par Département</h3>
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <h3 className="text-lg sm:text-xl font-bold text-white">Quotas par Département</h3>
                 <button
                   onClick={addDepartmentQuota}
-                  className="px-4 py-2 bg-[#2563EB]/20 hover:bg-[#2563EB]/30 text-[#2563EB] font-semibold rounded-lg border border-[#2563EB]/30 transition-all cursor-pointer"
+                  className="px-4 py-2 bg-[#2563EB]/20 hover:bg-[#2563EB]/30 text-[#2563EB] font-semibold rounded-lg border border-[#2563EB]/30 transition-all cursor-pointer text-sm flex-shrink-0"
                 >
                   + Ajouter
                 </button>
@@ -303,8 +303,8 @@ export default function QuotasManagementSection() {
                 {config.department_quotas.map((dq) => {
                   const dept = departments.find(d => d.id === dq.department_id);
                   return (
-                    <div key={dq.department_id} className="flex items-center space-x-3 bg-white/5 p-4 rounded-xl border border-white/10">
-                      <div className="flex-1">
+                    <div key={dq.department_id} className="flex flex-wrap items-center gap-2 bg-white/5 p-3 sm:p-4 rounded-xl border border-white/10">
+                      <div className="flex-1 min-w-0" style={{ minWidth: '120px' }}>
                         <select
                           value={dq.department_id}
                           onChange={(e) => {
@@ -315,7 +315,7 @@ export default function QuotasManagementSection() {
                             );
                             setConfig({ ...config, department_quotas: newQuotas });
                           }}
-                          className="w-full px-4 py-2 bg-[#1a1f3a] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                          className="w-full px-3 py-2 bg-[#1a1f3a] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                           style={{ backgroundColor: '#1a1f3a', color: '#ffffff' }}
                         >
                           {departments.map(d => (
@@ -337,14 +337,14 @@ export default function QuotasManagementSection() {
                           );
                           setConfig({ ...config, department_quotas: newQuotas });
                         }}
-                        className="w-32 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all"
+                        className="w-24 sm:w-32 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all"
                         placeholder="Quota"
                       />
                       <button
                         onClick={() => removeDepartmentQuota(dq.department_id)}
-                        className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold rounded-lg border border-red-500/30 transition-all cursor-pointer"
+                        className="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold rounded-lg border border-red-500/30 transition-all cursor-pointer text-xs flex-shrink-0"
                       >
-                        Supprimer
+                        Suppr.
                       </button>
                     </div>
                   );
@@ -357,11 +357,11 @@ export default function QuotasManagementSection() {
 
             {/* Quotas par Service */}
             <div>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-xl font-bold text-white">Quotas par Service</h3>
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <h3 className="text-lg sm:text-xl font-bold text-white">Quotas par Service</h3>
                 <button
                   onClick={addServiceQuota}
-                  className="px-4 py-2 bg-[#2563EB]/20 hover:bg-[#2563EB]/30 text-[#2563EB] font-semibold rounded-lg border border-[#2563EB]/30 transition-all cursor-pointer"
+                  className="px-4 py-2 bg-[#2563EB]/20 hover:bg-[#2563EB]/30 text-[#2563EB] font-semibold rounded-lg border border-[#2563EB]/30 transition-all cursor-pointer text-sm flex-shrink-0"
                 >
                   + Ajouter
                 </button>
@@ -373,8 +373,8 @@ export default function QuotasManagementSection() {
                 {config.service_quotas.map((sq) => {
                   const service = services.find(s => s.id === sq.service_id);
                   return (
-                    <div key={sq.service_id} className="flex items-center space-x-3 bg-white/5 p-4 rounded-xl border border-white/10">
-                      <div className="flex-1">
+                    <div key={sq.service_id} className="flex flex-wrap items-center gap-2 bg-white/5 p-3 sm:p-4 rounded-xl border border-white/10">
+                      <div className="flex-1 min-w-0" style={{ minWidth: '120px' }}>
                         <select
                           value={sq.service_id}
                           onChange={(e) => {
@@ -385,7 +385,7 @@ export default function QuotasManagementSection() {
                             );
                             setConfig({ ...config, service_quotas: newQuotas });
                           }}
-                          className="w-full px-4 py-2 bg-[#1a1f3a] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
+                          className="w-full px-3 py-2 bg-[#1a1f3a] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB]"
                           style={{ backgroundColor: '#1a1f3a', color: '#ffffff' }}
                         >
                           {services.map(s => (
@@ -407,14 +407,14 @@ export default function QuotasManagementSection() {
                           );
                           setConfig({ ...config, service_quotas: newQuotas });
                         }}
-                        className="w-32 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all"
+                        className="w-24 sm:w-32 px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-[#2563EB] focus:border-transparent transition-all"
                         placeholder="Quota"
                       />
                       <button
                         onClick={() => removeServiceQuota(sq.service_id)}
-                        className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold rounded-lg border border-red-500/30 transition-all cursor-pointer"
+                        className="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 font-semibold rounded-lg border border-red-500/30 transition-all cursor-pointer text-xs flex-shrink-0"
                       >
-                        Supprimer
+                        Suppr.
                       </button>
                     </div>
                   );

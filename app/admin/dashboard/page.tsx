@@ -66,6 +66,17 @@ export default function SuperAdminDashboard() {
   const [showLicenseModal, setShowLicenseModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
 
+  // Web search config modal
+  const [showWebSearchModal, setShowWebSearchModal] = useState(false);
+  const [webSearchOrg, setWebSearchOrg] = useState<Organization | null>(null);
+  const [webSearchEnabled, setWebSearchEnabled] = useState(false);
+  const [webSearchSites, setWebSearchSites] = useState<string[]>([]);
+  const [webSearchNewSite, setWebSearchNewSite] = useState('');
+  const [webSearchLoading, setWebSearchLoading] = useState(false);
+  const [webSearchSaving, setWebSearchSaving] = useState(false);
+  const [webSearchError, setWebSearchError] = useState<string | null>(null);
+  const [webSearchSuccess, setWebSearchSuccess] = useState<string | null>(null);
+
   const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8000';
 
   const [ragFile, setRagFile] = useState<File | null>(null);
@@ -309,6 +320,51 @@ export default function SuperAdminDashboard() {
   const getOrgName = (orgId: string) => {
     const org = organizations.find((o) => o.id === orgId);
     return org ? org.name : orgId;
+  };
+
+  const handleOpenWebSearchModal = async (org: Organization) => {
+    setWebSearchOrg(org);
+    setWebSearchError(null);
+    setWebSearchSuccess(null);
+    setWebSearchNewSite('');
+    setWebSearchLoading(true);
+    setShowWebSearchModal(true);
+    try {
+      const data = await apiClient.get<{ web_search_enabled: boolean; web_search_sites: string[] }>(`/organizations/${org.id}/web-search-config`);
+      setWebSearchEnabled(data.web_search_enabled);
+      setWebSearchSites(data.web_search_sites);
+    } catch {
+      setWebSearchEnabled(false);
+      setWebSearchSites([]);
+    } finally {
+      setWebSearchLoading(false);
+    }
+  };
+
+  const handleWebSearchAddSite = () => {
+    const site = webSearchNewSite.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/$/, '');
+    if (!site || webSearchSites.includes(site)) { setWebSearchNewSite(''); return; }
+    setWebSearchSites(prev => [...prev, site]);
+    setWebSearchNewSite('');
+  };
+
+  const handleWebSearchSave = async () => {
+    if (!webSearchOrg) return;
+    setWebSearchSaving(true);
+    setWebSearchError(null);
+    setWebSearchSuccess(null);
+    try {
+      await apiClient.put(`/organizations/${webSearchOrg.id}/web-search-config`, {
+        web_search_enabled: webSearchEnabled,
+        web_search_sites: webSearchSites,
+      });
+      setWebSearchSuccess('Configuration enregistrée.');
+      setTimeout(() => setWebSearchSuccess(null), 3000);
+    } catch (err: any) {
+      setWebSearchError(err.message || 'Erreur lors de l\'enregistrement.');
+    } finally {
+      setWebSearchSaving(false);
+    }
   };
 
   const handleOpenOrgModal = (org?: Organization) => {
@@ -1219,12 +1275,24 @@ export default function SuperAdminDashboard() {
                               <p>Code: <span className="text-[#94a3b8] font-medium">{org.code}</span></p>
                               <p>Pays: <span className="text-[#94a3b8] font-medium">{org.country}</span></p>
                             </div>
-                            <button
-                              onClick={() => handleOpenOrgModal(org)}
-                              className="w-full px-4 py-2 bg-white/[0.04] hover:bg-white/[0.08] text-[#94a3b8] hover:text-white font-semibold text-sm rounded-lg border border-white/[0.06] transition-all duration-300"
-                            >
-                              Modifier
-                            </button>
+                            <div className="flex flex-col gap-2">
+                              <button
+                                onClick={() => handleOpenWebSearchModal(org)}
+                                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-bold text-sm text-white transition-all hover:scale-[1.02]"
+                                style={{ background: 'linear-gradient(135deg, #059669 0%, #0d9488 100%)', boxShadow: '0 4px 14px rgba(5,150,105,0.35)' }}
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                                </svg>
+                                Sites de recherche web
+                              </button>
+                              <button
+                                onClick={() => handleOpenOrgModal(org)}
+                                className="w-full px-4 py-2 bg-white/[0.04] hover:bg-white/[0.08] text-[#94a3b8] hover:text-white font-semibold text-sm rounded-lg border border-white/[0.06] transition-all duration-300"
+                              >
+                                Modifier
+                              </button>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -1805,6 +1873,239 @@ export default function SuperAdminDashboard() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modale Web Search Config ── */}
+      {showWebSearchModal && webSearchOrg && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+          onClick={() => setShowWebSearchModal(false)}
+        >
+          <div
+            className="relative w-full max-w-xl flex flex-col"
+            style={{ maxHeight: '90vh' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Glow derrière la modale */}
+            <div className="absolute -inset-px rounded-3xl pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(5,150,105,0.25) 0%, rgba(13,148,136,0.1) 100%)', filter: 'blur(1px)' }} />
+
+            <div className="relative flex flex-col rounded-3xl overflow-hidden" style={{ background: 'linear-gradient(160deg, #0d1a2e 0%, #071020 100%)', border: '1px solid rgba(5,150,105,0.3)', boxShadow: '0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)' }}>
+
+              {/* ── Header fixe ── */}
+              <div className="flex-shrink-0 px-6 pt-6 pb-5" style={{ borderBottom: '1px solid rgba(5,150,105,0.15)', background: 'rgba(5,150,105,0.06)' }}>
+                {/* Badge + close */}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    {/* Icône animée */}
+                    <div className="relative flex-shrink-0">
+                      <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #059669, #0d9488)', boxShadow: '0 8px 24px rgba(5,150,105,0.4)' }}>
+                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                      </div>
+                      {/* Pulse */}
+                      <div className="absolute -inset-1 rounded-2xl animate-ping opacity-20" style={{ background: '#059669' }} />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Recherche Web</span>
+                        <span className="w-1 h-1 rounded-full bg-emerald-400/50" />
+                        <span className="text-[10px] font-semibold text-white/40 uppercase tracking-wider">IA</span>
+                      </div>
+                      <h3 className="text-xl font-black text-white leading-tight">Sites à consulter</h3>
+                      <p className="text-xs text-white/40 mt-0.5 font-medium">{webSearchOrg.name} · {webSearchOrg.code}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowWebSearchModal(false)}
+                    className="flex-shrink-0 p-2 rounded-xl text-white/40 hover:text-white transition-all"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* ── Corps scrollable ── */}
+              <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(5,150,105,0.3) transparent' }}>
+
+                {webSearchLoading ? (
+                  <div className="flex flex-col items-center justify-center py-16 gap-4">
+                    <div className="relative w-10 h-10">
+                      <div className="absolute inset-0 border-2 border-emerald-500/20 rounded-full" />
+                      <div className="absolute inset-0 border-2 border-transparent border-t-emerald-500 rounded-full animate-spin" />
+                    </div>
+                    <p className="text-sm text-white/40">Chargement de la configuration…</p>
+                  </div>
+                ) : (
+                  <>
+                    {/* Bannière info */}
+                    <div className="flex items-start gap-3 p-4 rounded-2xl" style={{ background: 'rgba(5,150,105,0.08)', border: '1px solid rgba(5,150,105,0.2)' }}>
+                      <svg className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-xs text-white/55 leading-relaxed">
+                        Quand le RAG ne trouve pas de sources suffisantes <span className="text-emerald-400 font-bold">(score &lt; 0.75)</span>, l'IA consulte ces sites automatiquement. L'utilisateur ne voit rien, c'est totalement transparent.
+                      </p>
+                    </div>
+
+                    {webSearchError && (
+                      <div className="flex items-center gap-3 p-4 rounded-2xl" style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+                        <svg className="w-4 h-4 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <p className="text-sm text-red-400">{webSearchError}</p>
+                      </div>
+                    )}
+                    {webSearchSuccess && (
+                      <div className="flex items-center gap-3 p-4 rounded-2xl" style={{ background: 'rgba(5,150,105,0.08)', border: '1px solid rgba(5,150,105,0.25)' }}>
+                        <svg className="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <p className="text-sm text-emerald-400">{webSearchSuccess}</p>
+                      </div>
+                    )}
+
+                    {/* Toggle activation */}
+                    <div
+                      onClick={() => setWebSearchEnabled(prev => !prev)}
+                      className="flex items-center justify-between p-4 rounded-2xl cursor-pointer transition-all hover:scale-[1.01]"
+                      style={{ background: webSearchEnabled ? 'rgba(5,150,105,0.1)' : 'rgba(255,255,255,0.03)', border: `1px solid ${webSearchEnabled ? 'rgba(5,150,105,0.35)' : 'rgba(255,255,255,0.07)'}` }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: webSearchEnabled ? 'rgba(5,150,105,0.2)' : 'rgba(255,255,255,0.05)' }}>
+                          <svg className="w-4 h-4" style={{ color: webSearchEnabled ? '#34d399' : '#64748b' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-white">Activer la recherche web</p>
+                          <p className="text-xs text-white/40 mt-0.5">Fallback automatique si le RAG est insuffisant</p>
+                        </div>
+                      </div>
+                      {/* Toggle pill */}
+                      <div className="flex-shrink-0 w-12 h-6 rounded-full flex items-center px-1 transition-all duration-300" style={{ background: webSearchEnabled ? '#059669' : 'rgba(255,255,255,0.1)', border: `1px solid ${webSearchEnabled ? '#059669' : 'rgba(255,255,255,0.15)'}` }}>
+                        <div className="w-4 h-4 rounded-full bg-white shadow-md transition-transform duration-300" style={{ transform: webSearchEnabled ? 'translateX(24px)' : 'translateX(0)' }} />
+                      </div>
+                    </div>
+
+                    {/* Bloc sites */}
+                    <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+                      {/* Titre section */}
+                      <div className="px-4 py-3 flex items-center justify-between" style={{ background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                          </svg>
+                          <span className="text-xs font-black uppercase tracking-[0.15em] text-white/50">Domaines autorisés</span>
+                        </div>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold" style={{ background: 'rgba(5,150,105,0.15)', color: '#34d399', border: '1px solid rgba(5,150,105,0.25)' }}>
+                          {webSearchSites.length} site{webSearchSites.length !== 1 ? 's' : ''}
+                        </span>
+                      </div>
+
+                      {/* Liste */}
+                      <div className="p-3 space-y-2" style={{ background: '#060e1c' }}>
+                        {webSearchSites.length === 0 ? (
+                          <div className="py-8 flex flex-col items-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.03)', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                              <svg className="w-5 h-5 text-white/20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                              </svg>
+                            </div>
+                            <p className="text-xs text-white/25 text-center">Aucun domaine configuré<br />Ajoutez-en un ci-dessous</p>
+                          </div>
+                        ) : (
+                          webSearchSites.map((site, i) => (
+                            <div key={site} className="group flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all" style={{ background: 'rgba(5,150,105,0.06)', border: '1px solid rgba(5,150,105,0.15)' }}>
+                              <span className="flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black text-emerald-400" style={{ background: 'rgba(5,150,105,0.15)' }}>{i + 1}</span>
+                              <span className="flex-1 text-sm text-white font-mono truncate">{site}</span>
+                              <button
+                                onClick={() => setWebSearchSites(prev => prev.filter(s => s !== site))}
+                                className="flex-shrink-0 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all hover:bg-red-500/20"
+                              >
+                                <svg className="w-3.5 h-3.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                              </button>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      {/* Champ d'ajout */}
+                      <div className="p-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(255,255,255,0.02)' }}>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={webSearchNewSite}
+                            onChange={(e) => setWebSearchNewSite(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleWebSearchAddSite()}
+                            placeholder="cb-umoa.org, bceao.int, cofeb.bceao.int…"
+                            className="flex-1 px-3.5 py-2.5 rounded-xl text-white text-sm placeholder-white/25 focus:outline-none transition-all"
+                            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(5,150,105,0.2)' }}
+                            onFocus={e => { e.target.style.borderColor = 'rgba(5,150,105,0.5)'; e.target.style.background = 'rgba(5,150,105,0.05)'; }}
+                            onBlur={e => { e.target.style.borderColor = 'rgba(5,150,105,0.2)'; e.target.style.background = 'rgba(255,255,255,0.04)'; }}
+                          />
+                          <button
+                            onClick={handleWebSearchAddSite}
+                            disabled={!webSearchNewSite.trim()}
+                            className="px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-30 disabled:cursor-not-allowed hover:scale-[1.03] flex-shrink-0 flex items-center gap-1.5"
+                            style={{ background: 'linear-gradient(135deg, #059669, #0d9488)', boxShadow: '0 4px 14px rgba(5,150,105,0.3)' }}
+                          >
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                            </svg>
+                            Ajouter
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-white/25 mt-2">Sans protocole (http://). Sous-domaines acceptés. Touche Entrée pour valider.</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* ── Footer fixe ── */}
+              {!webSearchLoading && (
+                <div className="flex-shrink-0 px-6 py-4 flex gap-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.2)' }}>
+                  <button
+                    onClick={() => setShowWebSearchModal(false)}
+                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold text-white/50 hover:text-white transition-all"
+                    style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+                  >
+                    Annuler
+                  </button>
+                  <button
+                    onClick={handleWebSearchSave}
+                    disabled={webSearchSaving}
+                    className="flex-1 px-4 py-2.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] flex items-center justify-center gap-2"
+                    style={{ background: webSearchSaving ? 'rgba(5,150,105,0.3)' : 'linear-gradient(135deg, #059669 0%, #0d9488 100%)', boxShadow: webSearchSaving ? 'none' : '0 4px 20px rgba(5,150,105,0.35)' }}
+                  >
+                    {webSearchSaving ? (
+                      <>
+                        <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                        </svg>
+                        Enregistrement…
+                      </>
+                    ) : (
+                      <>
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        Enregistrer
+                      </>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

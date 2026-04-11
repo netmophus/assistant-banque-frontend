@@ -187,6 +187,24 @@ const THEME_QUESTIONS: ThemeQuestion[] = [
       'Comment les actifs pondérés par les risques (RWA) sont-ils calculés selon Bâle III UMOA ?',
       'Quel est le capital minimum requis pour créer une banque dans la zone UMOA ?',
       'Quelle est la différence entre les ratios prudentiels Pilier 1 et Pilier 2 en UMOA ?',
+      'Comment la BCEAO calcule-t-elle le coussin contracyclique de capital ?',
+      'Quels sont les critères de classification des établissements systémiques (D-SIB) en UMOA ?',
+      'Comment les risques opérationnels sont-ils pris en compte dans le calcul des fonds propres ?',
+      'Quelle est la définition réglementaire des fonds propres selon la BCEAO ?',
+      'Comment est déterminé le ratio de couverture des emplois à moyen et long terme ?',
+      'Qu\'est-ce que le Pilier 3 de Bâle III et quelles sont les obligations de publication ?',
+      'Comment calculer le ratio crédits/dépôts et quelles en sont les implications prudentielles ?',
+      'Quelles sont les règles de déduction des fonds propres Tier 1 selon la BCEAO ?',
+      'Comment la BCEAO applique-t-elle les exigences de stress test aux banques UMOA ?',
+      'Quel est le traitement prudentiel des participations dans les fonds propres réglementaires ?',
+      'Comment les instruments hybrides de capital sont-ils traités dans les fonds propres UMOA ?',
+      'Quelles sont les obligations de reporting prudentiel trimestriel à la Commission Bancaire ?',
+      'Comment calculer le ratio de concentration des risques par contrepartie en UMOA ?',
+      'Quelle est la réglementation sur les grands risques dans le dispositif prudentiel BCEAO ?',
+      'Comment la BCEAO traite-t-elle le risque de taux d\'intérêt dans le portefeuille bancaire ?',
+      'Quelles sont les exigences relatives au coussin pour les établissements systémiques (D-SIB) ?',
+      'Comment évaluer l\'adéquation du capital interne (ICAAP) selon la réglementation BCEAO ?',
+      'Quelles sont les mesures correctives applicables en cas de dégradation du ratio de solvabilité ?',
     ],
   },
   {
@@ -207,6 +225,24 @@ const THEME_QUESTIONS: ThemeQuestion[] = [
       'Quelles sont les sanctions prévues pour non-conformité LBC-FT en UMOA ?',
       'Comment fonctionne le filtrage des listes de sanctions internationales dans une banque ?',
       'Qu\'est-ce que l\'approche basée sur les risques (ABR) en matière de LBC-FT ?',
+      'Quelles sont les obligations LBC-FT spécifiques aux virements électroniques transfrontaliers ?',
+      'Comment réaliser une évaluation nationale des risques (ENR) dans le dispositif UMOA ?',
+      'Quelles sont les exigences de formation du personnel en matière de LBC-FT ?',
+      'Comment traiter un client refusé dans le cadre des diligences LBC-FT ?',
+      'Qu\'est-ce que la GIABA et quel est son rôle dans la lutte contre le blanchiment en UMOA ?',
+      'Quelles sont les obligations LBC-FT des établissements de microfinance en UMOA ?',
+      'Comment mettre en place un système de surveillance des transactions suspectes (STR) ?',
+      'Quelle est la procédure de levée du secret bancaire dans le cadre d\'une enquête LBC-FT ?',
+      'Comment évaluer le risque LBC-FT d\'un nouveau produit bancaire avant son lancement ?',
+      'Quels sont les délais légaux pour déclarer une opération suspecte à la CENTIF ?',
+      'Comment gérer la vigilance LBC-FT pour les clients non-résidents en UMOA ?',
+      'Quelles sont les obligations de due diligence lors d\'une relation de correspondance bancaire ?',
+      'Comment identifier et gérer le financement du terrorisme dans une banque UMOA ?',
+      'Quelles informations doivent figurer dans un rapport annuel de conformité LBC-FT ?',
+      'Comment auditer le dispositif LBC-FT d\'un établissement de crédit en UMOA ?',
+      'Quelles sont les obligations LBC-FT lors de l\'ouverture d\'un compte pour une ASBL ?',
+      'Comment traiter les transactions en espèces dépassant les seuils réglementaires UMOA ?',
+      'Quelle est la responsabilité personnelle du Responsable de la Conformité (RCLBC) en UMOA ?',
     ],
   },
   {
@@ -227,6 +263,24 @@ const THEME_QUESTIONS: ThemeQuestion[] = [
       'Qu\'est-ce que le crédit documentaire et comment fonctionne-t-il dans l\'UMOA ?',
       'Comment gérer les risques de concentration de portefeuille crédit selon la BCEAO ?',
       'Quelles sont les règles d\'amortissement des créances irrécouvrables ?',
+      'Comment évaluer la valeur de réalisation d\'une garantie hypothécaire en UMOA ?',
+      'Quelles sont les étapes du scoring crédit pour les particuliers dans une banque UMOA ?',
+      'Comment traiter un crédit restructuré selon les normes de la Commission Bancaire ?',
+      'Quels sont les ratios de rentabilité à analyser dans une étude de crédit entreprise ?',
+      'Comment calculer le coût du risque d\'un portefeuille de crédits en UMOA ?',
+      'Quelles sont les obligations de provisionnement pour les créances en phase pré-contentieux ?',
+      'Comment fonctionne la procédure d\'appel en garantie OHADA en cas de défaut ?',
+      'Quels sont les délais légaux de prescription pour les créances bancaires en UMOA ?',
+      'Comment évaluer le risque de liquidité dans une banque de la zone UMOA ?',
+      'Quelles sont les conditions d\'éligibilité pour un refinancement auprès de la BCEAO ?',
+      'Comment gérer le risque de change dans les crédits en devises en UMOA ?',
+      'Qu\'est-ce que le crédit-bail (leasing) et quelle est sa réglementation en UMOA ?',
+      'Comment calculer le taux effectif global (TEG) d\'un crédit selon la réglementation UMOA ?',
+      'Quelles sont les obligations de déclaration des dépassements à la centrale des risques BCEAO ?',
+      'Comment construire une matrice de migration des créances dans un portefeuille UMOA ?',
+      'Quelles sont les règles de dépréciation des créances selon les normes IFRS 9 en UMOA ?',
+      'Comment gérer les crédits syndiqués dans une banque chef de file en UMOA ?',
+      'Quelles sont les obligations de suivi post-octroi d\'un crédit selon la Commission Bancaire ?',
     ],
   },
   {
@@ -241,12 +295,30 @@ const THEME_QUESTIONS: ThemeQuestion[] = [
       'Comment établir un bilan bancaire selon le PCB UMOA ?',
       'Quels sont les postes du compte de résultat d\'une banque selon le PCB ?',
       'Comment comptabiliser les opérations de hors-bilan selon le PCB UMOA ?',
-      'Quelles sont les règles de comptabilisation des titres de placement ?',
+      'Quelles sont les règles de comptabilisation des titres de placement selon le PCB ?',
       'Comment calculer le Produit Net Bancaire (PNB) d\'un établissement de crédit ?',
       'Quels sont les états financiers obligatoires à soumettre à la Commission Bancaire ?',
       'Comment comptabiliser une opération en devises étrangères selon le PCB UMOA ?',
       'Comment traiter comptablement les provisions pour risques et charges ?',
       'Quelles sont les règles de consolidation des comptes bancaires en UMOA ?',
+      'Comment comptabiliser les intérêts courus non échus selon le PCB UMOA ?',
+      'Quelle est la méthode de comptabilisation des opérations interbancaires selon le PCB ?',
+      'Comment établir l\'annexe aux états financiers d\'une banque UMOA ?',
+      'Quelles sont les règles de comptabilisation des opérations avec la BCEAO ?',
+      'Comment comptabiliser les instruments financiers dérivés selon le PCB UMOA ?',
+      'Quelles sont les modalités de clôture des comptes annuels d\'une banque UMOA ?',
+      'Comment calculer et comptabiliser la réserve obligatoire de la BCEAO ?',
+      'Quelles sont les règles PCB pour la comptabilisation des opérations de crédit-bail ?',
+      'Comment comptabiliser les opérations sur titres d\'investissement selon le PCB ?',
+      'Quelle est la méthode de comptabilisation des engagements de retraite selon le PCB ?',
+      'Comment traiter les écarts de conversion des devises dans les comptes bancaires UMOA ?',
+      'Quelles sont les règles d\'amortissement des immobilisations dans une banque UMOA ?',
+      'Comment comptabiliser une opération de titrisation selon le PCB UMOA ?',
+      'Quelles sont les obligations de certification des comptes par le commissaire aux comptes ?',
+      'Comment établir le tableau des flux de trésorerie d\'une banque selon le PCB ?',
+      'Quelles sont les différences de traitement comptable entre créances saines et douteuses ?',
+      'Comment comptabiliser les opérations de pension livrée dans le PCB UMOA ?',
+      'Quelles sont les règles de présentation des états financiers comparatifs en UMOA ?',
     ],
   },
   {
@@ -267,6 +339,24 @@ const THEME_QUESTIONS: ThemeQuestion[] = [
       'Quel est le rôle du commissaire aux comptes dans la supervision bancaire UMOA ?',
       'Comment gérer un conflit d\'intérêts au sein d\'un conseil d\'administration bancaire ?',
       'Quelles sont les exigences en matière de rémunération des dirigeants de banque ?',
+      'Comment mettre en place un comité d\'audit efficace dans une banque UMOA ?',
+      'Quelles sont les obligations de formation continue pour les administrateurs de banque ?',
+      'Comment la Commission Bancaire notifie-t-elle ses décisions disciplinaires aux banques ?',
+      'Quelles sont les incompatibilités légales dans l\'exercice des fonctions de direction bancaire ?',
+      'Comment fonctionne la procédure de mise sous administration provisoire d\'une banque ?',
+      'Quelles sont les obligations de reporting interne au conseil d\'administration ?',
+      'Comment documenter et archiver les décisions du conseil d\'administration d\'une banque ?',
+      'Quelles sont les règles relatives aux transactions avec les parties liées en UMOA ?',
+      'Comment évaluer l\'efficacité du dispositif de contrôle interne d\'une banque UMOA ?',
+      'Quelles sont les obligations relatives à la politique de rémunération variable des dirigeants ?',
+      'Comment mettre en place une fonction de gestion des risques indépendante en banque UMOA ?',
+      'Quelles sont les responsabilités du Directeur Général face à la Commission Bancaire ?',
+      'Comment traiter les recommandations d\'un contrôle sur place de la Commission Bancaire ?',
+      'Quelles sont les obligations de gouvernance spécifiques aux filiales de groupes bancaires étrangers ?',
+      'Comment composer et faire fonctionner un comité de crédit dans une banque UMOA ?',
+      'Quelles sont les dispositions relatives à la succession des dirigeants d\'une banque UMOA ?',
+      'Comment mettre en œuvre un plan de redressement (recovery plan) selon la BCEAO ?',
+      'Quelles sont les obligations de gouvernance des établissements de microfinance en UMOA ?',
     ],
   },
   {
@@ -287,6 +377,24 @@ const THEME_QUESTIONS: ThemeQuestion[] = [
       'Comment lutter contre la fraude dans les transactions électroniques en UMOA ?',
       'Quelles sont les obligations de reporting des incidents de paiement à la BCEAO ?',
       'Comment fonctionne l\'interopérabilité des systèmes de paiement en UMOA ?',
+      'Quelles sont les exigences de fonds propres pour un établissement de paiement en UMOA ?',
+      'Comment fonctionne le système SICA-UEMOA de compensation des chèques ?',
+      'Quelles sont les règles d\'émission et de gestion des cartes bancaires en UMOA ?',
+      'Comment la BCEAO encadre-t-elle les Fintechs dans l\'espace UMOA ?',
+      'Quelles sont les obligations KYC pour les opérateurs de mobile money en UMOA ?',
+      'Comment traiter un chèque impayé selon la réglementation UMOA ?',
+      'Quelles sont les règles applicables aux virements SWIFT dans la zone UMOA ?',
+      'Comment gérer les incidents techniques dans un système de paiement critique UMOA ?',
+      'Quelles sont les obligations de continuité d\'activité pour les systèmes de paiement ?',
+      'Comment la BCEAO assure-t-elle la surveillance macro-prudentielle des paiements ?',
+      'Quelles sont les règles relatives aux paiements transfrontaliers en UMOA ?',
+      'Comment obtenir le statut d\'établissement de paiement (EP) en UMOA ?',
+      'Quelles sont les obligations de déclaration des transactions suspectes pour les EME ?',
+      'Comment gérer les fonds de remboursement garantis pour les établissements de monnaie électronique ?',
+      'Quelles sont les règles d\'utilisation du chèque de banque en UMOA ?',
+      'Comment fonctionne la garantie des dépôts pour les fonds clients d\'un EME en UMOA ?',
+      'Quelles sont les conditions d\'accès au système STAR-UEMOA pour une banque étrangère ?',
+      'Comment la régulation des paiements numériques évolue-t-elle dans l\'espace UMOA ?',
     ],
   },
   {
@@ -307,6 +415,24 @@ const THEME_QUESTIONS: ThemeQuestion[] = [
       'Quelles sont les conditions générales de vente (CGV) obligatoires en banque UMOA ?',
       'Comment la BCEAO contrôle-t-elle les pratiques commerciales des banques ?',
       'Quels sont les recours disponibles pour un client victime d\'une pratique abusive ?',
+      'Quelles sont les obligations de conseil lors de la souscription d\'un produit d\'épargne en UMOA ?',
+      'Comment mettre en place un service client conforme aux exigences BCEAO ?',
+      'Quelles sont les règles de calcul et d\'affichage des taux d\'intérêt débiteurs en UMOA ?',
+      'Comment gérer la clôture d\'un compte bancaire à la demande du client en UMOA ?',
+      'Quelles sont les règles relatives au droit au compte en UMOA ?',
+      'Comment informer les clients des modifications des conditions tarifaires en UMOA ?',
+      'Quelles sont les règles de confidentialité et de secret bancaire en UMOA ?',
+      'Comment traiter les successions et comptes d\'une personne décédée en UMOA ?',
+      'Quelles sont les obligations de transparence sur les produits de placement en UMOA ?',
+      'Comment gérer les litiges relatifs aux cartes bancaires et paiements électroniques ?',
+      'Quelles sont les règles encadrant la vente liée de produits bancaires en UMOA ?',
+      'Comment informer les clients sur les risques liés aux crédits à la consommation ?',
+      'Quelles sont les règles relatives au démarchage bancaire et à la prospection commerciale ?',
+      'Comment la BCEAO sanctionne-t-elle les pratiques commerciales déloyales en UMOA ?',
+      'Quelles sont les obligations d\'accessibilité bancaire pour les populations rurales en UMOA ?',
+      'Comment gérer les clients fragiles ou en situation de surendettement en UMOA ?',
+      'Quelles sont les règles de nomination et de fonctionnement d\'un médiateur bancaire en UMOA ?',
+      'Comment mettre en œuvre un dispositif de protection des données clients dans une banque UMOA ?',
     ],
   },
   {
@@ -327,6 +453,24 @@ const THEME_QUESTIONS: ThemeQuestion[] = [
       'Quelles sont les perspectives de développement de la finance islamique en UMOA ?',
       'Quelle est la différence entre une banque islamique et une fenêtre islamique ?',
       'Comment fonctionne le produit Musharaka dans le financement d\'entreprises ?',
+      'Quelles sont les obligations de conformité Charia pour les produits bancaires islamiques ?',
+      'Comment calculer le taux de partage des bénéfices dans un compte d\'investissement islamique ?',
+      'Qu\'est-ce que le Takaful et comment s\'articule-t-il avec l\'assurance conventionnelle en UMOA ?',
+      'Comment traiter le risque de taux d\'intérêt dans une banque islamique sans recourir au Riba ?',
+      'Quels sont les principes du contrat Istisna\'a dans le financement de projets immobiliers ?',
+      'Comment la finance islamique gère-t-elle les opérations de change (Al-Sarf) ?',
+      'Quelles sont les conditions de validité d\'un contrat Salam en financement agricole UMOA ?',
+      'Comment évaluer la conformité Charia d\'un nouveau produit financier islamique ?',
+      'Quels sont les défis de la supervision des banques islamiques par la Commission Bancaire UMOA ?',
+      'Comment fonctionne le marché interbancaire islamique dans la zone UMOA ?',
+      'Quelles sont les règles de gouvernance spécifiques aux institutions financières islamiques ?',
+      'Comment les banques islamiques gèrent-elles le risque de crédit sans intérêt conventionnel ?',
+      'Qu\'est-ce que le Waqf bancaire et quel est son rôle dans la finance sociale islamique ?',
+      'Comment structurer une émission de Sukuk souverain dans un pays de la zone UMOA ?',
+      'Quelles sont les différences entre les normes AAOIFI et les standards BCEAO pour la finance islamique ?',
+      'Comment une banque conventionnelle peut-elle ouvrir une fenêtre islamique en UMOA ?',
+      'Quels sont les critères de qualification d\'un actif conforme à la Charia en UMOA ?',
+      'Comment la Zakat est-elle prise en compte dans la gestion des fonds d\'une banque islamique ?',
     ],
   },
   {
@@ -347,6 +491,290 @@ const THEME_QUESTIONS: ThemeQuestion[] = [
       'Quels sont les critères d\'évaluation des actionnaires de référence d\'une banque UMOA ?',
       'Quelles sont les différentes catégories d\'établissements de crédit agréés en UMOA ?',
       'Comment renouveler ou modifier un agrément bancaire existant en UMOA ?',
+      'Quelles sont les conditions d\'agrément pour un bureau de représentation d\'une banque étrangère ?',
+      'Comment obtenir un agrément pour une société de gestion d\'actifs en UMOA ?',
+      'Quelles sont les exigences d\'agrément pour les Fintechs réglementées par la BCEAO ?',
+      'Comment la Commission Bancaire évalue-t-elle le plan d\'affaires d\'un projet bancaire ?',
+      'Quels sont les critères de réputation exigés des fondateurs d\'une banque en UMOA ?',
+      'Comment gérer un dossier d\'agrément refusé et quels sont les recours possibles ?',
+      'Quelles sont les conditions spécifiques d\'agrément pour une banque de développement en UMOA ?',
+      'Comment obtenir l\'autorisation d\'ouverture d\'une nouvelle agence bancaire en UMOA ?',
+      'Quelles sont les obligations de capital minimum maintenu après l\'obtention de l\'agrément ?',
+      'Comment la BCEAO traite-t-elle les demandes d\'agrément des groupes bancaires panafricains ?',
+      'Quels sont les critères d\'agrément pour les établissements de crédit-bail en UMOA ?',
+      'Comment obtenir un agrément pour les activités de conseil en investissement en UMOA ?',
+      'Quelles sont les obligations de notification lors d\'une augmentation de capital d\'une banque UMOA ?',
+      'Comment la Commission Bancaire traite-t-elle les demandes d\'extension d\'activités bancaires ?',
+      'Quels sont les critères d\'agrément pour les sociétés de transfert d\'argent en UMOA ?',
+      'Comment notifier un changement de dirigeant à la Commission Bancaire UMOA ?',
+      'Quelles sont les conditions d\'agrément pour un établissement financier à caractère bancaire ?',
+      'Comment se déroule la liquidation ordonnée d\'une banque après retrait d\'agrément en UMOA ?',
+    ],
+  },
+  {
+    id: 'marches',
+    label: 'Marchés Financiers',
+    icon: '📈',
+    color: '#F59E0B',
+    questions: [
+      'Qu\'est-ce que la BRVM et comment fonctionne-t-elle dans la zone UEMOA ?',
+      'Quel est le rôle du CREPMF dans la supervision des marchés financiers UEMOA ?',
+      'Comment une entreprise peut-elle s\'introduire en bourse à la BRVM ?',
+      'Quelles sont les conditions d\'admission des titres au marché officiel de la BRVM ?',
+      'Comment fonctionne le DC/BR (Dépositaire Central / Banque de Règlement) en UEMOA ?',
+      'Quelles sont les obligations de publication d\'information des sociétés cotées à la BRVM ?',
+      'Comment émettre un emprunt obligataire sur le marché financier régional UEMOA ?',
+      'Quelles sont les règles de conduite des Sociétés de Gestion et d\'Intermédiation (SGI) ?',
+      'Comment fonctionne le marché secondaire des titres publics en UEMOA ?',
+      'Quelles sont les conditions d\'agrément d\'une Société de Gestion d\'Actifs (SGA) en UEMOA ?',
+      'Comment sont cotés et négociés les titres d\'État sur la BRVM ?',
+      'Quelles sont les obligations des teneurs de marché sur le marché financier UEMOA ?',
+      'Qu\'est-ce que le marché des bons du Trésor et comment y participer en UEMOA ?',
+      'Comment fonctionne la chambre de compensation des opérations boursières en UEMOA ?',
+      'Quelles sont les règles anti-manipulation de cours sur le marché financier UEMOA ?',
+      'Comment un investisseur non-résident peut-il investir sur la BRVM ?',
+      'Quelles sont les obligations déclaratives des franchissements de seuil à la BRVM ?',
+      'Comment fonctionne le mécanisme de suspension de cotation à la BRVM ?',
+      'Quelles sont les conditions d\'agrément des Organismes de Placement Collectif (OPC) en UEMOA ?',
+      'Comment calculer le rendement d\'une obligation d\'État émise sur le marché UEMOA ?',
+      'Quelles sont les règles de délit d\'initié applicables au marché financier UEMOA ?',
+      'Comment fonctionne le système de règlement-livraison des titres au DC/BR ?',
+      'Quelles sont les obligations de notation des émissions obligataires en UEMOA ?',
+      'Comment évaluer la liquidité d\'un titre coté sur la BRVM ?',
+      'Quelles sont les différentes catégories de marchés de la BRVM (officiel, alternatif) ?',
+      'Comment fonctionne le mécanisme d\'OPA (Offre Publique d\'Achat) en UEMOA ?',
+      'Quelles sont les règles de distribution des dividendes pour les sociétés cotées à la BRVM ?',
+      'Comment le CREPMF contrôle-t-il les pratiques des SGI dans la zone UEMOA ?',
+      'Quelles sont les sanctions applicables aux infractions boursières en UEMOA ?',
+      'Comment fonctionne le Fonds de Garantie du Marché Financier Régional UEMOA ?',
+    ],
+  },
+  {
+    id: 'microfinance',
+    label: 'Microfinance & SFD',
+    icon: '🤝',
+    color: '#06B6D4',
+    questions: [
+      'Quelle est la réglementation applicable aux Systèmes Financiers Décentralisés (SFD) en UEMOA ?',
+      'Comment obtenir un agrément pour créer une institution de microfinance en UEMOA ?',
+      'Quelles sont les différentes catégories de SFD reconnues par la réglementation UEMOA ?',
+      'Quels sont les ratios prudentiels spécifiques aux SFD dans la zone UEMOA ?',
+      'Comment fonctionne la supervision des SFD par le Ministère des Finances et la BCEAO ?',
+      'Quelles sont les obligations comptables spécifiques aux institutions de microfinance UEMOA ?',
+      'Comment calculer le taux d\'intérêt effectif global (TIEG) pour les crédits microfinance UEMOA ?',
+      'Quelles sont les règles de provisionnement des créances en souffrance pour les SFD ?',
+      'Comment gérer la gouvernance d\'une coopérative d\'épargne et de crédit (COOPEC) en UEMOA ?',
+      'Quelles sont les obligations LBC-FT spécifiques aux SFD dans la zone UEMOA ?',
+      'Comment fonctionne le refinancement des SFD auprès des banques commerciales en UEMOA ?',
+      'Quelles sont les limites légales d\'épargne collectée pour les différentes catégories de SFD ?',
+      'Comment évaluer la performance sociale d\'une institution de microfinance UEMOA ?',
+      'Quelles sont les obligations de protection des membres/clients dans les SFD UEMOA ?',
+      'Comment traiter les créances irrécouvrables dans un SFD selon la réglementation UEMOA ?',
+      'Quelles sont les conditions de transformation d\'un SFD en banque commerciale en UEMOA ?',
+      'Comment fonctionne le Fonds de Garantie des Dépôts dans les SFD UEMOA ?',
+      'Quelles sont les obligations de reporting des SFD à la Commission de Supervision de la Microfinance ?',
+      'Comment mettre en place un système de gestion des risques dans un SFD UEMOA ?',
+      'Quelles sont les règles relatives aux taux d\'intérêt plafonds dans la microfinance UEMOA ?',
+      'Comment évaluer la viabilité financière d\'une institution de microfinance en UEMOA ?',
+      'Quelles sont les conditions d\'adhésion et de retrait dans une COOPEC en UEMOA ?',
+      'Comment fonctionne l\'audit externe d\'un SFD dans la zone UEMOA ?',
+      'Quelles sont les règles de concentration des risques applicables aux SFD en UEMOA ?',
+      'Comment gérer les conflits d\'intérêts dans la gouvernance des COOPEC UEMOA ?',
+      'Quelles sont les obligations en matière de formation des dirigeants de SFD en UEMOA ?',
+      'Comment la BCEAO distingue-t-elle les SFD des établissements de crédit classiques ?',
+      'Quelles sont les sanctions applicables aux SFD non conformes à la réglementation UEMOA ?',
+      'Comment mettre en place un plan de redressement pour un SFD en difficulté en UEMOA ?',
+      'Quelles sont les perspectives d\'évolution de la réglementation microfinance en UEMOA ?',
+    ],
+  },
+  {
+    id: 'ohada',
+    label: 'Droit OHADA & Sûretés',
+    icon: '⚖️',
+    color: '#6366F1',
+    questions: [
+      'Qu\'est-ce que l\'OHADA et quels sont ses actes uniformes applicables aux banques ?',
+      'Comment constituer une hypothèque valide selon l\'Acte Uniforme des Sûretés (AUS) OHADA ?',
+      'Quelles sont les différentes formes de sûretés personnelles reconnues par l\'OHADA ?',
+      'Comment fonctionne le nantissement de fonds de commerce selon l\'OHADA ?',
+      'Quelles sont les étapes de la procédure de saisie immobilière selon le droit OHADA ?',
+      'Comment réaliser une sûreté mobilière sans dépossession selon l\'AUS OHADA révisé ?',
+      'Qu\'est-ce que le gage avec ou sans dépossession dans le financement bancaire OHADA ?',
+      'Comment fonctionne la procédure de recouvrement simplifié de créances en OHADA ?',
+      'Quelles sont les procédures collectives prévues par l\'OHADA (redressement, liquidation) ?',
+      'Comment déclarer sa créance dans une procédure collective OHADA ?',
+      'Quelles sont les obligations du banquier lors de l\'ouverture d\'une procédure collective OHADA ?',
+      'Comment fonctionne la fiducie-sûreté dans le financement bancaire selon l\'OHADA ?',
+      'Quelles sont les règles de priorité entre créanciers dans une liquidation OHADA ?',
+      'Comment constituer et publier une sûreté au Registre du Commerce et du Crédit Mobilier (RCCM) ?',
+      'Qu\'est-ce que la cession de créance professionnelle (Dailly OHADA) et comment l\'utiliser ?',
+      'Comment fonctionne l\'aval bancaire selon le droit cambiaire OHADA ?',
+      'Quelles sont les conditions de validité d\'une lettre de change selon l\'OHADA ?',
+      'Comment traiter un chèque sans provision selon les règles OHADA ?',
+      'Quelles sont les voies d\'exécution forcée disponibles pour un créancier bancaire en OHADA ?',
+      'Comment mettre en œuvre une saisie-attribution de créances selon le droit OHADA ?',
+      'Qu\'est-ce que l\'injonction de payer et comment l\'obtenir selon l\'OHADA ?',
+      'Comment traiter la responsabilité du banquier dispensateur de crédit en droit OHADA ?',
+      'Quelles sont les règles relatives à la garantie autonome (garantie à première demande) en OHADA ?',
+      'Comment fonctionne le crédit-bail selon l\'Acte Uniforme OHADA relatif aux contrats ?',
+      'Quelles sont les règles de compétence juridictionnelle en matière bancaire dans l\'espace OHADA ?',
+      'Comment la CCJA (Cour Commune de Justice et d\'Arbitrage) intervient-elle dans les litiges bancaires ?',
+      'Quelles sont les conditions de validité d\'un cautionnement bancaire selon l\'OHADA ?',
+      'Comment purger une hypothèque après remboursement d\'un crédit immobilier en OHADA ?',
+      'Quelles sont les règles relatives au concordat préventif dans une procédure collective OHADA ?',
+      'Comment fonctionne l\'arbitrage commercial international pour les litiges bancaires en OHADA ?',
+    ],
+  },
+  {
+    id: 'change',
+    label: 'Change & International',
+    icon: '🌍',
+    color: '#14B8A6',
+    questions: [
+      'Quelle est la réglementation des changes applicable dans la zone UEMOA ?',
+      'Comment déclarer une opération de change à la BCEAO dans la zone UEMOA ?',
+      'Quelles sont les obligations de rapatriement des capitaux pour les exportateurs en UEMOA ?',
+      'Comment fonctionne le crédit documentaire (lettre de crédit) dans le commerce international ?',
+      'Quels sont les différents types de lettres de crédit (LC) utilisés en trade finance UEMOA ?',
+      'Comment fonctionne la remise documentaire dans les opérations d\'import-export UEMOA ?',
+      'Qu\'est-ce que la garantie bancaire internationale et comment l\'émettre depuis l\'UEMOA ?',
+      'Quelles sont les règles SWIFT applicables aux virements internationaux depuis l\'UEMOA ?',
+      'Comment calculer le cours de change applicable à une opération commerciale en UEMOA ?',
+      'Quelles sont les obligations de déclaration des investissements directs étrangers (IDE) en UEMOA ?',
+      'Comment fonctionne le mécanisme de couverture du risque de change pour une banque UEMOA ?',
+      'Quelles sont les limites légales de détention de devises pour les banques UEMOA ?',
+      'Comment traiter un transfert international de fonds selon la réglementation UEMOA ?',
+      'Quelles sont les règles Incoterms 2020 les plus utilisées dans les opérations UEMOA ?',
+      'Comment évaluer le risque pays dans les opérations de trade finance UEMOA ?',
+      'Quelles sont les obligations de conformité FATF/GAFI dans les transactions internationales ?',
+      'Comment fonctionne le financement des exportations (pre-export finance) depuis l\'UEMOA ?',
+      'Quelles sont les règles relatives aux comptes en devises pour les résidents UEMOA ?',
+      'Comment traiter une opération de forfaitage (forfaiting) dans une banque UEMOA ?',
+      'Quelles sont les obligations déclaratives des emprunts extérieurs contractés par les banques UEMOA ?',
+      'Comment fonctionne l\'affacturage international (factoring) en zone UEMOA ?',
+      'Quelles sont les règles de rapatriement des dividendes pour les investisseurs étrangers en UEMOA ?',
+      'Comment gérer le risque de contrepartie dans les opérations de correspondance bancaire internationale ?',
+      'Quelles sont les sanctions applicables aux infractions à la réglementation des changes en UEMOA ?',
+      'Comment mettre en place une ligne de crédit revolving avec une banque internationale depuis l\'UEMOA ?',
+      'Quelles sont les règles relatives aux opérations de swap de devises pour les banques UEMOA ?',
+      'Comment traiter les opérations de négoce international (commodity trading) en UEMOA ?',
+      'Quelles sont les procédures de contrôle des changes lors des importations en UEMOA ?',
+      'Comment gérer les différences de cours entre date de transaction et date de règlement en UEMOA ?',
+      'Quelles sont les perspectives d\'intégration financière régionale et d\'ouverture du compte de capital en UEMOA ?',
+    ],
+  },
+  {
+    id: 'alm',
+    label: 'Gestion Actif-Passif',
+    icon: '📉',
+    color: '#EC4899',
+    questions: [
+      'Qu\'est-ce que la gestion actif-passif (ALM) et pourquoi est-elle cruciale pour une banque UEMOA ?',
+      'Comment mesurer le gap de liquidité statique et dynamique dans une banque UEMOA ?',
+      'Qu\'est-ce que la duration de Macaulay et comment l\'appliquer dans la gestion d\'un portefeuille obligataire ?',
+      'Comment calculer le gap de taux d\'intérêt d\'une banque commerciale en UEMOA ?',
+      'Qu\'est-ce que l\'immunisation du bilan et comment la mettre en œuvre dans une banque UEMOA ?',
+      'Comment fonctionne le Comité ALCO (Asset and Liability Committee) dans une banque UEMOA ?',
+      'Quelles sont les méthodes de transfert interne de fonds (taux de cession interne) en banque ?',
+      'Comment modéliser les dépôts à vue dans le cadre de l\'ALM bancaire UEMOA ?',
+      'Qu\'est-ce que la Value at Risk (VaR) et comment l\'utiliser pour mesurer le risque de marché ?',
+      'Comment construire et interpréter une courbe des taux pour une banque de la zone UEMOA ?',
+      'Quelles sont les méthodes de stress test du risque de liquidité selon la réglementation BCEAO ?',
+      'Comment gérer le risque de transformation (financement long terme par ressources courtes) en UEMOA ?',
+      'Qu\'est-ce que le risque de base dans la gestion ALM et comment le couvrir ?',
+      'Comment établir un plan de financement d\'urgence (contingency funding plan) selon la BCEAO ?',
+      'Quels instruments de couverture du risque de taux sont disponibles pour les banques UEMOA ?',
+      'Comment mesurer et gérer le risque de remboursement anticipé des crédits (prepayment risk) ?',
+      'Qu\'est-ce que la sensibilité de la valeur économique des fonds propres (EVE) en ALM ?',
+      'Comment calculer le ratio de transformation dans une banque commerciale UEMOA ?',
+      'Quelles sont les obligations de reporting ALM à la BCEAO et à la Commission Bancaire ?',
+      'Comment fonctionne la gestion du coussin de liquidité (HQLA) dans le cadre du LCR BCEAO ?',
+      'Qu\'est-ce que le Net Interest Income (NII) et comment l\'optimiser dans une banque UEMOA ?',
+      'Comment intégrer les scénarios macroéconomiques dans les modèles ALM d\'une banque UEMOA ?',
+      'Quelles sont les limites internes de risque de taux recommandées par la BCEAO pour les banques ?',
+      'Comment gérer le risque de liquidité intraday dans une banque participante au STAR-UEMOA ?',
+      'Qu\'est-ce que le risk appetite framework et comment l\'intégrer dans la politique ALM d\'une banque ?',
+      'Comment évaluer l\'impact d\'une hausse de taux directeur BCEAO sur le bilan d\'une banque ?',
+      'Quelles sont les meilleures pratiques de gouvernance du risque ALM selon les standards BCEAO ?',
+      'Comment mesurer et gérer le risque de concentration des ressources (concentration du passif) ?',
+      'Qu\'est-ce que le floor de taux zéro et comment le modéliser dans un contexte de taux bas en UEMOA ?',
+      'Comment mettre en place un système d\'information ALM performant dans une banque UEMOA ?',
+    ],
+  },
+  {
+    id: 'fiscalite',
+    label: 'Fiscalité Bancaire',
+    icon: '💰',
+    color: '#84CC16',
+    questions: [
+      'Quels impôts et taxes s\'appliquent spécifiquement aux établissements de crédit en UEMOA ?',
+      'Comment est calculée la TVA sur les services bancaires dans les pays de l\'UEMOA ?',
+      'Quelles sont les opérations bancaires exonérées de TVA dans la zone UEMOA ?',
+      'Comment traiter fiscalement les intérêts reçus sur crédits dans les banques UEMOA ?',
+      'Quelles sont les règles de retenue à la source sur les intérêts versés aux clients bancaires ?',
+      'Comment calculer l\'impôt sur les sociétés (IS) pour une banque dans la zone UEMOA ?',
+      'Quelles sont les charges fiscalement déductibles pour un établissement de crédit en UEMOA ?',
+      'Comment traiter fiscalement les provisions pour créances douteuses dans une banque UEMOA ?',
+      'Quelles sont les obligations déclaratives fiscales mensuelles et annuelles d\'une banque UEMOA ?',
+      'Comment est imposé le produit des placements interbancaires et des titres de la BCEAO ?',
+      'Quelles sont les règles de prix de transfert applicables aux banques filiales de groupes étrangers ?',
+      'Comment traiter fiscalement les plus-values sur cession de titres dans une banque UEMOA ?',
+      'Quelles sont les règles de TVA applicables aux commissions bancaires transfrontalières ?',
+      'Comment est imposée la vente de biens saisis dans le cadre d\'une réalisation de garantie ?',
+      'Quelles sont les règles de déductibilité des intérêts sur emprunts intragroupes pour les banques ?',
+      'Comment traiter fiscalement les opérations de crédit-bail dans une banque UEMOA ?',
+      'Quelles sont les obligations de déclaration des avoirs à l\'étranger pour les banques UEMOA ?',
+      'Comment est taxée la distribution de dividendes par une banque à ses actionnaires en UEMOA ?',
+      'Quelles sont les conventions fiscales internationales signées par les pays de l\'UEMOA ?',
+      'Comment traiter la TVA sur les opérations de change dans une banque UEMOA ?',
+      'Quelles sont les règles d\'amortissement fiscal des immobilisations bancaires en UEMOA ?',
+      'Comment est imposée la rémunération des dirigeants dans une banque de la zone UEMOA ?',
+      'Quelles sont les règles fiscales relatives aux fusions-acquisitions bancaires en UEMOA ?',
+      'Comment gérer un contrôle fiscal dans un établissement de crédit en UEMOA ?',
+      'Quelles sont les règles de report déficitaire applicables aux banques en UEMOA ?',
+      'Comment traiter fiscalement les opérations sur instruments dérivés dans une banque UEMOA ?',
+      'Quelles sont les taxes parafiscales spécifiques au secteur bancaire dans la zone UEMOA ?',
+      'Comment calculer et déclarer la contribution des patentes pour une banque en UEMOA ?',
+      'Quelles sont les règles de TVA sur les prestations rendues à des banques non-résidentes ?',
+      'Comment optimiser la charge fiscale d\'une banque dans le respect de la réglementation UEMOA ?',
+    ],
+  },
+  {
+    id: 'audit',
+    label: 'Audit & Contrôle',
+    icon: '🔍',
+    color: '#F97316',
+    questions: [
+      'Quelles sont les composantes d\'un dispositif de contrôle interne efficace dans une banque UEMOA ?',
+      'Comment organiser et structurer la fonction d\'audit interne d\'un établissement de crédit UEMOA ?',
+      'Quelles sont les normes professionnelles de l\'IIA (Institute of Internal Auditors) applicables en UEMOA ?',
+      'Comment réaliser une cartographie des risques dans une banque de la zone UEMOA ?',
+      'Quelles sont les obligations réglementaires en matière de contrôle interne selon la Commission Bancaire ?',
+      'Comment mettre en place un plan d\'audit annuel basé sur les risques dans une banque UEMOA ?',
+      'Quels sont les critères d\'indépendance de la fonction audit interne selon la BCEAO ?',
+      'Comment évaluer l\'efficacité du contrôle interne d\'une banque selon la méthode COSO ?',
+      'Quelles sont les obligations de reporting de l\'audit interne au conseil d\'administration ?',
+      'Comment conduire un audit du processus de crédit dans une banque UEMOA ?',
+      'Quelles sont les techniques d\'audit assisté par ordinateur (CAAT) utilisées en banque UEMOA ?',
+      'Comment auditer le dispositif LBC-FT d\'un établissement de crédit en UEMOA ?',
+      'Quelles sont les obligations du commissaire aux comptes dans la supervision bancaire UEMOA ?',
+      'Comment coordonner les travaux de l\'audit interne et du commissaire aux comptes ?',
+      'Quelles sont les principales zones de risque à auditer dans une salle des marchés bancaire ?',
+      'Comment conduire un audit des systèmes d\'information (SI) dans une banque UEMOA ?',
+      'Quelles sont les exigences de la Commission Bancaire concernant le rapport annuel de contrôle interne ?',
+      'Comment évaluer l\'adéquation des provisions pour créances dans le cadre d\'un audit bancaire ?',
+      'Quelles sont les red flags à détecter lors d\'un audit du processus de gestion de trésorerie ?',
+      'Comment auditer la conformité réglementaire d\'une banque aux exigences BCEAO ?',
+      'Quelles sont les étapes d\'une mission d\'audit des opérations de back-office bancaire ?',
+      'Comment mettre en place un dispositif de contrôle permanent dans les agences bancaires ?',
+      'Quelles sont les responsabilités légales de l\'auditeur interne en cas de fraude détectée ?',
+      'Comment évaluer le risque de fraude dans les processus bancaires selon le triangle de Cressey ?',
+      'Quelles sont les meilleures pratiques d\'audit de la fonction ressources humaines en banque ?',
+      'Comment documenter et conclure une mission d\'audit interne selon les standards BCEAO ?',
+      'Quelles sont les obligations de suivi des recommandations d\'audit dans une banque UEMOA ?',
+      'Comment évaluer l\'efficacité du comité d\'audit dans la gouvernance bancaire en UEMOA ?',
+      'Quelles sont les spécificités de l\'audit des opérations de microfinance pour une banque UEMOA ?',
+      'Comment préparer une banque à une inspection sur place de la Commission Bancaire UMOA ?',
     ],
   },
 ];
@@ -356,13 +784,13 @@ const THEME_QUESTIONS: ThemeQuestion[] = [
 // ---------------------------------------------------------------------------
 
 
-function FahimtaAvatar() {
+function MiznasAvatar() {
   return (
     <div className="flex-shrink-0 mr-2 mt-1 text-center">
       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary via-secondary to-accent flex items-center justify-center text-white text-[10px] font-bold">
         FA
       </div>
-      <p className="text-[8px] text-muted mt-0.5 leading-none">Fahimta</p>
+      <p className="text-[8px] text-muted mt-0.5 leading-none">Miznas AI</p>
     </div>
   );
 }
@@ -378,6 +806,12 @@ const CARD_COLORS = [
 
 function makeComponents(accent: string) {
   return {
+    a: ({ href, children }: any) => (
+      <a href={href} target="_blank" rel="noopener noreferrer"
+        style={{ color: accent, textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+        {children}
+      </a>
+    ),
     h3: ({ children }: any) => (
       <h3 style={{ fontSize: '0.85em', fontWeight: 700, color: accent, marginTop: '0.75em', marginBottom: '0.3em', paddingLeft: '0.6em', borderLeft: `2px solid ${accent}50` }}>
         {children}
@@ -389,9 +823,12 @@ function makeComponents(accent: string) {
     li: ({ children }: any) => <li style={{ marginBottom: '0.2em', lineHeight: '1.65' }}>{children}</li>,
     strong: ({ children }: any) => <strong style={{ fontWeight: 700, color: accent }}>{children}</strong>,
     em: ({ children }: any) => <em style={{ fontStyle: 'italic', color: '#94a3b8' }}>{children}</em>,
-    code: ({ children }: any) => <code style={{ background: 'rgba(0,0,0,0.35)', padding: '0.1em 0.4em', borderRadius: '4px', fontSize: '0.82em', fontFamily: 'monospace', color: '#e2e8f0' }}>{children}</code>,
-    blockquote: ({ children }: any) => <blockquote style={{ borderLeft: `3px solid ${accent}60`, paddingLeft: '0.75em', marginLeft: 0, opacity: 0.85, fontStyle: 'italic' }}>{children}</blockquote>,
+    code: ({ children }: any) => <code style={{ background: 'rgba(0,0,0,0.35)', padding: '0.1em 0.4em', borderRadius: '4px', fontSize: '0.82em', fontFamily: 'monospace', color: '#e2e8f0', wordBreak: 'break-all', whiteSpace: 'pre-wrap' }}>{children}</code>,
+    blockquote: ({ children }: any) => <blockquote style={{ borderLeft: `3px solid ${accent}60`, background: `${accent}08`, paddingLeft: '0.75em', paddingTop: '0.3em', paddingBottom: '0.3em', marginLeft: 0, borderRadius: '0 6px 6px 0' }}>{children}</blockquote>,
     hr: () => <hr style={{ border: 'none', borderTop: `1px solid rgba(255,255,255,0.08)`, margin: '0.5em 0' }} />,
+    table: ({ children }: any) => <div style={{ overflowX: 'auto', maxWidth: '100%', marginBottom: '0.75em' }}><table style={{ width: '100%', maxWidth: '100%', borderCollapse: 'collapse', fontSize: '0.82em', tableLayout: 'fixed', wordBreak: 'break-word' }}>{children}</table></div>,
+    th: ({ children }: any) => <th style={{ padding: '0.4em 0.75em', background: `${accent}18`, color: accent, fontWeight: 700, border: `1px solid ${accent}30`, textAlign: 'left', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{children}</th>,
+    td: ({ children }: any) => <td style={{ padding: '0.35em 0.75em', border: '1px solid rgba(255,255,255,0.08)', color: '#cbd5e1', overflowWrap: 'break-word', wordBreak: 'break-word' }}>{children}</td>,
   };
 }
 
@@ -402,7 +839,7 @@ function AssistantBubble({ content }: { content: string }) {
   const sections = content.split(/(?=^## )/m);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', fontSize: '0.875rem', color: '#f1f5f9' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.625rem', fontSize: '0.875rem', color: '#f1f5f9', minWidth: 0, overflowWrap: 'break-word', wordBreak: 'break-word' }}>
       {sections.map((section, i) => {
         if (!section.trim()) return null;
 
@@ -436,7 +873,7 @@ function AssistantBubble({ content }: { content: string }) {
               </div>
               {/* Corps de la carte */}
               {body && (
-                <div style={{ padding: '0.75rem 1rem' }}>
+                <div style={{ padding: '0.75rem 1rem', minWidth: 0, overflow: 'hidden' }}>
                   <ReactMarkdown remarkPlugins={[remarkGfm]} components={makeComponents(c.accent) as any}>
                     {body}
                   </ReactMarkdown>
@@ -476,14 +913,13 @@ function ChatTab({
 }) {
   const [messages, setMessages] = useState<ChatMessage[]>([{
     id: 'welcome', role: 'assistant', timestamp: new Date(),
-    content: "Bonjour ! Je suis **Fahimta AI**, votre assistant bancaire intelligence de la réglementation bancaire UMOA. Posez-moi vos questions ou choisissez un thème ci-dessous.",
+    content: "Bonjour ! Je suis **Miznas AI**, votre assistant bancaire intelligence de la réglementation bancaire UMOA. Posez-moi vos questions ou choisissez un thème ci-dessous.",
   }]);
   const [input, setInput]   = useState('');
   const [loading, setLoading] = useState(false);
   const [activeThemeId, setActiveThemeId] = useState<string>(THEME_QUESTIONS[0].id);
   const [themePanelOpen, setThemePanelOpen] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const themeScrollRef = useRef<HTMLDivElement>(null);
 
   const activeTheme = THEME_QUESTIONS.find(t => t.id === activeThemeId) ?? THEME_QUESTIONS[0];
 
@@ -586,11 +1022,14 @@ function ChatTab({
           overflow: 'hidden',
           boxShadow: `0 6px 24px ${activeTheme.color}14`,
         }}>
-          {/* Sous-onglets thèmes — scroll horizontal */}
-          <div
-            ref={themeScrollRef}
-            style={{ display: 'flex', gap: '0.3rem', padding: '0.625rem 0.75rem', overflowX: 'auto', scrollbarWidth: 'none', borderBottom: `1px solid ${activeTheme.color}20` }}
-          >
+          {/* Grille de cartes thèmes */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))',
+            gap: '0.4rem',
+            padding: '0.75rem',
+            borderBottom: `1px solid ${activeTheme.color}20`,
+          }}>
             {THEME_QUESTIONS.map(theme => {
               const isActive = theme.id === activeThemeId;
               return (
@@ -598,19 +1037,47 @@ function ChatTab({
                   key={theme.id}
                   onClick={() => setActiveThemeId(theme.id)}
                   style={{
-                    display: 'flex', alignItems: 'center', gap: '0.25rem',
-                    padding: '0.3rem 0.625rem', borderRadius: '9999px',
-                    border: isActive ? `1px solid ${theme.color}` : '1px solid rgba(255,255,255,0.08)',
-                    background: isActive ? `${theme.color}1e` : 'transparent',
-                    color: isActive ? '#ffffff' : 'rgba(255,255,255,0.55)',
-                    fontSize: '0.7rem', fontWeight: isActive ? 700 : 500,
-                    cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
-                    transition: 'all 0.15s', boxShadow: isActive ? `0 0 10px ${theme.color}28` : 'none',
+                    display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+                    gap: '0.3rem',
+                    padding: '0.55rem 0.65rem',
+                    borderRadius: '0.6rem',
+                    border: isActive ? `1.5px solid ${theme.color}` : `1px solid ${theme.color}28`,
+                    background: isActive ? `${theme.color}22` : `${theme.color}09`,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                    boxShadow: isActive ? `0 0 12px ${theme.color}30` : 'none',
+                    textAlign: 'left',
+                  }}
+                  onMouseEnter={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = `${theme.color}16`;
+                      e.currentTarget.style.borderColor = `${theme.color}55`;
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.background = `${theme.color}09`;
+                      e.currentTarget.style.borderColor = `${theme.color}28`;
+                    }
                   }}
                 >
-                  <span style={{ fontSize: '0.78rem' }}>{theme.icon}</span>
-                  {theme.label}
-                  {isActive && <span style={{ width: 4, height: 4, borderRadius: '50%', background: theme.color, flexShrink: 0 }} />}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <span style={{ fontSize: '1rem', lineHeight: 1 }}>{theme.icon}</span>
+                    {isActive && (
+                      <span style={{
+                        width: 6, height: 6, borderRadius: '50%',
+                        background: theme.color, flexShrink: 0,
+                        boxShadow: `0 0 6px ${theme.color}`,
+                      }} />
+                    )}
+                  </div>
+                  <span style={{
+                    fontSize: '0.68rem', fontWeight: isActive ? 700 : 500,
+                    color: isActive ? '#ffffff' : 'rgba(255,255,255,0.65)',
+                    lineHeight: 1.3,
+                  }}>
+                    {theme.label}
+                  </span>
                 </button>
               );
             })}
@@ -673,7 +1140,7 @@ function ChatTab({
       {/* Zone conversation — hauteur auto, zéro espace vide */}
       <div
         ref={scrollRef}
-        style={{ maxHeight: 560, overflowY: 'auto', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
+        style={{ maxHeight: 560, overflowY: 'auto', overflowX: 'hidden', padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}
       >
         {/* Message de bienvenue (index 0) — encadré */}
         {messages[0] && (
@@ -686,10 +1153,10 @@ function ChatTab({
             padding: '0.875rem 1rem',
             boxShadow: '0 0 28px rgba(201,168,76,0.10)',
           }}>
-            <FahimtaAvatar />
+            <MiznasAvatar />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
-                <span style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C9A84C' }}>Fahimta AI</span>
+                <span style={{ fontSize: '0.65rem', fontWeight: 800, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#C9A84C' }}>Miznas AI</span>
                 <span style={{ fontSize: '0.58rem', padding: '0.1rem 0.4rem', borderRadius: '9999px', background: 'rgba(201,168,76,0.12)', border: '1px solid rgba(201,168,76,0.2)', color: '#C9A84C', fontWeight: 600 }}>Assistant bancaire</span>
               </div>
               <AssistantBubble content={messages[0].content} />
@@ -706,7 +1173,7 @@ function ChatTab({
         {/* Échanges conversation (à partir du message 1) */}
         {messages.slice(1).map(msg => (
           <div key={msg.id} style={{ display: 'flex', gap: '0.5rem', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start' }}>
-            {msg.role === 'assistant' && <FahimtaAvatar />}
+            {msg.role === 'assistant' && <MiznasAvatar />}
             {msg.role === 'user' ? (
               <div style={{
                 maxWidth: '75%',
@@ -721,7 +1188,7 @@ function ChatTab({
                 </p>
               </div>
             ) : (
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                 <AssistantBubble content={msg.content} />
                 <p style={{ margin: '0.25rem 0 0', fontSize: '0.625rem', opacity: 0.7, paddingLeft: '0.25rem', color: 'rgba(255,255,255,0.75)' }}>
                   {formatTime(msg.timestamp)}
@@ -739,10 +1206,10 @@ function ChatTab({
         {/* Indicateur de chargement — apparaît uniquement quand l'IA répond */}
         {loading && (
           <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-start' }}>
-            <FahimtaAvatar />
+            <MiznasAvatar />
             <div style={{ background: '#0F1E48', border: '1px solid rgba(27,58,140,0.4)', borderRadius: '1rem 1rem 1rem 0.25rem', padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <LoadingDots />
-              <span style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.8)' }}>Fahimta AI réfléchit…</span>
+              <span style={{ fontSize: '0.875rem', color: 'rgba(255,255,255,0.8)' }}>Miznas AI réfléchit…</span>
             </div>
           </div>
         )}
@@ -852,7 +1319,7 @@ function VoiceTab({ onStatsRefresh }: { onStatsRefresh?: () => void }) {
   const statusLabel = isConnecting
     ? 'Connexion en cours…'
     : isConnected
-      ? agentMode === 'speaking' ? 'Fahimta AI parle…' : 'En écoute — parlez librement'
+      ? agentMode === 'speaking' ? 'Miznas AI parle…' : 'En écoute — parlez librement'
       : 'Prêt — cliquez pour démarrer';
 
   const btnBg = isConnecting
@@ -938,7 +1405,7 @@ function VoiceTab({ onStatsRefresh }: { onStatsRefresh?: () => void }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
             <span style={{ width: 7, height: 7, borderRadius: '50%', background: isConnected ? accentColor : isConnecting ? '#f59e0b' : 'rgba(255,255,255,0.25)', boxShadow: isConnected ? `0 0 8px ${accentColor}` : 'none', flexShrink: 0, animation: isConnected ? 'vDot 2s ease-in-out infinite' : 'none', transition: 'all 0.3s' }} />
-            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ffffff' }}>Fahimta AI Vocal</span>
+            <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ffffff' }}>Miznas AI Vocal</span>
             {isConnected && (
               <span style={{ fontSize: '0.6rem', padding: '0.15rem 0.45rem', borderRadius: '9999px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', border: `1px solid ${accentColor}50`, color: accentColor, background: `${accentColor}12` }}>
                 {agentMode === 'speaking' ? '▶ Parle' : '● Écoute'}
@@ -999,7 +1466,7 @@ function VoiceTab({ onStatsRefresh }: { onStatsRefresh?: () => void }) {
           </div>
           {voiceMessages.map((msg, idx) => (
             <div key={idx} style={{ display: 'flex', justifyContent: msg.role === 'user' ? 'flex-end' : 'flex-start', gap: '0.4rem' }}>
-              {msg.role === 'assistant' && <FahimtaAvatar />}
+              {msg.role === 'assistant' && <MiznasAvatar />}
               <div style={{
                 maxWidth: msg.role === 'user' ? '72%' : 'calc(100% - 2.5rem)',
                 background: msg.role === 'user' ? 'linear-gradient(135deg, #1B3A8C, #0F2864)' : 'rgba(255,255,255,0.03)',
@@ -1567,7 +2034,7 @@ export default function KnowledgeSection({ currentUser, onStatsRefresh }: Props)
   };
 
   const tabs: { key: TabKey; label: string; iconPath: string }[] = [
-    { key: 'chat', label: 'Chat Fahimta AI', iconPath: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
+    { key: 'chat', label: 'Chat Miznas AI', iconPath: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
     { key: 'voice', label: 'Vocal', iconPath: 'M12 1a4 4 0 00-4 4v7a4 4 0 008 0V5a4 4 0 00-4-4zM6 10v2a6 6 0 0012 0v-2M12 18v4M9 22h6' },
     { key: 'docs', label: 'Documents', iconPath: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z' },
     { key: 'archive', label: 'Archives', iconPath: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2M12 12h.01M8 12h.01M16 12h.01' },

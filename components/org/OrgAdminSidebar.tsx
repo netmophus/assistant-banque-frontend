@@ -38,7 +38,7 @@ const menuItems: MenuItem[] = [
       },
       {
         id: 'pcb',
-        label: 'PCB & Ratios Financiers',
+        label: 'États PCB UEMOA & ratios',
         icon: '💰',
         path: '/org/settings/pcb',
       },

@@ -15,6 +15,7 @@ interface AISearchConfig {
   filter_by_department: boolean;
 }
 
+
 const DEFAULT_CONFIG: AISearchConfig = {
   source_priority: ['ORG', 'GLOBAL', 'AI'],
   org_limit: 5,
@@ -41,12 +42,10 @@ export default function AISearchConfigSection() {
     setLoading(true);
     setError(null);
     try {
-      // Récupérer la configuration depuis le backend
       const response = await apiClient.get<AISearchConfig>('/ai-config/search-config');
       setConfig(response);
     } catch (err: any) {
       console.error('Erreur lors du chargement de la configuration:', err);
-      // En cas d'erreur, utiliser la configuration par défaut
       setConfig(DEFAULT_CONFIG);
     } finally {
       setLoading(false);
@@ -59,9 +58,7 @@ export default function AISearchConfigSection() {
     setSuccess(null);
 
     try {
-      // Appeler l'endpoint backend pour sauvegarder la configuration
       await apiClient.put('/ai-config/search-config', config);
-      
       setSuccess('Configuration enregistrée avec succès');
       setTimeout(() => setSuccess(null), 3000);
     } catch (err: any) {

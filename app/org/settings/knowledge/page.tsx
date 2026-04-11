@@ -85,7 +85,9 @@ export default function KnowledgeSettingsPage() {
       const data = await apiClient.post<any>('/api/rag-new/query', { question: questionToSend });
       setRagAnswer(data?.answer || '');
       setRagStrategy(data?.strategy || null);
-      setRagSources([]);
+      // Sources web : filtrer uniquement les sources WEB avec URL
+      const webSources = (data?.sources_used || []).filter((s: any) => s.scope === 'WEB' && s.url);
+      setRagSources(webSources);
     } catch (e: any) {
       setRagError(e?.message || 'Erreur lors de la requête.');
     } finally {
@@ -268,8 +270,9 @@ export default function KnowledgeSettingsPage() {
 
       {/* ── Tab Nav ── */}
       <ScrollReveal direction="up" delay={150}>
-        <div className="rounded-2xl p-1.5 mb-6 flex flex-wrap gap-1.5"
-          style={{ background: '#0A1434', border: '1px solid rgba(27,58,140,0.3)' }}>
+        <div className="rounded-2xl p-1.5 mb-6 overflow-x-auto"
+          style={{ background: '#0A1434', border: '1px solid rgba(27,58,140,0.3)', scrollbarWidth: 'none' }}>
+          <div className="flex gap-1.5 min-w-max sm:min-w-0 sm:flex-wrap">
           {tabs.map((tab) => {
             const isDisabled = tab.requiresLicense && !hasActiveLicense;
             const isActive = activeTab === tab.id;
@@ -278,22 +281,25 @@ export default function KnowledgeSettingsPage() {
                 onClick={() => !isDisabled && setActiveTab(tab.id)}
                 disabled={isDisabled}
                 title={isDisabled ? 'Licence active requise' : tab.fullLabel}
-                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300"
+                className="flex items-center gap-2 px-3 sm:px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 whitespace-nowrap flex-shrink-0"
                 style={isActive
                   ? { background: `linear-gradient(135deg, ${tab.accent}cc, ${tab.accent})`, color: '#fff', boxShadow: `0 4px 16px ${tab.accent}30` }
                   : isDisabled
                   ? { background: 'transparent', color: 'rgba(255,255,255,0.2)', cursor: 'not-allowed' }
                   : { background: 'transparent', color: 'rgba(255,255,255,0.5)' }}>
                 <span style={{ color: isActive ? '#fff' : isDisabled ? 'rgba(255,255,255,0.2)' : tab.accent }}>{tab.icon}</span>
-                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="hidden xs:inline sm:inline">{tab.label}</span>
+                {/* Mobile : show label only for active tab */}
+                <span className="inline xs:hidden sm:hidden" style={{ display: isActive ? 'inline' : 'none' }}>{tab.label}</span>
                 {isDisabled && (
-                  <svg className="w-3 h-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 opacity-40 hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 )}
               </button>
             );
           })}
+          </div>
         </div>
       </ScrollReveal>
 
@@ -306,21 +312,21 @@ export default function KnowledgeSettingsPage() {
             <div className="rounded-3xl overflow-hidden"
               style={{ borderTop: '2px solid rgba(201,168,76,0.25)', borderRight: '2px solid rgba(201,168,76,0.25)', borderBottom: '2px solid rgba(201,168,76,0.25)', borderLeft: '4px solid #C9A84C', background: '#070E28', boxShadow: '0 0 28px rgba(201,168,76,0.06)' }}>
               {/* Header */}
-              <div className="px-6 py-5 flex items-center gap-4"
+              <div className="px-4 sm:px-6 py-4 sm:py-5 flex items-center gap-3 sm:gap-4"
                 style={{ borderBottom: '1px solid rgba(201,168,76,0.15)', background: 'rgba(201,168,76,0.05)' }}>
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center flex-shrink-0"
                   style={{ background: 'rgba(201,168,76,0.15)', border: '1px solid rgba(201,168,76,0.3)' }}>
-                  <svg className="w-5 h-5 text-[#C9A84C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#C9A84C]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                   </svg>
                 </div>
-                <div>
-                  <h2 className="text-lg font-black text-white">Questions sur votre base de connaissances</h2>
-                  <p className="text-xs text-white/45">Testez la recherche RAG sur vos documents organisationnels</p>
+                <div className="min-w-0">
+                  <h2 className="text-base sm:text-lg font-black text-white leading-tight">Questions sur votre base de connaissances</h2>
+                  <p className="text-xs text-white/45 mt-0.5">Testez la recherche RAG sur vos documents organisationnels</p>
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-4 sm:p-6">
                 <p className="text-xs text-white/50 mb-5 leading-relaxed">
                   Posez une question. Si votre licence le permet, l'IA cherche d'abord dans la base globale <span className="font-bold text-[#1B3A8C]">GLOBAL</span>, puis dans les documents de votre organisation <span className="font-bold text-[#C9A84C]">LOCAL</span>, puis répond sans contexte <span className="font-bold text-white/60">LLM_ONLY</span> si aucune source pertinente n'est trouvée.
                 </p>
@@ -343,9 +349,9 @@ export default function KnowledgeSettingsPage() {
                     onBlur={e => { e.target.style.borderColor = 'rgba(27,58,140,0.4)'; }}
                   />
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     <button onClick={handleRagQuery} disabled={ragBusy}
-                      className="px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02]"
+                      className="px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] flex-shrink-0"
                       style={{ background: ragBusy ? 'rgba(27,58,140,0.3)' : 'linear-gradient(135deg, #1B3A8C 0%, #2e5bb8 50%, #C9A84C 100%)', boxShadow: ragBusy ? 'none' : '0 4px 16px rgba(27,58,140,0.3)' }}>
                       {ragBusy ? (
                         <span className="flex items-center gap-2">
@@ -353,14 +359,21 @@ export default function KnowledgeSettingsPage() {
                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                           </svg>
-                          Recherche…
+                          Recherche en cours…
                         </span>
-                      ) : 'Envoyer'}
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                          </svg>
+                          Envoyer
+                        </span>
+                      )}
                     </button>
 
                     {ragStrategy && (
                       <div className="flex items-center gap-2 text-xs text-white/45">
-                        Stratégie :
+                        <span className="hidden sm:inline">Stratégie :</span>
                         <span className="px-2 py-1 rounded-lg font-black text-[#C9A84C]"
                           style={{ background: 'rgba(201,168,76,0.1)', border: '1px solid rgba(201,168,76,0.2)' }}>
                           {ragStrategy}
@@ -371,16 +384,60 @@ export default function KnowledgeSettingsPage() {
                 </div>
 
                 {ragAnswer && (
-                  <div className="mt-6">
-                    <div className="flex items-center gap-3 mb-3 pb-3"
-                      style={{ borderBottom: '1px solid rgba(201,168,76,0.2)' }}>
-                      <span className="w-1 h-5 rounded-full flex-shrink-0" style={{ background: '#C9A84C' }} />
-                      <h3 className="text-sm font-black uppercase tracking-[0.12em] text-white">Réponse</h3>
+                  <div className="mt-6 space-y-4">
+                    {/* Badge stratégie WEB */}
+                    {ragStrategy === 'WEB' && (
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl w-fit"
+                        style={{ background: 'rgba(5,150,105,0.1)', border: '1px solid rgba(5,150,105,0.25)' }}>
+                        <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                        <span className="text-xs font-bold text-emerald-400">Réponse enrichie par recherche web</span>
+                      </div>
+                    )}
+
+                    {/* Réponse */}
+                    <div>
+                      <div className="flex items-center gap-3 mb-3 pb-3"
+                        style={{ borderBottom: '1px solid rgba(201,168,76,0.2)' }}>
+                        <span className="w-1 h-5 rounded-full flex-shrink-0" style={{ background: '#C9A84C' }} />
+                        <h3 className="text-sm font-black uppercase tracking-[0.12em] text-white">Réponse</h3>
+                      </div>
+                      <div className="p-5 rounded-2xl text-white/80 text-sm whitespace-pre-wrap leading-relaxed"
+                        style={{ background: '#040B1E', border: '1px solid rgba(27,58,140,0.25)' }}>
+                        {ragAnswer}
+                      </div>
                     </div>
-                    <div className="p-5 rounded-2xl text-white/80 text-sm whitespace-pre-wrap leading-relaxed"
-                      style={{ background: '#040B1E', border: '1px solid rgba(27,58,140,0.25)' }}>
-                      {ragAnswer}
-                    </div>
+
+                    {/* Sources web */}
+                    {ragSources.length > 0 && (
+                      <div className="rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(5,150,105,0.2)' }}>
+                        <div className="px-4 py-2.5 flex items-center gap-2" style={{ background: 'rgba(5,150,105,0.08)', borderBottom: '1px solid rgba(5,150,105,0.15)' }}>
+                          <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                          </svg>
+                          <span className="text-xs font-black uppercase tracking-[0.12em] text-emerald-400">Sources web consultées</span>
+                        </div>
+                        <div className="p-3 space-y-2" style={{ background: '#040B1E' }}>
+                          {ragSources.map((src: any, i: number) => (
+                            <a key={i} href={src.url} target="_blank" rel="noopener noreferrer"
+                              className="flex items-start gap-3 px-3 py-2.5 rounded-xl group transition-all hover:scale-[1.01]"
+                              style={{ background: 'rgba(5,150,105,0.06)', border: '1px solid rgba(5,150,105,0.15)' }}>
+                              <svg className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                              </svg>
+                              <div className="min-w-0">
+                                <p className="text-xs font-semibold text-white group-hover:text-emerald-300 transition-colors truncate">{src.documentName || src.url}</p>
+                                <p className="text-[10px] text-white/35 truncate mt-0.5">{src.url}</p>
+                              </div>
+                              {src.url?.endsWith('.pdf') && (
+                                <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[9px] font-bold text-red-300" style={{ background: 'rgba(239,68,68,0.15)' }}>PDF</span>
+                              )}
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

@@ -308,19 +308,19 @@ export default function DocumentsManagementSection() {
           </div>
 
           {/* Créer une catégorie */}
-          <div className="flex gap-3 mb-5">
+          <div className="flex gap-2 sm:gap-3 mb-5">
             <input
               type="text"
               value={newCatName}
               onChange={(e) => setNewCatName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleCreateCategory()}
               placeholder="Nom de la nouvelle catégorie…"
-              className="flex-1 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-[#CBD5E1]/50 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/60 focus:border-transparent transition-all"
+              className="flex-1 min-w-0 px-3 sm:px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder-[#CBD5E1]/50 focus:outline-none focus:ring-2 focus:ring-[#7C3AED]/60 focus:border-transparent transition-all"
             />
             <button
               onClick={handleCreateCategory}
               disabled={catCreating || !newCatName.trim()}
-              className="px-5 py-2.5 bg-gradient-to-r from-[#7C3AED] to-[#2563EB] text-white font-semibold rounded-xl hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap"
+              className="px-4 sm:px-5 py-2.5 bg-gradient-to-r from-[#7C3AED] to-[#2563EB] text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-all disabled:opacity-40 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0"
             >
               {catCreating ? '…' : '+ Créer'}
             </button>
@@ -396,12 +396,12 @@ export default function DocumentsManagementSection() {
       ══════════════════════════════════════════════════════════════════════ */}
       <ScrollReveal direction="up" delay={100}>
         <div className="bg-gradient-to-br from-[#1a1f3a]/80 via-[#2563EB]/10 to-[#1a1f3a]/80 backdrop-blur-lg rounded-[28px] border border-[#2563EB]/30 p-6">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-[#2563EB]/20 border border-[#2563EB]/40 flex items-center justify-center text-sm font-bold text-[#2563EB]">2</div>
-              <div>
-                <h2 className="text-xl font-bold text-white">Documents organisationnels</h2>
-                <p className="text-sm text-[#CBD5E1]">{documents.length} document{documents.length !== 1 ? 's' : ''} indexé{documents.length !== 1 ? 's' : ''}</p>
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-8 h-8 rounded-full bg-[#2563EB]/20 border border-[#2563EB]/40 flex items-center justify-center text-sm font-bold text-[#2563EB] flex-shrink-0">2</div>
+              <div className="min-w-0">
+                <h2 className="text-lg sm:text-xl font-bold text-white">Documents organisationnels</h2>
+                <p className="text-xs sm:text-sm text-[#CBD5E1]">{documents.length} document{documents.length !== 1 ? 's' : ''} indexé{documents.length !== 1 ? 's' : ''}</p>
               </div>
             </div>
             <button
@@ -411,11 +411,11 @@ export default function DocumentsManagementSection() {
                 setShowUploadModal(true);
               }}
               disabled={categories.length === 0}
-              className="group relative px-5 py-2.5 text-white rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="group relative px-4 sm:px-5 py-2 sm:py-2.5 text-white rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex-shrink-0"
               title={categories.length === 0 ? 'Créez une catégorie d\'abord' : ''}
             >
               <div className="absolute inset-0 bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#F59E0B] opacity-90 group-hover:opacity-100 pointer-events-none" />
-              <span className="relative z-10 font-semibold flex items-center gap-2">
+              <span className="relative z-10 font-semibold flex items-center gap-2 text-sm">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                 </svg>
@@ -441,53 +441,56 @@ export default function DocumentsManagementSection() {
               {documents.map((doc) => (
                 <div
                   key={doc.id}
-                  className="flex items-start gap-4 p-4 bg-white/5 rounded-[20px] border border-white/10 hover:border-[#2563EB]/30 transition-all duration-300 group"
+                  className="flex flex-col sm:flex-row sm:items-start gap-3 p-4 bg-white/5 rounded-[20px] border border-white/10 hover:border-[#2563EB]/30 transition-all duration-300 group"
                 >
-                  <div className="flex-shrink-0 mt-0.5">
-                    <FileIcon type={doc.file_type} />
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap mb-1">
-                      <h3 className="text-white font-semibold text-sm truncate max-w-xs">{doc.original_filename}</h3>
-                      <StatusBadge status={doc.status} />
+                  {/* Top row on mobile: icon + filename + status */}
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <FileIcon type={doc.file_type} />
                     </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-[#CBD5E1]/70">
-                      <span>🏷️ {doc.category}</span>
-                      {doc.subcategory && <span>└ {doc.subcategory}</span>}
-                      <span>{formatFileSize(doc.file_size)}</span>
-                      <span>{doc.total_chunks} chunks</span>
-                      {doc.departments && doc.departments.length > 0 && (
-                        <span>🏢 {doc.departments.map(d => d.name).join(', ')}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <h3 className="text-white font-semibold text-sm truncate max-w-[180px] sm:max-w-xs">{doc.original_filename}</h3>
+                        <StatusBadge status={doc.status} />
+                      </div>
+                      <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-[#CBD5E1]/70">
+                        <span>🏷️ {doc.category}</span>
+                        {doc.subcategory && <span>└ {doc.subcategory}</span>}
+                        <span>{formatFileSize(doc.file_size)}</span>
+                        <span>{doc.total_chunks} chunks</span>
+                        {doc.departments && doc.departments.length > 0 && (
+                          <span>🏢 {doc.departments.map(d => d.name).join(', ')}</span>
+                        )}
+                      </div>
+                      {doc.tags && doc.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {doc.tags.map((tag, i) => (
+                            <span key={i} className="px-2 py-0.5 bg-[#2563EB]/15 text-[#60A5FA] rounded-full text-xs">{tag}</span>
+                          ))}
+                        </div>
                       )}
                     </div>
-                    {doc.tags && doc.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-1.5">
-                        {doc.tags.map((tag, i) => (
-                          <span key={i} className="px-2 py-0.5 bg-[#2563EB]/15 text-[#60A5FA] rounded-full text-xs">{tag}</span>
-                        ))}
-                      </div>
-                    )}
                   </div>
 
-                  <div className="flex-shrink-0 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {/* Actions — always visible on mobile, hover on desktop */}
+                  <div className="flex gap-2 sm:flex-shrink-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
                     <button
                       onClick={() => openEditDoc(doc)}
-                      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-[#2563EB] rounded-lg border border-[#2563EB]/30 text-xs font-semibold transition-all"
+                      className="flex-1 sm:flex-none px-3 py-1.5 bg-white/5 hover:bg-white/10 text-[#2563EB] rounded-lg border border-[#2563EB]/30 text-xs font-semibold transition-all"
                     >
                       Modifier
                     </button>
                     <button
                       onClick={() => openAssignDoc(doc)}
-                      className="px-3 py-1.5 bg-white/5 hover:bg-white/10 text-[#7C3AED] rounded-lg border border-[#7C3AED]/30 text-xs font-semibold transition-all"
+                      className="flex-1 sm:flex-none px-3 py-1.5 bg-white/5 hover:bg-white/10 text-[#7C3AED] rounded-lg border border-[#7C3AED]/30 text-xs font-semibold transition-all"
                     >
                       Assigner
                     </button>
                     <button
                       onClick={() => handleDeleteDoc(doc.id)}
-                      className="px-3 py-1.5 bg-white/5 hover:bg-red-500/10 text-red-400 rounded-lg border border-red-500/20 text-xs font-semibold transition-all"
+                      className="flex-1 sm:flex-none px-3 py-1.5 bg-white/5 hover:bg-red-500/10 text-red-400 rounded-lg border border-red-500/20 text-xs font-semibold transition-all"
                     >
-                      Supprimer
+                      Suppr.
                     </button>
                   </div>
                 </div>

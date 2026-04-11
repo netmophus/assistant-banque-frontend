@@ -6,6 +6,7 @@ import { useEffect, useState, useRef } from 'react';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import ScrollReveal from '@/components/home/ScrollReveal';
+import FormationsModal from '@/components/home/FormationsModal';
 import { authApi } from '@/lib/api/auth';
 
 /* ─── Animated Counter ─────────────────────────────────────────────────── */
@@ -77,9 +78,9 @@ const features = [
 ];
 
 const metrics = [
-  { value: 70,  suffix: '%', prefix: '-', label: 'Réduction du temps d\'analyse crédit',    gold: false },
-  { value: 40,  suffix: '%', prefix: '+', label: 'Amélioration taux de recouvrement',        gold: true  },
-  { value: 100, suffix: '%', prefix: '',  label: 'Conformité réglementation BCEAO/UEMOA',   gold: false },
+  { value: 50,  suffix: '+', prefix: '', label: 'FORMATIONS',    gold: false },
+  { value: 270, suffix: '',  prefix: '+', label: 'Q/R EXPERTES',  gold: true  },
+  { value: 16,  suffix: '',  prefix: '',  label: 'THÈMES',        gold: false },
   { value: 5,   suffix: '',  prefix: '',  label: 'Modules intégrés en une seule plateforme', gold: true  },
 ];
 
@@ -106,7 +107,7 @@ const security = [
 ];
 
 const testimonials = [
-  { quote: 'Miznas Banking a transformé notre processus d\'analyse de crédit. Ce qui prenait 3 jours se fait désormais en quelques heures. Un gain de productivité remarquable pour nos équipes.', name: 'Directeur des Risques', org: 'Banque Commerciale — Niger', initials: 'DR' },
+  { quote: 'Miznas Pilot a transformé notre processus d\'analyse de crédit. Ce qui prenait 3 jours se fait désormais en quelques heures. Un gain de productivité remarquable pour nos équipes.', name: 'Directeur des Risques', org: 'Banque Commerciale — Niger', initials: 'DR' },
   { quote: 'La conformité réglementaire n\'a jamais été aussi simple. Les états financiers PCB se génèrent automatiquement avec une précision que nos auditeurs ont saluée.', name: 'Directrice Financière', org: 'Institution Financière — Niger', initials: 'DF' },
   { quote: 'Notre taux de recouvrement des impayés a progressé de 40% depuis l\'implémentation. L\'automatisation des relances et la qualification intelligente font la différence.', name: 'Responsable Recouvrement', org: 'Établissement Bancaire — Niger', initials: 'RR' },
 ];
@@ -144,6 +145,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [showFormations, setShowFormations] = useState(false);
 
   useEffect(() => {
     const user = authApi.getCurrentUser();
@@ -157,6 +159,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">
+
+      {showFormations && <FormationsModal onClose={() => setShowFormations(false)} />}
 
       <Navbar />
 
@@ -189,7 +193,7 @@ export default function Home() {
               <span className="block text-white">Miznas</span>
               <span className="block text-[#C9A84C] animate-text-shimmer"
                 style={{ backgroundImage: 'linear-gradient(90deg,#C9A84C,#E8D08A,#C9A84C,#9A7A30,#C9A84C)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundSize: '200% auto' }}>
-                Banking
+                Pilot
               </span>
             </h1>
           </ScrollReveal>
@@ -205,7 +209,7 @@ export default function Home() {
           {/* Description */}
           <ScrollReveal direction="up" delay={280}>
             <p className="text-base sm:text-lg mb-12 leading-relaxed text-white/70 max-w-2xl mx-auto">
-              Assistance réglementaire, analyse de crédit, gestion des impayés, analyse des états financiers au format PCB UEMOA&nbsp;<span className="text-white font-semibold">—</span>&nbsp;Plus de 100 modules de formation spécialisés en banque et en finance, avec QCM intégrés.
+              Assistance et aide à la décision, analyse des dossiers de crédit, gestion automatisée des impayés, génération et analyse des états financiers et ratios réglementaires au format PCB UEMOA&nbsp;<span className="text-white font-semibold">—</span>&nbsp;Plus de 100 modules de formation spécialisés en banque et finance, avec QCM intégrés.
             </p>
           </ScrollReveal>
 
@@ -221,10 +225,13 @@ export default function Home() {
                   <GoldBtn href="/login">
                     Démarrer maintenant <IcArrow />
                   </GoldBtn>
-                  <a href="#features"
-                    className="px-8 py-4 text-sm font-semibold text-white/70 hover:text-white rounded-2xl border border-white/15 hover:border-white/30 bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:scale-105">
-                    Voir les fonctionnalités
-                  </a>
+                  <button
+                    onClick={() => setShowFormations(true)}
+                    className="px-8 py-4 text-sm font-semibold text-white/70 hover:text-white rounded-2xl border border-white/15 hover:border-[#C9A84C]/50 bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                    Voir les formations
+                  </button>
                 </>
               )}
             </div>
@@ -428,7 +435,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto">
           <ScrollReveal direction="up" delay={0}>
             <div className="text-center mb-16">
-              <SectionLabel>Pourquoi Miznas Banking ?</SectionLabel>
+              <SectionLabel>Pourquoi Miznas Pilot ?</SectionLabel>
               <h2 className="text-4xl sm:text-5xl font-black text-[#0C1B3A] mb-4">
                 Conçu pour la performance bancaire
               </h2>
@@ -571,7 +578,7 @@ export default function Home() {
                 </h2>
                 <p className="text-lg text-white/50 mb-10 max-w-xl mx-auto leading-relaxed">
                   Rejoignez les institutions financières de la zone UEMOA qui font confiance à
-                  Miznas Banking pour leurs opérations bancaires quotidiennes.
+                  Miznas Pilot pour leurs opérations bancaires quotidiennes.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link href="/login"

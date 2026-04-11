@@ -26,7 +26,7 @@ export default function Footer() {
               </div>
               <div className="flex flex-col leading-tight text-left">
                 <span className="text-lg font-black text-white tracking-wide">
-                  Miznas<span className="text-[#C9A84C]"> Banking</span>
+                  Miznas<span className="text-[#C9A84C]"> Pilot</span>
                 </span>
                 <span className="text-[9px] font-bold text-white/50 uppercase tracking-[0.18em]">
                   L'IA au service de la décision bancaire
@@ -125,7 +125,7 @@ export default function Footer() {
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-[#22c55e] shadow-[0_0_6px_rgba(34,197,94,0.6)]" />
             <p className="text-[10px] text-white/40">
-              © {currentYear} Miznas Banking · Tous droits réservés
+              © {currentYear} Miznas Pilot · Tous droits réservés
             </p>
           </div>
           <span className="hidden sm:block w-px h-3 bg-white/15" />

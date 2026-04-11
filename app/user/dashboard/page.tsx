@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { authApi } from '@/lib/api/auth';
@@ -48,6 +48,7 @@ export default function UserDashboard() {
   const [userFormations, setUserFormations] = useState<any[]>([]);
   const [formationsLoading, setFormationsLoading] = useState(false);
   const [formationsError, setFormationsError] = useState<string>('');
+  const [expandedBlocKey, setExpandedBlocKey] = useState<string | null>(null);
   const [expandedFormationId, setExpandedFormationId] = useState<string | null>(null);
   const [expandedModuleKey, setExpandedModuleKey] = useState<string | null>(null);
   const [expandedChapterKey, setExpandedChapterKey] = useState<string | null>(null);
@@ -67,6 +68,23 @@ export default function UserDashboard() {
   const [question, setQuestion] = useState('');
   const [context, setContext] = useState('');
   const [lastAskedQuestion, setLastAskedQuestion] = useState<string | null>(null);
+
+  const groupedFormations = useMemo(() => {
+    const map = new Map<string, { key: string; label: string; numero: number | null; formations: any[] }>();
+    for (const f of userFormations) {
+      const key = f.bloc_numero != null ? `bloc-${f.bloc_numero}` : 'no-bloc';
+      const label = f.bloc_label || (f.bloc_numero != null ? `BLOC ${f.bloc_numero}` : 'Autres formations');
+      if (!map.has(key)) {
+        map.set(key, { key, label, numero: f.bloc_numero ?? null, formations: [] });
+      }
+      map.get(key)!.formations.push(f);
+    }
+    return Array.from(map.values()).sort((a, b) => {
+      if (a.numero === null) return 1;
+      if (b.numero === null) return -1;
+      return a.numero - b.numero;
+    });
+  }, [userFormations]);
 
   const getAuthHeaders = (): HeadersInit => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -582,7 +600,7 @@ export default function UserDashboard() {
     { id: 'formations', permission: 'formations', label: 'Formations',            icon: <IcBook /> },
     { id: 'credit',    permission: 'credit',     label: 'Analyse de Crédit',     icon: <IcCard /> },
     { id: 'recovery',  permission: 'impayes',    label: 'Recouvrement',          icon: <IcRefresh /> },
-    { id: 'pcb',       permission: 'pcb',        label: 'PCB & Ratios',          icon: <IcBarChart /> },
+    { id: 'pcb',       permission: 'pcb',        label: 'États PCB UEMOA & ratios', icon: <IcBarChart /> },
   ] as const;
 
   const today = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -769,39 +787,85 @@ export default function UserDashboard() {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {userFormations.map((f: any) => (
-                    <div key={f.id || f._id || f.titre}
-                      className="rounded-2xl bg-[#070E28] border border-[#1B3A8C]/15 hover:border-[#1B3A8C]/35 transition-all overflow-hidden">
-                      <div className="flex items-start justify-between gap-4 p-6">
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="px-2.5 py-0.5 rounded-full bg-[#1B3A8C]/30 border border-[#1B3A8C]/30 text-[10px] font-bold text-[#C9A84C] uppercase tracking-wider">
-                              {f.status}
-                            </span>
-                            <span className="text-xs text-white/65">
-                              {f.modules_count || f.modules?.length || 0} modules
-                            </span>
-                          </div>
-                          <h3 className="text-white font-bold text-base sm:text-lg leading-snug">{f.titre}</h3>
-                          {f.description && (
-                            <p className="text-white/75 text-sm mt-1.5 line-clamp-2">{f.description}</p>
-                          )}
-                        </div>
+                <div className="space-y-3">
+                  {groupedFormations.map((bloc) => {
+                    const isBlocOpen = expandedBlocKey === bloc.key;
+                    return (
+                      <div key={bloc.key} className="rounded-2xl overflow-hidden border border-[#1B3A8C]/25 bg-[#070E28]">
+                        {/* Bloc header */}
                         <button
                           type="button"
                           onClick={() => {
-                            const fid = f.id || f._id || null;
-                            if (!fid) return;
-                            setExpandedFormationId((prev) => (prev === fid ? null : fid));
+                            setExpandedBlocKey((prev) => (prev === bloc.key ? null : bloc.key));
+                            setExpandedFormationId(null);
+                            setExpandedModuleKey(null);
+                            setExpandedChapterKey(null);
                           }}
-                          className="flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold bg-[#1B3A8C]/30 hover:bg-[#1B3A8C]/50 text-white border border-[#1B3A8C]/30 hover:border-[#C9A84C]/40 transition-all"
+                          className="w-full flex items-center justify-between gap-4 px-6 py-4 text-left hover:bg-[#1B3A8C]/10 transition-all"
                         >
-                          {(f.id || f._id) && expandedFormationId === (f.id || f._id) ? 'Masquer' : 'Voir le contenu'}
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-8 h-8 rounded-lg bg-[#C9A84C]/15 border border-[#C9A84C]/30 flex items-center justify-center flex-shrink-0">
+                              <svg className="w-4 h-4 text-[#C9A84C]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                              </svg>
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-[#C9A84C] font-black text-sm tracking-wide truncate">{bloc.label}</p>
+                              <p className="text-white/40 text-xs mt-0.5">{bloc.formations.length} formation{bloc.formations.length > 1 ? 's' : ''}</p>
+                            </div>
+                          </div>
+                          <svg
+                            className={`w-5 h-5 text-[#C9A84C]/70 flex-shrink-0 transition-transform duration-200 ${isBlocOpen ? 'rotate-180' : ''}`}
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                          </svg>
                         </button>
-                      </div>
 
-                      {(f.id || f._id) && expandedFormationId === (f.id || f._id) && (
+                        {/* Formations list */}
+                        {isBlocOpen && (
+                          <div className="border-t border-[#1B3A8C]/20 divide-y divide-[#1B3A8C]/10">
+                            {bloc.formations.map((f: any) => {
+                              const fid = f.id || f._id || null;
+                              const isFormationOpen = fid && expandedFormationId === fid;
+                              return (
+                                <div key={fid || f.titre} className="bg-[#070E28]">
+                                  {/* Formation row */}
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (!fid) return;
+                                      setExpandedFormationId((prev) => (prev === fid ? null : fid));
+                                      setExpandedModuleKey(null);
+                                      setExpandedChapterKey(null);
+                                    }}
+                                    className="w-full flex items-start justify-between gap-4 px-6 py-4 text-left hover:bg-[#1B3A8C]/8 transition-all group"
+                                  >
+                                    <div className="min-w-0 flex-1">
+                                      <div className="flex items-center gap-2 mb-1.5">
+                                        <span className="px-2 py-0.5 rounded-md bg-[#1B3A8C]/30 border border-[#1B3A8C]/30 text-[9px] font-bold text-[#C9A84C] uppercase tracking-wider">
+                                          {f.modules_count || f.modules?.length || 0} modules
+                                        </span>
+                                      </div>
+                                      <h3 className="text-white font-bold text-sm sm:text-base leading-snug group-hover:text-[#C9A84C]/90 transition-colors">
+                                        {f.titre}
+                                      </h3>
+                                      {f.description && (
+                                        <p className="text-white/50 text-xs mt-1.5 leading-relaxed line-clamp-2">
+                                          {f.description}
+                                        </p>
+                                      )}
+                                    </div>
+                                    <svg
+                                      className={`w-4 h-4 text-[#C9A84C]/60 flex-shrink-0 mt-1 transition-transform duration-200 ${isFormationOpen ? 'rotate-180' : ''}`}
+                                      fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}
+                                    >
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                  </button>
+
+                                  {/* Modules expanded */}
+                                  {isFormationOpen && (
                         <div className="border-t border-[#1B3A8C]/15 p-6 space-y-3">
                           {/* Modules */}
                           <div className="space-y-2">
@@ -1017,8 +1081,14 @@ export default function UserDashboard() {
                         </div>
                       )}
                     </div>
-                  ))}
-                </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
+              </div>
               )}
             </div>
           </ScrollReveal>

@@ -78,6 +78,10 @@ export default function Navbar() {
   const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
   const isOrgAdmin = isAuthenticated && user && user.role === 'admin';
   const isUser = isAuthenticated && user && user.role === 'user';
+  const isCatalogueAdmin = isOrgAdmin && (
+    user?.organization_code === 'CATALOGUE' ||
+    user?.organization_name === 'Catalogue Global'
+  );
   const isOrgAdminPage = pathname?.startsWith('/org/');
   const isUserPage = pathname?.startsWith('/user/');
 
@@ -169,6 +173,19 @@ export default function Navbar() {
           {(isOrgAdmin && isOrgAdminPage) || (isUser && isUserPage) ? (
             isOrgAdmin && isOrgAdminPage ? (
             <div className="hidden md:flex items-center space-x-1">
+              {isCatalogueAdmin && (
+                <Link
+                  href="/org/catalogue"
+                  className={`group relative px-4 py-2 text-lg font-medium transition-all duration-300 flex items-center space-x-1 ${
+                    pathname?.startsWith('/org/catalogue')
+                      ? 'text-[#C9A84C]'
+                      : 'text-[#CBD5E1] hover:text-white'
+                  }`}
+                >
+                  <span className="relative z-10">📦 Catalogue</span>
+                  <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#C9A84C] to-[#F59E0B] group-hover:w-full transition-all duration-300"></span>
+                </Link>
+              )}
               {orgAdminMenuItems.map((item) => (
                 <div key={item.id} className="relative">
                   {item.submenu ? (

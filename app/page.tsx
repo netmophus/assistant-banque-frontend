@@ -70,11 +70,11 @@ const bankTypes = [
 ];
 
 const features = [
-  { image: '/imageA.jpg', tag: 'Réglementation', title: 'Base de Connaissance Réglementaire', description: 'Base centralisée regroupant les textes réglementaires, les référentiels PCB UEMOA et les documents internes de la banque. L\'IA fournit des réponses précises, rapides et conformes.' },
-  { image: '/imageB.jpg', tag: 'Crédit', title: 'Analyse de Crédit Assistée par l\'IA', description: 'Accélérez l\'étude des dossiers Particuliers, PME et PMI. La plateforme extrait les informations clés, met en évidence les points de vigilance et génère une synthèse d\'aide à la décision.' },
-  { image: '/imageC.jpg', tag: 'Recouvrement', title: 'Gestion Intelligente des Impayés', description: 'La plateforme centralise l\'import et la qualification des impayés, automatise les relances SMS, suit les régularisations et fournit les indicateurs clés de performance du recouvrement.' },
-  { image: '/imageD.jpg', tag: 'Finance', title: 'États Financiers PCB UEMOA', description: 'Génère automatiquement le bilan, le compte de résultat et le hors-bilan. Calcule les ratios prudentiels, interprète les résultats et fournit des alertes et recommandations conformes.' },
-  { image: '/imageE.jpg', tag: 'Formation', title: 'Catalogue de Formations Spécialisées', description: 'Accédez à plus de 100 modules de formation spécialisés en banque et en finance, avec QCM intégrés pour renforcer l\'apprentissage et l\'évaluation des équipes, et créez vos propres formations avec l\'assistance de l\'IA.' },
+  { image: '/imageA.jpg', tag: 'Réglementation', title: 'Base de Connaissance Réglementaire', description: 'Un accès en ligne centralisé à l\'ensemble des textes de la réglementation bancaire et aux référentiels PCB UEMOA, permettant aux utilisateurs de poser leurs questions et d\'obtenir des réponses immédiates, précises et conformes au cadre réglementaire.' },
+  { image: '/imageB.jpg', tag: 'Crédit', title: 'Analyse de Crédit Assistée par l\'IA', description: 'La plateforme automatise l\'analyse des dossiers des particuliers et des PME/PMI pour une prise de décision plus rapide et mieux structurée. Elle repère les éléments essentiels, signale les zones de risque et produit une synthèse claire et exploitable.' },
+  { image: '/imageC.jpg', tag: 'Recouvrement', title: 'Gestion Intelligente des Impayés', description: 'La plateforme centralise l\'import et la qualification des impayés, automatise les relances SMS auprès des débiteurs, suit les régularisations en temps réel et fournit les indicateurs clés de performance pour piloter efficacement l\'activité de recouvrement.' },
+  { image: '/imageD.jpg', tag: 'Finance', title: 'États Financiers PCB UEMOA', description: 'La plateforme génère automatiquement le bilan, le compte de résultat et le hors-bilan, calcule les ratios prudentiels, interprète les résultats et fournit des alertes ainsi que des recommandations conformes au cadre PCB UEMOA pour soutenir le pilotage financier.' },
+  { image: '/imageE.jpg', tag: 'Formation', title: 'Catalogue de Formations Spécialisées', description: 'Accédez à plus de 100 modules de formation spécialisés en banque et en finance, avec QCM intégrés pour renforcer l\'apprentissage et l\'évaluation des équipes, et créez facilement vos propres parcours de formation avec l\'assistance de l\'IA générative.' },
 ];
 
 const metrics = [
@@ -87,7 +87,7 @@ const metrics = [
 const steps = [
   { n: '1', title: 'Configurez votre espace', desc: 'Importez vos référentiels, vos documents internes, vos données financières et vos contenus de formation. Paramétrez les accès par rôle en quelques minutes.' },
   { n: '2', title: 'Analysez avec l\'IA',  desc: 'L\'IA exploite vos données, analyse les dossiers de crédit, les états financiers PCB UEMOA et les impayés, puis produit des synthèses claires et actionnables.' },
-  { n: '3', title: 'Décidez avec confiance', desc: 'Obtenez des réponses fiables, des recommandations utiles et des restitutions conformes. Accélérez la prise de décision bancaire et renforcez la maîtrise des risques au quotidien.' },
+  { n: '3', title: 'Décidez avec confiance', desc: 'Obtenez des réponses fiables et des restitutions conformes. Accélérez la prise de décision bancaire et renforcez la maîtrise des risques au quotidien.' },
 ];
 
 const benefits = [

@@ -93,12 +93,12 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3">
               <li>
-                <a href="mailto:support@miznasbanking.com"
+                <a href="mailto:contact@softlink-groupe.com"
                   className="group flex items-center gap-2.5 text-xs text-white/60 hover:text-white transition-colors duration-200">
                   <span className="w-6 h-6 rounded-lg bg-[#1B3A8C]/30 border border-[#1B3A8C]/30 flex items-center justify-center group-hover:border-[#C9A84C]/30 transition-colors flex-shrink-0">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                   </span>
-                  support@miznasbanking.com
+                  contact@softlink-groupe.com
                 </a>
               </li>
               <li className="flex items-center gap-2.5 text-xs text-white/60">
@@ -129,11 +129,19 @@ export default function Footer() {
             </p>
           </div>
           <span className="hidden sm:block w-px h-3 bg-white/15" />
-          <div className="flex items-center gap-5 text-[10px] text-white/40">
-            {['Confidentialité', 'Conditions d\'utilisation', 'Mentions légales'].map((label) => (
-              <a key={label} href="#" className="hover:text-white/80 transition-colors duration-200">
-                {label}
-              </a>
+          <div className="flex items-center flex-wrap justify-center gap-x-5 gap-y-2 text-[10px] text-white/40">
+            {[
+              { label: 'Confidentialité', href: '/legal/confidentialite' },
+              { label: "Conditions d'utilisation", href: '/legal/conditions-utilisation' },
+              { label: 'Mentions légales', href: '/legal/mentions-legales' },
+            ].map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="hover:text-white/80 transition-colors duration-200"
+              >
+                {link.label}
+              </Link>
             ))}
           </div>
         </div>

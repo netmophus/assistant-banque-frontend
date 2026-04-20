@@ -18,11 +18,19 @@ export default function UserLayout({
 
   useEffect(() => {
     const user = authApi.getCurrentUser();
-    if (!user || user.role !== 'user') {
+    if (!user) {
       router.push('/login');
       return;
     }
-  }, [router, pathname]);
+    // Pages d'impression PCB accessibles aussi aux admins (aperçu iframe + ouverture dans un onglet)
+    if (isPrintPage && (user.role === 'admin' || user.role === 'user')) {
+      return;
+    }
+    if (user.role !== 'user') {
+      router.push('/login');
+      return;
+    }
+  }, [router, pathname, isPrintPage]);
 
   if (isPrintPage) {
     return <>{children}</>;

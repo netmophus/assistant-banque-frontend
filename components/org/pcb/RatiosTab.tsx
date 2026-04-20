@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useResponsive } from '@/hooks/useResponsive';
+import { RATIO_VARIABLES_STANDARDS, RATIO_VARIABLES_STANDARDS_BY_KEY } from './ratioVariablesStandards';
 
 interface Ratio {
   id: string;
@@ -91,6 +92,11 @@ const RatiosTab = () => {
   const [catalogForm, setCatalogForm] = useState<{ key: string; label: string; unit: string }>(
     { key: '', label: '', unit: '' }
   );
+  // Mode de saisie de la variable: 'standard' (liste BCEAO) ou 'custom' (libre)
+  const [catalogMode, setCatalogMode] = useState<'standard' | 'custom'>('standard');
+  // Saisie directe du montant + date au moment de créer la variable
+  const [catalogInitialValue, setCatalogInitialValue] = useState<string>('');
+  const [catalogInitialDate, setCatalogInitialDate] = useState<string>('');
 
   const [valuesByKey, setValuesByKey] = useState<Record<string, number | ''>>({});
   const [valuesLoading, setValuesLoading] = useState(false);
@@ -128,8 +134,9 @@ const RatiosTab = () => {
     setCatalogLoading(true);
     setCatalogError('');
     try {
+      const key = (catalogForm.key || '').trim();
       const payload = {
-        key: (catalogForm.key || '').trim(),
+        key,
         label: (catalogForm.label || '').trim(),
         unit: (catalogForm.unit || '').trim(),
         description: null,
@@ -144,9 +151,31 @@ const RatiosTab = () => {
         const body = await res.text().catch(() => '');
         throw new Error(`Erreur création (${res.status}): ${body || res.statusText}`);
       }
+
+      // Si l'utilisateur a saisi un montant + une date, on sauvegarde la valeur
+      const hasMontant = catalogInitialValue !== '' && !Number.isNaN(Number(catalogInitialValue));
+      if (hasMontant && catalogInitialDate) {
+        const dateStr = catalogInitialDate.includes('T') ? catalogInitialDate.split('T')[0] : catalogInitialDate;
+        try {
+          await fetch(`/api/pcb/ratio-variables/values?date_solde=${encodeURIComponent(dateStr)}`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({ key, value: Number(catalogInitialValue) }),
+          });
+          // Si la date saisie correspond à la date courante, rafraîchit la table
+          if (selectedDate === dateStr) {
+            await fetchValuesForDate(selectedDate);
+          }
+        } catch {
+          // Ne bloque pas : la variable est créée, la valeur échouée sera modifiable ensuite
+        }
+      }
+
       setShowCatalogModal(false);
       setEditingCatalogItem(null);
       setCatalogForm({ key: '', label: '', unit: '' });
+      setCatalogInitialValue('');
+      setCatalogInitialDate('');
       await fetchCatalog();
     } catch (e2) {
       setCatalogError(e2 instanceof Error ? e2.message : 'Erreur lors de la création');
@@ -655,7 +684,18 @@ const RatiosTab = () => {
     return '#0288d1';
   };
 
-  const categories = ['solvabilite', 'liquidite', 'rentabilite', 'efficacite', 'qualite_portefeuille'];
+  const categories = [
+    'solvabilite',
+    'division_risques',
+    'levier',
+    'participations',
+    'immobilisations',
+    'parties_liees',
+    'liquidite',
+    'rentabilite',
+    'efficacite',
+    'qualite_portefeuille',
+  ];
   const typesRapport = ['bilan_reglementaire', 'compte_resultat', 'les_deux'];
 
   return (
@@ -1410,6 +1450,7 @@ const RatiosTab = () => {
             onClick={() => {
               setEditingCatalogItem(null);
               setCatalogForm({ key: '', label: '', unit: '' });
+              setCatalogMode('standard');
               setShowCatalogModal(true);
             }}
             style={{
@@ -1572,6 +1613,8 @@ const RatiosTab = () => {
             setShowCatalogModal(false);
             setEditingCatalogItem(null);
             setCatalogForm({ key: '', label: '', unit: '' });
+            setCatalogInitialValue('');
+            setCatalogInitialDate('');
           }}
         >
           <div
@@ -1595,38 +1638,218 @@ const RatiosTab = () => {
             </div>
 
             <form onSubmit={editingCatalogItem ? handleUpdateCatalogItem : handleCreateCatalogItem}>
+              {/* Toggle Standard / Personnalisée (caché en mode édition, la clé ne change pas) */}
+              {!editingCatalogItem && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 800, color: '#CBD5E1' }}>
+                    Type de variable
+                  </label>
+                  <div style={{ display: 'flex', gap: '0.5rem', background: '#0A1434', padding: '0.35rem', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.3)' }}>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCatalogMode('standard');
+                        setCatalogForm({ key: '', label: '', unit: '' });
+                      }}
+                      style={{
+                        flex: 1, padding: '0.6rem 0.8rem', borderRadius: '8px',
+                        border: 'none',
+                        background: catalogMode === 'standard' ? '#1B3A8C' : 'transparent',
+                        color: catalogMode === 'standard' ? '#fff' : 'rgba(226,232,240,0.6)',
+                        cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem',
+                        boxShadow: catalogMode === 'standard' ? '0 2px 8px rgba(27,58,140,0.4)' : 'none',
+                      }}
+                    >
+                      📚 Standard BCEAO
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCatalogMode('custom');
+                        setCatalogForm({ key: '', label: '', unit: '' });
+                      }}
+                      style={{
+                        flex: 1, padding: '0.6rem 0.8rem', borderRadius: '8px',
+                        border: 'none',
+                        background: catalogMode === 'custom' ? '#7C3AED' : 'transparent',
+                        color: catalogMode === 'custom' ? '#fff' : 'rgba(226,232,240,0.6)',
+                        cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem',
+                        boxShadow: catalogMode === 'custom' ? '0 2px 8px rgba(124,58,237,0.4)' : 'none',
+                      }}
+                    >
+                      ✏️ Personnalisée
+                    </button>
+                  </div>
+                  <div style={{ marginTop: '0.5rem', fontSize: '0.75rem', color: 'rgba(203,213,225,0.65)', lineHeight: 1.4 }}>
+                    {catalogMode === 'standard'
+                      ? 'Sélectionne une clé officielle BCEAO — libellé et unité pré-remplis pour garantir la cohérence avec les formules des ratios prudentiels.'
+                      : 'Saisie libre pour une variable qui n\'existe pas dans le référentiel BCEAO.'}
+                  </div>
+                </div>
+              )}
+
               <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
+                {/* Key — select ou input selon le mode */}
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 800, color: '#CBD5E1' }}>Key *</label>
-                  <input
-                    value={catalogForm.key}
-                    onChange={(e) => setCatalogForm((p) => ({ ...p, key: e.target.value }))}
-                    placeholder="ex: FONDS_PROPRES"
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.5)', background: '#1E3A8A', color: '#fff' }}
-                    required
-                    disabled={!!editingCatalogItem}
-                  />
+                  <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 800, color: '#CBD5E1' }}>
+                    Key *
+                    {catalogMode === 'standard' && !editingCatalogItem && (
+                      <span style={{ fontWeight: 400, fontSize: '0.75rem', color: 'rgba(203,213,225,0.55)', marginLeft: '0.5rem' }}>
+                        (choisir dans la liste)
+                      </span>
+                    )}
+                  </label>
+                  {catalogMode === 'standard' && !editingCatalogItem ? (
+                    <select
+                      value={catalogForm.key}
+                      onChange={(e) => {
+                        const k = e.target.value;
+                        const std = RATIO_VARIABLES_STANDARDS_BY_KEY[k];
+                        setCatalogForm({
+                          key: k,
+                          label: std?.label || '',
+                          unit: std?.unit || 'M FCFA',
+                        });
+                      }}
+                      required
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.5)', background: '#1E3A8A', color: '#fff' }}
+                    >
+                      <option value="" style={{ background: '#1E3A8A' }}>— Sélectionne une clé BCEAO —</option>
+                      {Array.from(new Set(RATIO_VARIABLES_STANDARDS.map((v) => v.category))).map((cat) => (
+                        <optgroup key={cat} label={cat}>
+                          {RATIO_VARIABLES_STANDARDS.filter((v) => v.category === cat).map((v) => (
+                            <option key={v.key} value={v.key} style={{ background: '#1E3A8A' }}>
+                              {v.key} — {v.label}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      value={catalogForm.key}
+                      onChange={(e) => setCatalogForm((p) => ({ ...p, key: e.target.value.trim().toUpperCase().replace(/\s+/g, '_') }))}
+                      placeholder="ex: MA_VARIABLE_PERSO"
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.5)', background: '#1E3A8A', color: '#fff', fontFamily: 'monospace' }}
+                      required
+                      disabled={!!editingCatalogItem}
+                    />
+                  )}
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 800, color: '#CBD5E1' }}>Unité</label>
+                  <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 800, color: '#CBD5E1' }}>
+                    Unité
+                    {catalogMode === 'standard' && !editingCatalogItem && (
+                      <span style={{ fontWeight: 400, fontSize: '0.75rem', color: 'rgba(203,213,225,0.55)', marginLeft: '0.5rem' }}>
+                        (auto)
+                      </span>
+                    )}
+                  </label>
                   <input
                     value={catalogForm.unit}
                     onChange={(e) => setCatalogForm((p) => ({ ...p, unit: e.target.value }))}
-                    placeholder="ex: XOF"
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.5)', background: '#1E3A8A', color: '#fff' }}
+                    placeholder="ex: M FCFA"
+                    style={{
+                      width: '100%', padding: '0.75rem', borderRadius: '12px',
+                      border: '1px solid rgba(59,130,246,0.5)',
+                      background: catalogMode === 'standard' && !editingCatalogItem ? '#0A1434' : '#1E3A8A',
+                      color: catalogMode === 'standard' && !editingCatalogItem ? 'rgba(255,255,255,0.6)' : '#fff',
+                      cursor: catalogMode === 'standard' && !editingCatalogItem ? 'not-allowed' : 'text',
+                    }}
+                    readOnly={catalogMode === 'standard' && !editingCatalogItem}
                   />
                 </div>
                 <div style={{ gridColumn: isMobile ? 'auto' : '1 / -1' }}>
-                  <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 800, color: '#CBD5E1' }}>Libellé *</label>
+                  <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 800, color: '#CBD5E1' }}>
+                    Libellé *
+                    {catalogMode === 'standard' && !editingCatalogItem && (
+                      <span style={{ fontWeight: 400, fontSize: '0.75rem', color: 'rgba(203,213,225,0.55)', marginLeft: '0.5rem' }}>
+                        (pré-rempli depuis la clé BCEAO — non modifiable)
+                      </span>
+                    )}
+                  </label>
                   <input
                     value={catalogForm.label}
                     onChange={(e) => setCatalogForm((p) => ({ ...p, label: e.target.value }))}
-                    placeholder="ex: Fonds propres"
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '12px', border: '1px solid rgba(59,130,246,0.5)', background: '#1E3A8A', color: '#fff' }}
+                    placeholder="ex: Fonds propres effectifs"
+                    style={{
+                      width: '100%', padding: '0.75rem', borderRadius: '12px',
+                      border: '1px solid rgba(59,130,246,0.5)',
+                      background: catalogMode === 'standard' && !editingCatalogItem ? '#0A1434' : '#1E3A8A',
+                      color: catalogMode === 'standard' && !editingCatalogItem ? 'rgba(255,255,255,0.6)' : '#fff',
+                      cursor: catalogMode === 'standard' && !editingCatalogItem ? 'not-allowed' : 'text',
+                    }}
                     required
+                    readOnly={catalogMode === 'standard' && !editingCatalogItem}
                   />
                 </div>
               </div>
+
+              {/* Saisie directe du montant + date (uniquement en mode création) */}
+              {!editingCatalogItem && (
+                <div style={{
+                  marginTop: '1rem',
+                  padding: '0.85rem 1rem',
+                  background: 'rgba(5,150,105,0.08)',
+                  border: '1px solid rgba(5,150,105,0.3)',
+                  borderRadius: '12px',
+                }}>
+                  <div style={{ fontSize: '0.8rem', color: '#6EE7B7', fontWeight: 700, marginBottom: '0.6rem' }}>
+                    💰 Saisie du montant (optionnel)
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '0.75rem' }}>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 700, color: '#CBD5E1', fontSize: '0.8rem' }}>
+                        Date de référence
+                      </label>
+                      <input
+                        type="date"
+                        value={catalogInitialDate}
+                        onChange={(e) => setCatalogInitialDate(e.target.value)}
+                        style={{
+                          width: '100%', padding: '0.65rem', borderRadius: '10px',
+                          border: '1px solid rgba(59,130,246,0.4)',
+                          background: '#1E3A8A', color: '#fff', colorScheme: 'dark',
+                          fontSize: '0.85rem',
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.4rem', fontWeight: 700, color: '#CBD5E1', fontSize: '0.8rem' }}>
+                        Montant {catalogForm.unit ? `(${catalogForm.unit})` : ''}
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        value={catalogInitialValue}
+                        onChange={(e) => setCatalogInitialValue(e.target.value)}
+                        placeholder="ex: 15430"
+                        className="no-spinner"
+                        style={{
+                          width: '100%',
+                          padding: '0.65rem 0.75rem',
+                          borderRadius: '10px',
+                          border: '1px solid rgba(59,130,246,0.4)',
+                          background: '#1E3A8A', color: '#fff',
+                          textAlign: 'right', fontFamily: 'monospace',
+                          fontSize: '0.95rem',
+                          MozAppearance: 'textfield',
+                        }}
+                      />
+                      <style jsx>{`
+                        input.no-spinner::-webkit-outer-spin-button,
+                        input.no-spinner::-webkit-inner-spin-button {
+                          -webkit-appearance: none;
+                          margin: 0;
+                        }
+                      `}</style>
+                    </div>
+                  </div>
+                  <div style={{ marginTop: '0.5rem', fontSize: '0.72rem', color: 'rgba(203,213,225,0.55)', lineHeight: 1.4 }}>
+                    Si tu saisis un montant et une date, ils seront enregistrés directement en même temps que la variable. Sinon, tu pourras le faire plus tard dans la table des valeurs.
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '1rem' }}>
                 <button

@@ -9,17 +9,20 @@ export async function POST(request: NextRequest) {
     const date_cloture = searchParams.get('date_cloture');
     const date_realisation = searchParams.get('date_realisation');
     const date_debut = searchParams.get('date_debut');
+    const date_n1 = searchParams.get('date_n1');
     const include_ia = searchParams.get('include_ia') === 'true';
 
     const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    
+
     const params = new URLSearchParams();
     if (type_rapport) params.append('type_rapport', type_rapport);
     if (section) params.append('section', section);
     if (date_cloture) params.append('date_cloture', date_cloture);
     if (date_realisation) params.append('date_realisation', date_realisation);
     if (date_debut) params.append('date_debut', date_debut);
-    if (include_ia) params.append('include_ia', 'true');
+    if (date_n1) params.append('date_n1', date_n1);
+    // Transmet TOUJOURS include_ia (sinon le backend utilise son défaut `True` et lance l'IA)
+    params.append('include_ia', include_ia ? 'true' : 'false');
 
     const authHeader = request.headers.get('Authorization') || request.headers.get('authorization') || '';
 

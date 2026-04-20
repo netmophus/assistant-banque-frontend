@@ -6,6 +6,10 @@ import PostesReglementairesTab from './PostesReglementairesTab';
 import MappingTab from './MappingTab';
 import RatiosTab from './RatiosTab';
 import ReportsTab from './ReportsTab';
+import PostesReportingTab from './PostesReportingTab';
+import RatiosReportingTab from './RatiosReportingTab';
+import RatiosCalculReportingTab from './RatiosCalculReportingTab';
+import GenerationAutoTab from './GenerationAutoTab';
 
 // ── Sub-tab definitions ──────────────────────────────────────────────────────
 
@@ -65,6 +69,18 @@ const subTabs = [
       </svg>
     ),
   },
+  {
+    id: 'generation_auto',
+    label: 'Génération auto (Excel GL)',
+    shortLabel: 'Génération auto',
+    accent: '#0EA5E9',
+    disabled: true,
+    icon: (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    ),
+  },
 ] as const;
 
 // ── Postes accordion sections ────────────────────────────────────────────────
@@ -84,6 +100,8 @@ const POSTES_SECTIONS = [
     icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> },
   { key: 'cr_charge',       label: 'Ratio Caractéristique de Gestion', accent: '#DC2626', typeFilter: 'cr_charge',     mode: 'postesOnly'  as const, showCreate: true,
     icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg> },
+  { key: 'reporting',       label: 'Reporting paramétrage',          accent: '#7C3AED', typeFilter: undefined,        mode: 'postesOnly'  as const, showCreate: false,
+    icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-6h6v6m-3-9V5m-7 4h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z"/></svg> },
 ];
 
 // ── Main component ───────────────────────────────────────────────────────────
@@ -93,6 +111,8 @@ const PCBTab = () => {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     values: false, bilan_actif: false, bilan_passif: false,
     hors_bilan: false, cr_produit: false, cr_exploitation: false, cr_charge: false,
+    reporting: false,
+    ratios_config: true, ratios_reporting: false, ratios_ia: false,
   });
 
   const activeTab = subTabs.find(t => t.id === activeSubTab)!;
@@ -122,19 +142,30 @@ const PCBTab = () => {
         style={{ background: '#0A1434', border: '2px solid rgba(27,58,140,0.3)' }}>
         {subTabs.map((tab) => {
           const isActive = activeSubTab === tab.id;
+          const isDisabled = 'disabled' in tab && tab.disabled;
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveSubTab(tab.id)}
+              onClick={() => { if (!isDisabled) setActiveSubTab(tab.id); }}
+              disabled={isDisabled}
+              title={isDisabled ? 'Bientôt disponible' : undefined}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 flex-1 sm:flex-none justify-center sm:justify-start"
-              style={isActive
-                ? { background: tab.accent, color: '#ffffff', boxShadow: `0 4px 16px ${tab.accent}40` }
-                : { background: 'transparent', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.06)' }}
+              style={isDisabled
+                ? { background: 'transparent', color: 'rgba(255,255,255,0.25)', border: '1px dashed rgba(255,255,255,0.12)', cursor: 'not-allowed', opacity: 0.55 }
+                : isActive
+                  ? { background: tab.accent, color: '#ffffff', boxShadow: `0 4px 16px ${tab.accent}40` }
+                  : { background: 'transparent', color: 'rgba(255,255,255,0.5)', border: '1px solid rgba(255,255,255,0.06)' }}
             >
-              <span style={{ color: isActive ? '#ffffff' : tab.accent }}>{tab.icon}</span>
+              <span style={{ color: isDisabled ? 'rgba(255,255,255,0.3)' : isActive ? '#ffffff' : tab.accent }}>{tab.icon}</span>
               <span className="hidden sm:inline">{tab.label}</span>
               <span className="sm:hidden">{tab.shortLabel}</span>
-              {isActive && <span className="w-1.5 h-1.5 rounded-full bg-white/70 ml-auto hidden sm:block" />}
+              {isDisabled && (
+                <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md hidden sm:inline-block"
+                  style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.05em' }}>
+                  BIENTÔT
+                </span>
+              )}
+              {isActive && !isDisabled && <span className="w-1.5 h-1.5 rounded-full bg-white/70 ml-auto hidden sm:block" />}
             </button>
           );
         })}
@@ -207,12 +238,16 @@ const PCBTab = () => {
                     </button>
                     {isOpen && (
                       <div className="px-5 pb-5 pt-2" style={{ borderTop: `1px solid ${section.accent}20` }}>
-                        <PostesReglementairesTab
-                          typeFilter={section.typeFilter}
-                          mode={section.mode}
-                          showHeader={false}
-                          showCreateButton={section.showCreate}
-                        />
+                        {section.key === 'reporting' ? (
+                          <PostesReportingTab />
+                        ) : (
+                          <PostesReglementairesTab
+                            typeFilter={section.typeFilter}
+                            mode={section.mode}
+                            showHeader={false}
+                            showCreateButton={section.showCreate}
+                          />
+                        )}
                       </div>
                     )}
                   </div>
@@ -224,11 +259,69 @@ const PCBTab = () => {
           {/* Mapping */}
           {activeSubTab === 'mapping' && <MappingTab />}
 
-          {/* Ratios */}
-          {activeSubTab === 'ratios' && <RatiosTab />}
+          {/* Ratios — accordion */}
+          {activeSubTab === 'ratios' && (
+            <div className="space-y-3">
+              {[
+                { key: 'ratios_config',    label: 'Paramétrage des ratios', accent: '#D97706',
+                  icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>,
+                  render: () => <RatiosTab /> },
+                { key: 'ratios_reporting', label: 'Reporting paramétrage',  accent: '#7C3AED',
+                  icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-6h6v6m-3-9V5m-7 4h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2v-8a2 2 0 012-2z"/></svg>,
+                  render: () => <RatiosReportingTab /> },
+                { key: 'ratios_ia',        label: 'Ratios calculés + Analyse IA', accent: '#1B3A8C',
+                  icon: <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>,
+                  render: () => <RatiosCalculReportingTab /> },
+              ].map((section) => {
+                const isOpen = openSections[section.key];
+                return (
+                  <div key={section.key} className="rounded-xl overflow-hidden"
+                    style={{
+                      background: '#070E28',
+                      borderTop: `1px solid ${section.accent}35`,
+                      borderRight: `1px solid ${section.accent}35`,
+                      borderBottom: `1px solid ${section.accent}35`,
+                      borderLeft: isOpen ? `4px solid ${section.accent}` : `2px solid ${section.accent}`,
+                    }}>
+                    <button
+                      type="button"
+                      onClick={() => setOpenSections(p => ({ ...p, [section.key]: !p[section.key] }))}
+                      className="w-full flex items-center justify-between px-5 py-3.5 transition-all duration-200"
+                      style={{ background: isOpen ? `${section.accent}10` : 'transparent' }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span style={{ color: section.accent }}>{section.icon}</span>
+                        <span className="text-sm font-bold text-white">{section.label}</span>
+                        {isOpen && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
+                            style={{ background: `${section.accent}20`, color: section.accent }}>
+                            Ouvert
+                          </span>
+                        )}
+                      </div>
+                      <div className="w-6 h-6 rounded-lg flex items-center justify-center transition-transform duration-200"
+                        style={{ background: `${section.accent}20`, color: section.accent, transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </div>
+                    </button>
+                    {isOpen && (
+                      <div className="px-5 pb-5 pt-2" style={{ borderTop: `1px solid ${section.accent}20` }}>
+                        {section.render()}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* Reports */}
           {activeSubTab === 'reports' && <ReportsTab />}
+
+          {/* Génération auto depuis balance GL Excel */}
+          {activeSubTab === 'generation_auto' && <GenerationAutoTab />}
 
         </div>
       </div>

@@ -57,11 +57,18 @@ const PostesReglementairesTab = ({
   const [showForm, setShowForm] = useState(false);
   const [editingPoste, setEditingPoste] = useState<Poste | null>(null);
   const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState('');
+  const [formTab, setFormTab] = useState<'identity' | 'hierarchy' | 'computation' | 'gl'>('identity');
+  const [formulaText, setFormulaText] = useState('');
+  const [formulaCaret, setFormulaCaret] = useState(0);
+  const [suggestionIndex, setSuggestionIndex] = useState(0);
+  const formulaInputRef = React.useRef<HTMLInputElement | null>(null);
   const [selectedExercice, setSelectedExercice] = useState(String(new Date().getFullYear()));
   const [valuesByPosteId, setValuesByPosteId] = useState<Record<string, { n_1: number | null; budget: number | null }>>({});
   const [savingValues, setSavingValues] = useState(false);
   const [showExerciceBlock, setShowExerciceBlock] = useState(mode !== 'valuesOnly');
   const [realisationReferenceDate, setRealisationReferenceDate] = useState('');
+  const [n1ReferenceDate, setN1ReferenceDate] = useState('');
   const [formData, setFormData] = useState({
     code: '',
     libelle: '',
@@ -152,7 +159,7 @@ const PostesReglementairesTab = ({
 
           <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: '600', color: '#CBD5E1', fontSize: '0.8rem' }}>N-1</label>
+              <label style={{ display: 'block', marginBottom: '0.25rem', fontWeight: '600', color: '#CBD5E1', fontSize: '0.8rem' }}>{n1Label}</label>
               <input
                 type="number"
                 value={hasChildren ? n1Value ?? 0 : valuesByPosteId[node.id]?.n_1 ?? ''}
@@ -213,7 +220,21 @@ const PostesReglementairesTab = ({
     const key = `pcb_realisation_reference_date_${selectedExercice}`;
     const stored = localStorage.getItem(key);
     setRealisationReferenceDate(stored || '');
+    const n1Key = `pcb_n1_reference_date_${selectedExercice}`;
+    const n1Stored = localStorage.getItem(n1Key);
+    setN1ReferenceDate(n1Stored || '');
   }, [selectedExercice]);
+
+  // Formate une date ISO (YYYY-MM-DD) en DD/MM/YYYY pour affichage utilisateur
+  const formatDateFR = (iso: string): string => {
+    if (!iso) return '';
+    const [y, m, d] = iso.split('-');
+    if (!y || !m || !d) return iso;
+    return `${d}/${m}/${y}`;
+  };
+
+  // Label dynamique pour la colonne N-1 : date formatée si saisie, sinon "N-1"
+  const n1Label = n1ReferenceDate ? formatDateFR(n1ReferenceDate) : 'N-1';
 
   useEffect(() => {
     if (postes.length === 0) return;
@@ -803,6 +824,218 @@ const PostesReglementairesTab = ({
   const selectablePostes = flattenTreeForSelect(tree);
   const disabledParentIds = editingPoste ? collectDescendantIds(tree, editingPoste.id) : new Set<string>();
 
+  // Recherche : filtre l'arbre en gardant les ancêtres des noeuds qui matchent
+  const filterTreeByQuery = (
+    nodes: (Poste & { children?: Poste[] })[],
+    query: string,
+  ): (Poste & { children?: Poste[] })[] => {
+    const q = query.trim().toLowerCase();
+    if (!q) return nodes;
+    const matches = (n: Poste) =>
+      (n.code || '').toLowerCase().includes(q) || (n.libelle || '').toLowerCase().includes(q);
+    const walk = (arr: (Poste & { children?: Poste[] })[]): (Poste & { children?: Poste[] })[] => {
+      const out: (Poste & { children?: Poste[] })[] = [];
+      for (const node of arr) {
+        const childrenFiltered = walk((node.children as (Poste & { children?: Poste[] })[]) || []);
+        if (matches(node) || childrenFiltered.length > 0) {
+          out.push({ ...node, children: childrenFiltered });
+        }
+      }
+      return out;
+    };
+    return walk(nodes);
+  };
+
+  const collectAllIds = (nodes: (Poste & { children?: Poste[] })[]): string[] => {
+    const ids: string[] = [];
+    const walk = (arr: (Poste & { children?: Poste[] })[]) => {
+      arr.forEach((n) => {
+        ids.push(n.id);
+        if (n.children) walk(n.children as (Poste & { children?: Poste[] })[]);
+      });
+    };
+    walk(nodes);
+    return ids;
+  };
+
+  const filteredTree = filterTreeByQuery(tree as (Poste & { children?: Poste[] })[], searchQuery);
+
+  // ─── Formule texte libre : tokenizer / parser / formatter ───
+  type FormulaTok =
+    | { type: 'op'; value: '+' | '-' | '*' | '/'; pos: number; len: number }
+    | { type: 'paren'; value: '(' | ')'; pos: number; len: number }
+    | { type: 'ident'; value: string; pos: number; len: number };
+
+  const tokenizeFormula = (text: string): FormulaTok[] => {
+    const tokens: FormulaTok[] = [];
+    let i = 0;
+    while (i < text.length) {
+      const ch = text[i];
+      if (/\s/.test(ch)) { i++; continue; }
+      if (ch === '+' || ch === '-' || ch === '*' || ch === '/') {
+        tokens.push({ type: 'op', value: ch, pos: i, len: 1 });
+        i++;
+      } else if (ch === '(' || ch === ')') {
+        tokens.push({ type: 'paren', value: ch, pos: i, len: 1 });
+        i++;
+      } else {
+        let j = i;
+        while (j < text.length && !/[\s+\-*/()]/.test(text[j])) j++;
+        tokens.push({ type: 'ident', value: text.slice(i, j), pos: i, len: j - i });
+        i = j;
+      }
+    }
+    return tokens;
+  };
+
+  const parseFormulaText = (
+    text: string,
+    postesByCode: Map<string, Poste>,
+  ): { parents_formula: { poste_id?: string; op: '+' | '-' | '*' | '/' | '(' | ')' }[]; errors: string[] } => {
+    const tokens = tokenizeFormula(text);
+    const result: { poste_id?: string; op: '+' | '-' | '*' | '/' | '(' | ')' }[] = [];
+    const errors: string[] = [];
+    let pendingOp: '+' | '-' | '*' | '/' = '+';
+    let parenDepth = 0;
+
+    for (const tok of tokens) {
+      if (tok.type === 'paren') {
+        result.push({ op: tok.value });
+        if (tok.value === '(') parenDepth++;
+        else {
+          parenDepth--;
+          if (parenDepth < 0) errors.push('Parenthèse fermante ) sans ouvrante');
+        }
+      } else if (tok.type === 'op') {
+        pendingOp = tok.value;
+      } else {
+        const poste = postesByCode.get(tok.value);
+        if (!poste) {
+          errors.push(`Code « ${tok.value} » introuvable`);
+        }
+        result.push({ op: pendingOp, poste_id: poste?.id || '' });
+        pendingOp = '+';
+      }
+    }
+    if (parenDepth > 0) errors.push(`${parenDepth} parenthèse(s) ouvrante(s) non fermée(s)`);
+    return { parents_formula: result, errors };
+  };
+
+  const formatFormulaToText = (
+    formula: { poste_id?: string; op: '+' | '-' | '*' | '/' | '(' | ')' }[],
+    postesById: Map<string, Poste>,
+  ): string => {
+    const parts: string[] = [];
+    formula.forEach((term, idx) => {
+      if (term.op === '(' || term.op === ')') {
+        parts.push(term.op);
+      } else if (term.poste_id) {
+        const p = postesById.get(term.poste_id);
+        const code = p?.code || '?';
+        if (idx === 0 || (idx > 0 && formula[idx - 1]?.op === '(')) {
+          if (term.op === '+') parts.push(code);
+          else parts.push(term.op + code);
+        } else {
+          parts.push(term.op);
+          parts.push(code);
+        }
+      }
+    });
+    return parts
+      .join(' ')
+      .replace(/\(\s+/g, '(')
+      .replace(/\s+\)/g, ')')
+      .replace(/\s+/g, ' ')
+      .trim();
+  };
+
+  // Maps utilitaires (réutilise postesForFormula déclaré plus haut)
+  const postesByCode = React.useMemo(() => {
+    const m = new Map<string, Poste>();
+    postesForFormula.forEach((p) => m.set(p.code, p));
+    return m;
+  }, [postesForFormula]);
+  const postesById = React.useMemo(() => {
+    const m = new Map<string, Poste>();
+    postesForFormula.forEach((p) => m.set(p.id, p));
+    return m;
+  }, [postesForFormula]);
+
+  // Parse live
+  const parsedFormula = React.useMemo(
+    () => parseFormulaText(formulaText, postesByCode),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [formulaText, postesByCode],
+  );
+
+  // Détecte le token identifiant courant à la position du caret (pour autocomplete)
+  const currentIdentToken = React.useMemo(() => {
+    const toks = tokenizeFormula(formulaText);
+    return toks.find((t) => t.type === 'ident' && formulaCaret > t.pos && formulaCaret <= t.pos + t.len) || null;
+  }, [formulaText, formulaCaret]);
+
+  const autocompleteSuggestions = React.useMemo(() => {
+    if (!currentIdentToken || currentIdentToken.type !== 'ident') return [] as Poste[];
+    const q = currentIdentToken.value.toLowerCase();
+    if (!q) return [] as Poste[];
+    const allowed = new Set(selectablePostesForFormula.map(({ poste }) => poste.id));
+    return postesForFormula
+      .filter((p) => allowed.has(p.id) && (p.code.toLowerCase().startsWith(q) || p.code.toLowerCase().includes(q) || p.libelle.toLowerCase().includes(q)))
+      .slice(0, 6);
+  }, [currentIdentToken, postesForFormula, selectablePostesForFormula]);
+
+  // Sync parents_formula depuis le texte (pour le submit)
+  useEffect(() => {
+    if (formData.calculation_mode !== 'parents_formula') return;
+    if (parsedFormula.errors.length > 0) return;
+    const a = JSON.stringify(parsedFormula.parents_formula);
+    const b = JSON.stringify(formData.parents_formula || []);
+    if (a !== b) {
+      setFormData((prev) => ({ ...prev, parents_formula: parsedFormula.parents_formula }));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formulaText, formData.calculation_mode]);
+
+  // Sync formulaText depuis parents_formula à l'ouverture / edit
+  useEffect(() => {
+    if (!showForm) return;
+    const text = formatFormulaToText(formData.parents_formula || [], postesById);
+    setFormulaText(text);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showForm, editingPoste?.id]);
+
+  const insertSuggestion = (p: Poste) => {
+    if (!currentIdentToken) return;
+    const before = formulaText.slice(0, currentIdentToken.pos);
+    const after = formulaText.slice(currentIdentToken.pos + currentIdentToken.len);
+    const next = `${before}${p.code}${after}`;
+    setFormulaText(next);
+    const newCaret = currentIdentToken.pos + p.code.length;
+    setTimeout(() => {
+      if (formulaInputRef.current) {
+        formulaInputRef.current.focus();
+        formulaInputRef.current.setSelectionRange(newCaret, newCaret);
+        setFormulaCaret(newCaret);
+      }
+    }, 0);
+    setSuggestionIndex(0);
+  };
+
+  // Auto-expand les noeuds quand on cherche
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      setExpandedNodes(new Set(collectAllIds(filteredTree)));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery]);
+
+  const handleExpandAll = () => {
+    setExpandedNodes(new Set(collectAllIds(tree as (Poste & { children?: Poste[] })[])));
+  };
+  const handleCollapseAll = () => {
+    setExpandedNodes(new Set());
+  };
+
   const valuesSections = [
     { key: 'bilan_actif', label: 'Bilan Actif' },
     { key: 'bilan_passif', label: 'Bilan Passif' },
@@ -866,7 +1099,7 @@ const PostesReglementairesTab = ({
       {mode !== 'postesOnly' && (
         <div style={{ background: '#0B1026', borderRadius: '12px', padding: '1rem', border: '1px solid #3B82F6', marginBottom: '1.5rem' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-            <div style={{ fontWeight: '700', color: '#fff' }}>N-1 / Réalisation</div>
+            <div style={{ fontWeight: '700', color: '#fff' }}>{n1Label} / Réalisation</div>
             <button
               type="button"
               onClick={() => setShowExerciceBlock((v) => !v)}
@@ -895,6 +1128,23 @@ const PostesReglementairesTab = ({
                   onChange={(e) => setSelectedExercice(e.target.value)}
                   style={{ width: '160px', padding: '0.75rem', borderRadius: '8px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A' }}
                   placeholder="2025"
+                />
+              </div>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#CBD5E1' }}>Date N-1 (référence)</label>
+                <input
+                  type="date"
+                  value={n1ReferenceDate}
+                  onChange={(e) => {
+                    const next = e.target.value;
+                    setN1ReferenceDate(next);
+                    if (typeof window !== 'undefined') {
+                      const key = `pcb_n1_reference_date_${selectedExercice}`;
+                      if (next) localStorage.setItem(key, next);
+                      else localStorage.removeItem(key);
+                    }
+                  }}
+                  style={{ width: '200px', padding: '0.75rem', borderRadius: '8px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A', colorScheme: 'dark' }}
                 />
               </div>
               <div>
@@ -927,7 +1177,7 @@ const PostesReglementairesTab = ({
                   opacity: savingValues || leafPostes.length === 0 ? 0.7 : 1,
                 }}
               >
-                {savingValues ? 'Enregistrement...' : 'Enregistrer N-1 / Réalisation'}
+                {savingValues ? 'Enregistrement...' : `Enregistrer ${n1Label} / Réalisation`}
               </button>
             </div>
 
@@ -964,14 +1214,165 @@ const PostesReglementairesTab = ({
           {loading ? (
             <div style={{ textAlign: 'center', padding: '2rem' }}>Chargement...</div>
           ) : (
-            <div style={{ background: '#0B1026', borderRadius: '12px', padding: '1rem', border: '1px solid #3B82F6', maxHeight: '600px', overflowY: 'auto' }}>
-              {tree.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '2rem', color: '#CBD5E1' }}>
-                  Aucun poste réglementaire. Créez-en un pour commencer.
+            <div
+              style={{
+                background: 'linear-gradient(135deg, #070E28 0%, #0F1E48 60%, #0A1434 100%)',
+                borderRadius: '14px',
+                borderTop: '1px solid rgba(27,58,140,0.4)',
+                borderRight: '1px solid rgba(27,58,140,0.4)',
+                borderBottom: '1px solid rgba(27,58,140,0.4)',
+                borderLeft: '3px solid #C9A84C',
+                boxShadow: '0 0 24px rgba(27,58,140,0.12)',
+                overflow: 'hidden',
+              }}
+            >
+              {/* Barre de recherche + actions globales */}
+              <div
+                style={{
+                  padding: '0.85rem 1rem',
+                  borderBottom: '1px solid rgba(27,58,140,0.35)',
+                  background: 'rgba(7,14,40,0.55)',
+                  display: 'flex',
+                  gap: '0.75rem',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <div style={{ position: 'relative', flex: '1 1 240px', minWidth: '200px' }}>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      left: '0.75rem',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      pointerEvents: 'none',
+                      color: '#C9A84C',
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Rechercher un poste (code ou libellé)…"
+                    style={{
+                      width: '100%',
+                      padding: '0.6rem 0.75rem 0.6rem 2.1rem',
+                      borderRadius: '10px',
+                      border: '1px solid rgba(27,58,140,0.5)',
+                      background: 'rgba(11,16,38,0.7)',
+                      color: '#fff',
+                      fontSize: '0.85rem',
+                      outline: 'none',
+                    }}
+                    onFocus={(e) => (e.currentTarget.style.borderColor = 'rgba(201,168,76,0.6)')}
+                    onBlur={(e) => (e.currentTarget.style.borderColor = 'rgba(27,58,140,0.5)')}
+                  />
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchQuery('')}
+                      aria-label="Effacer la recherche"
+                      style={{
+                        position: 'absolute',
+                        right: '0.5rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '22px',
+                        height: '22px',
+                        borderRadius: '6px',
+                        background: 'rgba(255,255,255,0.08)',
+                        border: '1px solid rgba(255,255,255,0.15)',
+                        color: 'rgba(255,255,255,0.7)',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18" />
+                        <line x1="6" y1="6" x2="18" y2="18" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
-              ) : (
-                tree.map((node) => renderTreeNode(node))
-              )}
+                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                  <button
+                    type="button"
+                    onClick={handleExpandAll}
+                    style={{
+                      padding: '0.55rem 0.85rem',
+                      background: 'rgba(27,58,140,0.35)',
+                      color: '#C9A84C',
+                      border: '1px solid rgba(201,168,76,0.3)',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      fontWeight: 700,
+                      fontSize: '0.75rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                    }}
+                  >
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="6 9 12 15 18 9" />
+                    </svg>
+                    Tout ouvrir
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCollapseAll}
+                    style={{
+                      padding: '0.55rem 0.85rem',
+                      background: 'rgba(255,255,255,0.04)',
+                      color: 'rgba(255,255,255,0.7)',
+                      border: '1px solid rgba(255,255,255,0.15)',
+                      borderRadius: '10px',
+                      cursor: 'pointer',
+                      fontWeight: 700,
+                      fontSize: '0.75rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                    }}
+                  >
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="18 15 12 9 6 15" />
+                    </svg>
+                    Tout fermer
+                  </button>
+                </div>
+                <div
+                  style={{
+                    fontSize: '0.72rem',
+                    color: 'rgba(255,255,255,0.5)',
+                    padding: '0.4rem 0.7rem',
+                    background: 'rgba(7,14,40,0.5)',
+                    borderRadius: '8px',
+                    border: '1px solid rgba(27,58,140,0.3)',
+                    fontWeight: 600,
+                  }}
+                >
+                  {searchQuery ? `${collectAllIds(filteredTree).length} / ${postes.length}` : `${postes.length} poste${postes.length > 1 ? 's' : ''}`}
+                </div>
+              </div>
+
+              <div style={{ padding: '1rem', maxHeight: '600px', overflowY: 'auto' }}>
+                {filteredTree.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '2rem', color: '#CBD5E1' }}>
+                    {searchQuery
+                      ? `Aucun poste ne correspond à « ${searchQuery} »`
+                      : 'Aucun poste réglementaire. Créez-en un pour commencer.'}
+                  </div>
+                ) : (
+                  filteredTree.map((node) => renderTreeNode(node))
+                )}
+              </div>
             </div>
           )}
         </>
@@ -982,292 +1383,646 @@ const PostesReglementairesTab = ({
         <div
           style={{
             position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.5)',
+            inset: 0,
+            background: 'rgba(4,8,22,0.82)',
+            backdropFilter: 'blur(6px)',
             display: 'flex',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             justifyContent: 'center',
             zIndex: 1000,
-            padding: '1rem',
+            padding: '1.5rem',
+            overflowY: 'auto',
           }}
           onClick={() => setShowForm(false)}
         >
           <div
             style={{
-              background: '#0B1026',
-              borderRadius: '16px',
-              padding: '2rem',
-              maxWidth: '800px',
+              background: 'linear-gradient(135deg, #070E28 0%, #0F1E48 60%, #0A1434 100%)',
+              borderRadius: '20px',
+              maxWidth: '720px',
               width: '100%',
-              maxHeight: '90vh',
-              overflowY: 'auto',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
-              border: '1px solid #3B82F6',
+              maxHeight: '92vh',
+              boxShadow: '0 24px 64px rgba(0,0,0,0.6), 0 0 32px rgba(27,58,140,0.25)',
+              marginTop: '2rem',
+              borderTop: '2px solid rgba(27,58,140,0.4)',
+              borderRight: '2px solid rgba(27,58,140,0.4)',
+              borderBottom: '2px solid rgba(27,58,140,0.4)',
+              borderLeft: '4px solid #C9A84C',
+              position: 'relative',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ margin: '0 0 1.5rem 0', fontSize: '1.5rem', fontWeight: '700', color: '#fff' }}>
-              {editingPoste ? '✏️ Modifier le poste' : '➕ Créer un poste'}
-            </h3>
-
-            <form onSubmit={handleSubmit}>
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#CBD5E1' }}>Code du poste *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.code}
-                  onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A' }}
-                />
+            {/* Header */}
+            <div
+              style={{
+                padding: '1.25rem 1.5rem 1rem',
+                borderBottom: '1px solid rgba(27,58,140,0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '1rem',
+                flexShrink: 0,
+              }}
+            >
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #1B3A8C 0%, #2e5bb8 100%)',
+                  border: '1px solid rgba(201,168,76,0.4)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                  boxShadow: '0 6px 18px rgba(27,58,140,0.4)',
+                }}
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#C9A84C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="16" y1="13" x2="8" y2="13" />
+                  <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
               </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#CBD5E1' }}>Position / Ordre d'affichage *</label>
-                <input
-                  type="number"
-                  required
-                  value={formData.ordre}
-                  onChange={(e) => setFormData({ ...formData, ordre: Number(e.target.value) })}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A' }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#CBD5E1' }}>Libellé *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.libelle}
-                  onChange={(e) => setFormData({ ...formData, libelle: e.target.value })}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A' }}
-                />
-              </div>
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#CBD5E1' }}>Poste parent (optionnel)</label>
-                <select
-                  value={formData.parent_id}
-                  onChange={(e) => handleParentChange(e.target.value)}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A', colorScheme: 'dark' }}
-                >
-                  <option value="" style={{ background: '#1E3A8A', color: '#ffffff' }}>Aucun (poste principal)</option>
-                  {selectablePostes.map(({ poste, level }) => {
-                    const isSelf = editingPoste?.id === poste.id;
-                    const isDescendant = disabledParentIds.has(poste.id);
-                    return (
-                      <option
-                        key={poste.id}
-                        value={poste.id}
-                        disabled={!!isSelf || !!isDescendant}
-                        style={{ background: '#1E3A8A', color: '#ffffff' }}
-                      >
-                        {`${'— '.repeat(level)}${poste.code} - ${poste.libelle}`}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-
-              {!!formData.parent_id && (
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#CBD5E1' }}>Contribution au parent</label>
-                  <select
-                    value={formData.contribution_signe}
-                    onChange={(e) => setFormData({ ...formData, contribution_signe: (e.target.value as '+' | '-') || '+' })}
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A', colorScheme: 'dark' }}
-                  >
-                    <option value="+" style={{ background: '#1E3A8A', color: '#ffffff' }}>+ (ajouter)</option>
-                    <option value="-" style={{ background: '#1E3A8A', color: '#ffffff' }}>- (soustraire)</option>
-                  </select>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.2em', color: '#C9A84C', textTransform: 'uppercase', marginBottom: '2px' }}>
+                  Poste réglementaire
                 </div>
-              )}
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: '#fff' }}>
+                  {editingPoste ? 'Modifier le poste' : 'Créer un poste'}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                aria-label="Fermer"
+                style={{
+                  width: '30px',
+                  height: '30px',
+                  borderRadius: '10px',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.12)',
+                  color: 'rgba(255,255,255,0.6)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0,
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
 
-              {canHaveParentsFormula && isRootPoste && (
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#CBD5E1' }}>Mode de calcul</label>
-                  <select
-                    value={formData.calculation_mode}
-                    onChange={(e) => setFormData({ ...formData, calculation_mode: (e.target.value as 'gl' | 'parents_formula') || 'gl' })}
-                    disabled={!canUseParentsFormula}
-                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A', colorScheme: 'dark', opacity: canUseParentsFormula ? 1 : 0.8 }}
-                  >
-                    <option value="gl" style={{ background: '#1E3A8A', color: '#ffffff' }}>Par GL</option>
-                    <option value="parents_formula" style={{ background: '#1E3A8A', color: '#ffffff' }}>Par formule (+ - * /)</option>
-                  </select>
-                </div>
-              )}
-
-              {canHaveParentsFormula && isRootPoste && formData.calculation_mode === 'parents_formula' && (
-                <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#CBD5E1' }}>Formule (+ - * /) sur postes parents</label>
-
-                  <div
+            {/* Tabs */}
+            <div
+              style={{
+                display: 'flex',
+                gap: '2px',
+                padding: '0 1.5rem',
+                borderBottom: '1px solid rgba(27,58,140,0.35)',
+                flexShrink: 0,
+                overflowX: 'auto',
+              }}
+            >
+              {([
+                { key: 'identity', label: 'Identité', icon: (<><circle cx="12" cy="8" r="4" /><path d="M4 21v-2a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v2" /></>) },
+                { key: 'hierarchy', label: 'Hiérarchie', icon: (<><circle cx="12" cy="5" r="2" /><circle cx="5" cy="19" r="2" /><circle cx="19" cy="19" r="2" /><path d="M12 7v4M5 17L12 11M19 17L12 11" /></>) },
+                { key: 'computation', label: 'Calcul', icon: (<><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></>) },
+                { key: 'gl', label: 'GL associés', icon: (<><rect x="3" y="4" width="18" height="16" rx="2" /><line x1="3" y1="10" x2="21" y2="10" /></>) },
+              ] as const).map((t) => {
+                const active = formTab === t.key;
+                return (
+                  <button
+                    key={t.key}
+                    type="button"
+                    onClick={() => setFormTab(t.key)}
                     style={{
-                      marginBottom: '0.75rem',
-                      padding: '0.75rem',
-                      borderRadius: '8px',
-                      border: '1px solid #3B82F6',
-                      background: '#0B1026',
-                      color: '#E2E8F0',
-                      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-                      fontSize: '0.85rem',
-                      overflowX: 'auto',
+                      padding: '0.8rem 1rem',
+                      background: 'transparent',
+                      color: active ? '#C9A84C' : 'rgba(255,255,255,0.55)',
+                      border: 'none',
+                      borderBottom: `2px solid ${active ? '#C9A84C' : 'transparent'}`,
+                      cursor: 'pointer',
+                      fontWeight: 700,
+                      fontSize: '0.78rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
                       whiteSpace: 'nowrap',
+                      transition: 'all 0.2s',
                     }}
                   >
-                    {getParentsFormulaPreview()}
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      {t.icon}
+                    </svg>
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <form
+              onSubmit={handleSubmit}
+              style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minHeight: 0 }}
+            >
+              <div style={{ padding: '1.5rem', overflowY: 'auto', flex: '1 1 auto', minHeight: 0 }}>
+                {/* Tab : Identité */}
+                {formTab === 'identity' && (
+                  <div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: '1rem', marginBottom: '1rem' }}>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Code *</label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.code}
+                          onChange={(e) => setFormData({ ...formData, code: e.target.value })}
+                          style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid rgba(27,58,140,0.5)', color: '#fff', background: 'rgba(11,16,38,0.7)', outline: 'none' }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Ordre *</label>
+                        <input
+                          type="number"
+                          required
+                          value={formData.ordre}
+                          onChange={(e) => setFormData({ ...formData, ordre: Number(e.target.value) })}
+                          style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid rgba(27,58,140,0.5)', color: '#fff', background: 'rgba(11,16,38,0.7)', outline: 'none' }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Libellé *</label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.libelle}
+                        onChange={(e) => setFormData({ ...formData, libelle: e.target.value })}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid rgba(27,58,140,0.5)', color: '#fff', background: 'rgba(11,16,38,0.7)', outline: 'none' }}
+                      />
+                    </div>
                   </div>
+                )}
 
-                  {(formData.parents_formula || []).map((term, index) => (
-                    <div key={index} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
+                {/* Tab : Hiérarchie */}
+                {formTab === 'hierarchy' && (
+                  <div>
+                    <div style={{ marginBottom: '1rem' }}>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Poste parent (optionnel)</label>
                       <select
-                        value={term.op}
-                        onChange={(e) => updateParentsFormulaTerm(index, 'op', e.target.value)}
-                        style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A', colorScheme: 'dark' }}
+                        value={formData.parent_id}
+                        onChange={(e) => handleParentChange(e.target.value)}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid rgba(27,58,140,0.5)', color: '#fff', background: 'rgba(11,16,38,0.7)', colorScheme: 'dark', outline: 'none' }}
                       >
-                        <option value="+" style={{ background: '#1E3A8A', color: '#ffffff' }}>+</option>
-                        <option value="-" style={{ background: '#1E3A8A', color: '#ffffff' }}>-</option>
-                        <option value="*" style={{ background: '#1E3A8A', color: '#ffffff' }}>*</option>
-                        <option value="/" style={{ background: '#1E3A8A', color: '#ffffff' }}>/</option>
-                        <option value="(" style={{ background: '#1E3A8A', color: '#ffffff' }}>(</option>
-                        <option value=")" style={{ background: '#1E3A8A', color: '#ffffff' }}>)</option>
-                      </select>
-
-                      {term.op !== '(' && term.op !== ')' && (
-                        <select
-                          value={term.poste_id || ''}
-                          onChange={(e) => updateParentsFormulaTerm(index, 'poste_id', e.target.value)}
-                          style={{ flex: 1, minWidth: 260, padding: '0.5rem', borderRadius: '6px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A', colorScheme: 'dark' }}
-                        >
-                          <option value="" style={{ background: '#1E3A8A', color: '#ffffff' }}>
-                            (Opérateur seul)
-                          </option>
-                          {selectablePostesForFormula.map(({ poste, level }) => (
+                        <option value="" style={{ background: '#0B1026', color: '#fff' }}>Aucun (poste principal)</option>
+                        {selectablePostes.map(({ poste, level }) => {
+                          const isSelf = editingPoste?.id === poste.id;
+                          const isDescendant = disabledParentIds.has(poste.id);
+                          return (
                             <option
                               key={poste.id}
                               value={poste.id}
-                              disabled={!!disabledFormulaIds.has(poste.id)}
-                              style={{ background: '#1E3A8A', color: '#ffffff' }}
+                              disabled={!!isSelf || !!isDescendant}
+                              style={{ background: '#0B1026', color: '#fff' }}
                             >
                               {`${'— '.repeat(level)}${poste.code} - ${poste.libelle}`}
                             </option>
-                          ))}
-                        </select>
-                      )}
+                          );
+                        })}
+                      </select>
+                    </div>
 
+                    {!!formData.parent_id && (
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Contribution au parent</label>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          {[{ v: '+', label: 'Ajouter (+)' }, { v: '-', label: 'Soustraire (−)' }].map(({ v, label }) => (
+                            <button
+                              key={v}
+                              type="button"
+                              onClick={() => setFormData({ ...formData, contribution_signe: v as '+' | '-' })}
+                              style={{
+                                flex: 1,
+                                padding: '0.75rem',
+                                borderRadius: '10px',
+                                border: `1px solid ${formData.contribution_signe === v ? '#C9A84C' : 'rgba(27,58,140,0.5)'}`,
+                                background: formData.contribution_signe === v ? 'rgba(201,168,76,0.15)' : 'rgba(11,16,38,0.7)',
+                                color: formData.contribution_signe === v ? '#C9A84C' : 'rgba(255,255,255,0.7)',
+                                cursor: 'pointer',
+                                fontWeight: 700,
+                                fontSize: '0.85rem',
+                              }}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {!formData.parent_id && (
+                      <div style={{ padding: '0.9rem 1rem', borderRadius: '10px', background: 'rgba(27,58,140,0.15)', border: '1px solid rgba(201,168,76,0.25)', fontSize: '0.8rem', color: 'rgba(255,255,255,0.7)' }}>
+                        Ce poste sera créé comme <strong style={{ color: '#C9A84C' }}>poste principal</strong> (racine de la hiérarchie).
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Tab : Calcul */}
+                {formTab === 'computation' && (
+                  <div>
+                    {canHaveParentsFormula && isRootPoste && (
+                      <div style={{ marginBottom: '1rem' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Mode de calcul</label>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          {[{ v: 'gl', label: 'Par GL' }, { v: 'parents_formula', label: 'Par formule (+ − × ÷)' }].map(({ v, label }) => (
+                            <button
+                              key={v}
+                              type="button"
+                              disabled={!canUseParentsFormula && v === 'parents_formula'}
+                              onClick={() => setFormData({ ...formData, calculation_mode: v as 'gl' | 'parents_formula' })}
+                              style={{
+                                flex: 1,
+                                padding: '0.75rem',
+                                borderRadius: '10px',
+                                border: `1px solid ${formData.calculation_mode === v ? '#C9A84C' : 'rgba(27,58,140,0.5)'}`,
+                                background: formData.calculation_mode === v ? 'rgba(201,168,76,0.15)' : 'rgba(11,16,38,0.7)',
+                                color: formData.calculation_mode === v ? '#C9A84C' : 'rgba(255,255,255,0.7)',
+                                cursor: (!canUseParentsFormula && v === 'parents_formula') ? 'not-allowed' : 'pointer',
+                                opacity: (!canUseParentsFormula && v === 'parents_formula') ? 0.5 : 1,
+                                fontWeight: 700,
+                                fontSize: '0.85rem',
+                              }}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {canHaveParentsFormula && isRootPoste && formData.calculation_mode === 'parents_formula' && (
+                      <div style={{ marginBottom: '1rem', position: 'relative' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                          Formule (postes parents)
+                        </label>
+
+                        <div style={{ position: 'relative' }}>
+                          <input
+                            ref={formulaInputRef}
+                            type="text"
+                            value={formulaText}
+                            onChange={(e) => {
+                              setFormulaText(e.target.value);
+                              setFormulaCaret(e.target.selectionStart || 0);
+                              setSuggestionIndex(0);
+                            }}
+                            onKeyUp={(e) => setFormulaCaret((e.target as HTMLInputElement).selectionStart || 0)}
+                            onClick={(e) => setFormulaCaret((e.target as HTMLInputElement).selectionStart || 0)}
+                            onKeyDown={(e) => {
+                              if (autocompleteSuggestions.length === 0) return;
+                              if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                setSuggestionIndex((i) => (i + 1) % autocompleteSuggestions.length);
+                              } else if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                setSuggestionIndex((i) => (i - 1 + autocompleteSuggestions.length) % autocompleteSuggestions.length);
+                              } else if (e.key === 'Enter' || e.key === 'Tab') {
+                                e.preventDefault();
+                                insertSuggestion(autocompleteSuggestions[suggestionIndex]);
+                              } else if (e.key === 'Escape') {
+                                setSuggestionIndex(-1);
+                              }
+                            }}
+                            placeholder="Ex : (101 + 102) / 200"
+                            spellCheck={false}
+                            autoComplete="off"
+                            style={{
+                              width: '100%',
+                              padding: '0.85rem 1rem',
+                              borderRadius: '12px',
+                              border: `1px solid ${parsedFormula.errors.length > 0 ? 'rgba(248,113,113,0.5)' : 'rgba(27,58,140,0.5)'}`,
+                              background: 'rgba(11,16,38,0.85)',
+                              color: '#C9A84C',
+                              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                              fontSize: '0.95rem',
+                              fontWeight: 600,
+                              outline: 'none',
+                              letterSpacing: '0.02em',
+                            }}
+                            onFocus={(e) => {
+                              if (parsedFormula.errors.length === 0) e.currentTarget.style.borderColor = 'rgba(201,168,76,0.6)';
+                            }}
+                            onBlur={(e) => {
+                              if (parsedFormula.errors.length === 0) e.currentTarget.style.borderColor = 'rgba(27,58,140,0.5)';
+                              setTimeout(() => setSuggestionIndex(-1), 150);
+                            }}
+                          />
+
+                          {autocompleteSuggestions.length > 0 && suggestionIndex >= 0 && (
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: '100%',
+                                left: 0,
+                                right: 0,
+                                marginTop: '4px',
+                                background: 'linear-gradient(135deg, #0F1E48 0%, #070E28 100%)',
+                                border: '1px solid rgba(201,168,76,0.4)',
+                                borderRadius: '10px',
+                                boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+                                zIndex: 10,
+                                overflow: 'hidden',
+                                maxHeight: '240px',
+                                overflowY: 'auto',
+                              }}
+                            >
+                              {autocompleteSuggestions.map((p, i) => (
+                                <button
+                                  key={p.id}
+                                  type="button"
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    insertSuggestion(p);
+                                  }}
+                                  onMouseEnter={() => setSuggestionIndex(i)}
+                                  style={{
+                                    width: '100%',
+                                    padding: '0.6rem 0.85rem',
+                                    background: i === suggestionIndex ? 'rgba(201,168,76,0.15)' : 'transparent',
+                                    border: 'none',
+                                    borderBottom: i < autocompleteSuggestions.length - 1 ? '1px solid rgba(27,58,140,0.3)' : 'none',
+                                    color: '#fff',
+                                    cursor: 'pointer',
+                                    textAlign: 'left',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.6rem',
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontSize: '0.78rem',
+                                      fontWeight: 800,
+                                      color: '#C9A84C',
+                                      padding: '2px 7px',
+                                      borderRadius: '5px',
+                                      background: 'rgba(201,168,76,0.1)',
+                                      border: '1px solid rgba(201,168,76,0.3)',
+                                      flexShrink: 0,
+                                      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                                    }}
+                                  >
+                                    {p.code}
+                                  </span>
+                                  <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.7)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                    {p.libelle}
+                                  </span>
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        {parsedFormula.errors.length > 0 && (
+                          <div
+                            style={{
+                              marginTop: '0.55rem',
+                              padding: '0.6rem 0.8rem',
+                              borderRadius: '8px',
+                              background: 'rgba(220,38,38,0.1)',
+                              border: '1px solid rgba(248,113,113,0.3)',
+                              fontSize: '0.75rem',
+                              color: '#FCA5A5',
+                              lineHeight: 1.5,
+                            }}
+                          >
+                            {parsedFormula.errors.map((err, i) => (
+                              <div key={i}>• {err}</div>
+                            ))}
+                          </div>
+                        )}
+
+                        {parsedFormula.errors.length === 0 && parsedFormula.parents_formula.length > 0 && (
+                          <div
+                            style={{
+                              marginTop: '0.55rem',
+                              padding: '0.65rem 0.85rem',
+                              borderRadius: '10px',
+                              background: 'rgba(5,150,105,0.08)',
+                              border: '1px solid rgba(52,211,153,0.25)',
+                            }}
+                          >
+                            <div style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.12em', color: '#6EE7B7', textTransform: 'uppercase', marginBottom: '0.35rem' }}>
+                              Postes référencés
+                            </div>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem' }}>
+                              {Array.from(
+                                new Set(
+                                  parsedFormula.parents_formula
+                                    .filter((t) => t.poste_id)
+                                    .map((t) => t.poste_id as string),
+                                ),
+                              ).map((pid) => {
+                                const p = postesById.get(pid);
+                                if (!p) return null;
+                                return (
+                                  <div
+                                    key={pid}
+                                    style={{
+                                      padding: '0.25rem 0.5rem',
+                                      borderRadius: '6px',
+                                      background: 'rgba(27,58,140,0.35)',
+                                      border: '1px solid rgba(201,168,76,0.3)',
+                                      fontSize: '0.7rem',
+                                      color: '#fff',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '0.3rem',
+                                    }}
+                                  >
+                                    <span style={{ color: '#C9A84C', fontWeight: 700, fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace' }}>{p.code}</span>
+                                    <span style={{ color: 'rgba(255,255,255,0.65)', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                      {p.libelle}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        <div style={{ marginTop: '0.6rem', display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                          {['+', '−', '×', '÷', '(', ')'].map((sym) => {
+                            const op = sym === '−' ? '-' : sym === '×' ? '*' : sym === '÷' ? '/' : sym;
+                            return (
+                              <button
+                                key={sym}
+                                type="button"
+                                onClick={() => {
+                                  const caret = formulaCaret || formulaText.length;
+                                  const before = formulaText.slice(0, caret);
+                                  const after = formulaText.slice(caret);
+                                  const needSpaceBefore = before.length > 0 && !/\s$/.test(before) && !/[(]$/.test(before);
+                                  const inserted = `${needSpaceBefore ? ' ' : ''}${op}${op !== '(' && op !== ')' ? ' ' : ''}`;
+                                  setFormulaText(`${before}${inserted}${after}`);
+                                  const newCaret = caret + inserted.length;
+                                  setTimeout(() => {
+                                    if (formulaInputRef.current) {
+                                      formulaInputRef.current.focus();
+                                      formulaInputRef.current.setSelectionRange(newCaret, newCaret);
+                                      setFormulaCaret(newCaret);
+                                    }
+                                  }, 0);
+                                }}
+                                style={{
+                                  width: '36px',
+                                  height: '32px',
+                                  background: 'rgba(27,58,140,0.35)',
+                                  color: '#C9A84C',
+                                  border: '1px solid rgba(201,168,76,0.3)',
+                                  borderRadius: '8px',
+                                  cursor: 'pointer',
+                                  fontWeight: 700,
+                                  fontSize: '0.95rem',
+                                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                                }}
+                              >
+                                {sym}
+                              </button>
+                            );
+                          })}
+                          {formulaText && (
+                            <button
+                              type="button"
+                              onClick={() => setFormulaText('')}
+                              style={{
+                                marginLeft: 'auto',
+                                padding: '0 0.75rem',
+                                height: '32px',
+                                background: 'rgba(248,113,113,0.1)',
+                                color: '#F87171',
+                                border: '1px solid rgba(248,113,113,0.3)',
+                                borderRadius: '8px',
+                                cursor: 'pointer',
+                                fontWeight: 600,
+                                fontSize: '0.72rem',
+                              }}
+                            >
+                              Effacer
+                            </button>
+                          )}
+                        </div>
+
+                        <p style={{ margin: '0.65rem 0 0 0', fontSize: '0.7rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>
+                          Tapez les codes de postes directement (ex. <code style={{ color: '#C9A84C' }}>101</code>) et utilisez <code style={{ color: '#C9A84C' }}>+ − × ÷ ( )</code> pour les opérations. L&apos;autocomplétion apparaît pendant la saisie.
+                        </p>
+                      </div>
+                    )}
+
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.75rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Règle sur le NET (poste GL)</label>
+                      <select
+                        value={formData.formule}
+                        onChange={(e) => setFormData({ ...formData, formule: e.target.value })}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '10px', border: '1px solid rgba(27,58,140,0.5)', color: '#fff', background: 'rgba(11,16,38,0.7)', colorScheme: 'dark', outline: 'none' }}
+                      >
+                        <option value="somme">NET normal</option>
+                        <option value="net_clamp_zero">Si NET &lt; 0 alors 0 sinon NET</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {/* Tab : GL associés */}
+                {formTab === 'gl' && (
+                  <div>
+                    <div style={{ marginBottom: '0.75rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <label style={{ fontSize: '0.75rem', fontWeight: 700, color: '#C9A84C', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                        GL associés ({formData.gl_codes.length})
+                      </label>
                       <button
                         type="button"
-                        onClick={() => removeParentsFormulaTerm(index)}
-                        style={{ padding: '0.5rem 0.75rem', background: '#f44336', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                        onClick={addGLMapping}
+                        style={{ padding: '0.5rem 0.9rem', background: 'linear-gradient(135deg, #1B3A8C 0%, #2e5bb8 100%)', color: '#fff', border: '1px solid rgba(201,168,76,0.3)', borderRadius: '8px', cursor: 'pointer', fontWeight: 700, fontSize: '0.78rem' }}
                       >
-                        🗑️
+                        + Ajouter un GL
                       </button>
                     </div>
-                  ))}
 
-                  <button
-                    type="button"
-                    onClick={addParentsFormulaTerm}
-                    style={{ padding: '0.5rem 1rem', background: '#1B3A8C', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                  >
-                    ➕ Ajouter un terme
-                  </button>
+                    {formData.gl_codes.length === 0 && (
+                      <div style={{ padding: '1.25rem', textAlign: 'center', borderRadius: '10px', background: 'rgba(27,58,140,0.12)', border: '1px dashed rgba(201,168,76,0.3)', color: 'rgba(255,255,255,0.5)', fontSize: '0.85rem' }}>
+                        Aucun GL associé. Cliquez sur « + Ajouter un GL » pour commencer.
+                      </div>
+                    )}
 
-                  <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', flexWrap: 'wrap' }}>
-                    <button
-                      type="button"
-                      onClick={() => addParentsFormulaToken('(')}
-                      style={{ padding: '0.5rem 1rem', background: '#1D4ED8', color: '#E2E8F0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                    >
-                      Ajouter (
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => addParentsFormulaToken(')')}
-                      style={{ padding: '0.5rem 1rem', background: '#1D4ED8', color: '#E2E8F0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                    >
-                      Ajouter )
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => addParentsFormulaToken('/')}
-                      style={{ padding: '0.5rem 1rem', background: '#1D4ED8', color: '#E2E8F0', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                    >
-                      Ajouter /
-                    </button>
+                    {formData.gl_codes.map((glMapping, index) => (
+                      <div key={index} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                        <input
+                          type="text"
+                          value={glMapping.code}
+                          onChange={(e) => updateGLMapping(index, 'code', e.target.value)}
+                          style={{ flex: 1, padding: '0.6rem 0.75rem', borderRadius: '8px', border: '1px solid rgba(27,58,140,0.5)', color: '#fff', background: 'rgba(11,16,38,0.7)', outline: 'none' }}
+                          placeholder="Code GL (ex: 101011)"
+                        />
+                        <select
+                          value={glMapping.signe}
+                          onChange={(e) => updateGLMapping(index, 'signe', e.target.value)}
+                          style={{ width: '72px', padding: '0.6rem', borderRadius: '8px', border: '1px solid rgba(27,58,140,0.5)', color: '#fff', background: 'rgba(11,16,38,0.7)', colorScheme: 'dark' }}
+                        >
+                          <option value="+">+</option>
+                          <option value="-">−</option>
+                        </select>
+                        <button
+                          type="button"
+                          onClick={() => removeGLMapping(index)}
+                          style={{ padding: '0.6rem 0.75rem', background: 'rgba(248,113,113,0.15)', color: '#F87171', border: '1px solid rgba(248,113,113,0.4)', borderRadius: '8px', cursor: 'pointer' }}
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                    <p style={{ margin: '0.75rem 0 0 0', fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5 }}>
+                      Astuce : vous pouvez coller plusieurs codes séparés par des virgules dans un seul champ pour les ajouter d&apos;un coup.
+                    </p>
                   </div>
-                </div>
-              )}
-
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#CBD5E1' }}>Règle sur le NET (poste GL)</label>
-                <select
-                  value={formData.formule}
-                  onChange={(e) => setFormData({ ...formData, formule: e.target.value })}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A', colorScheme: 'dark' }}
-                >
-                  <option value="somme" style={{ background: '#1E3A8A', color: '#ffffff' }}>NET normal</option>
-                  <option value="net_clamp_zero" style={{ background: '#1E3A8A', color: '#ffffff' }}>Si NET &lt; 0 alors 0 sinon NET</option>
-                </select>
+                )}
               </div>
 
-              <div style={{ marginBottom: '1rem' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: '#CBD5E1' }}>GL associés</label>
-                {formData.gl_codes.map((glMapping, index) => (
-                  <div key={index} style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                    <input
-                      type="text"
-                      value={glMapping.code}
-                      onChange={(e) => updateGLMapping(index, 'code', e.target.value)}
-                      style={{ flex: 1, padding: '0.5rem', borderRadius: '6px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A' }}
-                      placeholder="Code GL"
-                    />
-                    <select
-                      value={glMapping.signe}
-                      onChange={(e) => updateGLMapping(index, 'signe', e.target.value)}
-                      style={{ padding: '0.5rem', borderRadius: '6px', border: '1px solid #3B82F6', color: '#ffffff', background: '#1E3A8A', colorScheme: 'dark' }}
-                    >
-                      <option value="+" style={{ background: '#1E3A8A', color: '#ffffff' }}>+</option>
-                      <option value="-" style={{ background: '#1E3A8A', color: '#ffffff' }}>-</option>
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() => removeGLMapping(index)}
-                      style={{ padding: '0.5rem 0.75rem', background: '#f44336', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                    >
-                      🗑️
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={addGLMapping}
-                  style={{ padding: '0.5rem 1rem', background: '#1B3A8C', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
-                >
-                  ➕ Ajouter un GL
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+              {/* Footer */}
+              <div
+                style={{
+                  padding: '1rem 1.5rem',
+                  borderTop: '1px solid rgba(27,58,140,0.35)',
+                  background: 'rgba(7,14,40,0.85)',
+                  display: 'flex',
+                  gap: '0.75rem',
+                  justifyContent: 'flex-end',
+                  flexShrink: 0,
+                }}
+              >
                 <button
                   type="button"
                   onClick={() => {
                     setShowForm(false);
                     resetForm();
                   }}
-                  style={{ padding: '0.75rem 1.5rem', background: '#1D4ED8', color: '#E2E8F0', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                  style={{ padding: '0.75rem 1.4rem', background: 'rgba(255,255,255,0.05)', color: 'rgba(255,255,255,0.75)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: '12px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  style={{ padding: '0.75rem 1.5rem', background: 'linear-gradient(135deg, #1B3A8C 0%, #2e5bb8 50%, #C9A84C 100%)', color: '#fff', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                  style={{ padding: '0.75rem 1.6rem', background: 'linear-gradient(135deg, #1B3A8C 0%, #2e5bb8 50%, #C9A84C 100%)', color: '#fff', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 700, fontSize: '0.85rem', boxShadow: '0 6px 20px rgba(27,58,140,0.4), 0 0 0 1px rgba(201,168,76,0.3)' }}
                 >
-                  {editingPoste ? 'Modifier' : 'Créer'}
+                  {editingPoste ? 'Enregistrer' : 'Créer le poste'}
                 </button>
               </div>
             </form>

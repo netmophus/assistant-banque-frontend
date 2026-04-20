@@ -470,7 +470,7 @@ export default function PrintReportPage() {
 </script>`;
       html = html.replace(
         /(<body[^>]*>)/i,
-        (match) => match + toolbarHtml,
+        (match: string) => match + toolbarHtml,
       );
 
       const blob = new Blob([html], { type: 'text/html' });

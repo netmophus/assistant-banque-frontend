@@ -154,8 +154,8 @@ export default function Home() {
   }, []);
 
   const dashboardHref =
-    userRole === 'admin' ? '/org/dashboard' :
-    userRole === 'superadmin' ? '/admin/dashboard' : '/user/dashboard';
+    userRole === 'admin' ? '/m2/dashboard' :
+    userRole === 'superadmin' ? '/m1/dashboard' : '/m3/dashboard';
 
   return (
     <div className="min-h-screen flex flex-col overflow-x-hidden">

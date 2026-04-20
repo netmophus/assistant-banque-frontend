@@ -16,9 +16,9 @@ export default function AgentLayout({ children }: { children: React.ReactNode })
       router.push('/login');
       return;
     }
-    // Admins n'ont pas besoin de cette zone — ils ont /org/
+    // Admins n'ont pas besoin de cette zone — ils ont leur dashboard masqué
     if (user.role === 'admin' || user.role === 'superadmin') {
-      router.push('/org/dashboard');
+      router.push('/m2/dashboard');
     }
   }, [router, pathname]);
 

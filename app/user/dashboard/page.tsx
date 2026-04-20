@@ -680,8 +680,8 @@ export default function UserDashboard() {
             const isKnowledge = stat.id === 'knowledge';
             const isCredit    = stat.id === 'credit';
             const El = (isKnowledge || isCredit) ? Link : 'button';
-            const props = isKnowledge ? { href: '/user/questions' }
-              : isCredit ? { href: '/user/credit' }
+            const props = isKnowledge ? { href: '/m3/questions' }
+              : isCredit ? { href: '/m3/credit' }
               : { onClick: () => setActiveSection(stat.id as any) };
             return (
               <ScrollReveal key={stat.id} direction="up" delay={i * 80}>
@@ -1127,7 +1127,7 @@ export default function UserDashboard() {
                   Analysez les dossiers de crédit Particuliers et PME/PMI de manière intelligente et structurée.
                 </p>
                 <p className="text-white/65 text-sm mb-10">Décisions rapides, analyses documentées, conformité assurée.</p>
-                <Link href="/user/credit"
+                <Link href="/m3/credit"
                   className="group inline-flex items-center gap-3 px-8 py-4 bg-[#1B3A8C] text-white font-bold rounded-2xl hover:scale-[1.02] transition-all duration-300 shadow-lg shadow-[#1B3A8C]/30 border-b-2 border-[#C9A84C]/30 hover:border-[#C9A84C]/60">
                   Accéder à l&apos;interface d&apos;analyse
                   <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1163,7 +1163,7 @@ export default function UserDashboard() {
                   États financiers réglementaires PCB UEMOA et analyse des ratios bancaires BCEAO.
                 </p>
                 <p className="text-white/65 text-sm mb-10">Bilan, compte de résultat, hors bilan, ratios de gestion.</p>
-                <Link href="/user/pcb"
+                <Link href="/m3/pcb"
                   className="group inline-flex items-center gap-3 px-8 py-4 bg-[#1B3A8C] text-white font-bold rounded-2xl hover:scale-[1.02] transition-all duration-300 shadow-lg shadow-[#1B3A8C]/30 border-b-2 border-[#C9A84C]/30 hover:border-[#C9A84C]/60">
                   Accéder à l&apos;interface PCB
                   <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

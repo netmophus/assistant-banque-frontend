@@ -67,7 +67,7 @@ export default function Footer() {
                 {[
                   { label: 'Fonctionnalités', href: '/#features' },
                   { label: 'Avantages', href: '/#benefits' },
-                  { label: 'Tableau de bord', href: '/user/dashboard' },
+                  { label: 'Tableau de bord', href: '/m3/dashboard' },
                   { label: 'Se connecter', href: '/login' },
                 ].map((link) => (
                   <li key={link.label}>

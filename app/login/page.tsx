@@ -36,13 +36,13 @@ export default function LoginPage() {
     try {
       const response = await authApi.login({ email, password });
 
-      // Rediriger selon le rôle
+      // Rediriger selon le rôle (URL masquées via rewrites next.config.js)
       if (response.user.role === 'superadmin') {
-        router.push('/admin/dashboard');
+        router.push('/m1/dashboard');
       } else if (response.user.role === 'admin') {
-        router.push('/org/dashboard');
+        router.push('/m2/dashboard');
       } else {
-        router.push('/agent/mes-dossiers');
+        router.push('/m4/mes-dossiers');
       }
     } catch (err: any) {
       setError(err.message || 'Erreur lors de la connexion. Vérifiez vos identifiants.');

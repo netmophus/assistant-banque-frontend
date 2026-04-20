@@ -18,7 +18,7 @@ const menuItems: MenuItem[] = [
     id: 'dashboard',
     label: 'Dashboard',
     icon: '📊',
-    path: '/org/dashboard',
+    path: '/m2/dashboard',
   },
   {
     id: 'parametrage',
@@ -29,25 +29,25 @@ const menuItems: MenuItem[] = [
         id: 'knowledge',
         label: 'Base de Connaissances & IA',
         icon: '📚',
-        path: '/org/settings/knowledge',
+        path: '/m2/settings/knowledge',
       },
       {
         id: 'credit',
         label: 'Analyse de Dossier de Crédit',
         icon: '💳',
-        path: '/org/settings/credit',
+        path: '/m2/settings/credit',
       },
       {
         id: 'pcb',
         label: 'États PCB UEMOA & ratios',
         icon: '💰',
-        path: '/org/settings/pcb',
+        path: '/m2/settings/pcb',
       },
       {
         id: 'impayes',
         label: 'Gestion des Impayés',
         icon: '💳',
-        path: '/org/settings/impayes',
+        path: '/m2/settings/impayes',
       },
     ],
   },
@@ -97,9 +97,9 @@ export default function OrgAdminSidebar() {
       <nav className="p-4 space-y-2">
         {isCatalogueAdmin && (
           <Link
-            href="/org/catalogue"
+            href="/m2/catalogue"
             className={`flex items-center space-x-3 px-4 py-3 rounded-lg font-medium transition-all duration-300 ${
-              isActive('/org/catalogue')
+              isActive('/m2/catalogue')
                 ? 'bg-gradient-to-r from-[#2563EB] via-[#7C3AED] to-[#F59E0B] text-white shadow-md'
                 : 'text-[#CBD5E1] hover:text-white hover:bg-white/5'
             }`}

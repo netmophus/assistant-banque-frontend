@@ -85,7 +85,7 @@ export default function PCBSettingsPage() {
             </div>
 
             {/* Back link */}
-            <Link href="/org/dashboard"
+            <Link href="/m2/dashboard"
               className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all flex-shrink-0"
               style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)' }}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

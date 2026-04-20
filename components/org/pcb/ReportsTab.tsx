@@ -1037,7 +1037,7 @@ const ReportsTab = () => {
               <iframe
                 title="Aperçu PDF"
                 key={iframeKey}
-                src={`/user/pcb/reports/${selectedReport.id}/print?embed=1`}
+                src={`/m3/pcb/reports/${selectedReport.id}/print?embed=1`}
                 style={{ width: '100%', height: '70vh', border: 'none', background: '#fff' }}
               />
             </div>
@@ -1045,7 +1045,7 @@ const ReportsTab = () => {
               <button
                 onClick={() => {
                   if (!selectedReport?.id) return;
-                  window.open(`/user/pcb/reports/${selectedReport.id}/print`, '_blank');
+                  window.open(`/m3/pcb/reports/${selectedReport.id}/print`, '_blank');
                 }}
                 style={{
                   padding: '0.75rem 1.5rem',

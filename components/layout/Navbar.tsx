@@ -20,7 +20,7 @@ const orgAdminMenuItems: MenuItem[] = [
     id: 'dashboard',
     label: 'Dashboard',
     icon: '📊',
-    path: '/org/dashboard',
+    path: '/m2/dashboard',
   },
   {
     id: 'parametrage',
@@ -31,37 +31,37 @@ const orgAdminMenuItems: MenuItem[] = [
         id: 'knowledge',
         label: 'Base de Connaissances & IA',
         icon: '📚',
-        path: '/org/settings/knowledge',
+        path: '/m2/settings/knowledge',
       },
       {
         id: 'credit',
         label: 'Analyse de Dossier de Crédit',
         icon: '💳',
-        path: '/org/settings/credit',
+        path: '/m2/settings/credit',
       },
       {
         id: 'pcb',
         label: 'États PCB UEMOA & ratios',
         icon: '📊',
-        path: '/org/settings/pcb',
+        path: '/m2/settings/pcb',
       },
       {
         id: 'impayes',
         label: 'Gestion des Impayés',
         icon: '💸',
-        path: '/org/settings/impayes',
+        path: '/m2/settings/impayes',
       },
       {
         id: 'formations',
         label: 'Modules de Formation',
         icon: '📚',
-        path: '/org/settings/formations',
+        path: '/m2/settings/formations',
       },
       {
         id: 'permissions',
         label: 'Permissions des Onglets',
         icon: '🔐',
-        path: '/org/settings/permissions',
+        path: '/m2/settings/permissions',
       },
     ],
   },
@@ -82,8 +82,9 @@ export default function Navbar() {
     user?.organization_code === 'CATALOGUE' ||
     user?.organization_name === 'Catalogue Global'
   );
-  const isOrgAdminPage = pathname?.startsWith('/org/');
-  const isUserPage = pathname?.startsWith('/user/');
+  // Accepte aussi les préfixes masqués (/m2/, /m3/) et les originaux (legacy)
+  const isOrgAdminPage = pathname?.startsWith('/m2/') || pathname?.startsWith('/org/');
+  const isUserPage = pathname?.startsWith('/m3/') || pathname?.startsWith('/user/');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -175,9 +176,9 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-1">
               {isCatalogueAdmin && (
                 <Link
-                  href="/org/catalogue"
+                  href="/m2/catalogue"
                   className={`group relative px-4 py-2 text-lg font-medium transition-all duration-300 flex items-center space-x-1 ${
-                    pathname?.startsWith('/org/catalogue')
+                    pathname?.startsWith('/m2/catalogue') || pathname?.startsWith('/org/catalogue')
                       ? 'text-[#C9A84C]'
                       : 'text-[#CBD5E1] hover:text-white'
                   }`}
@@ -261,9 +262,9 @@ export default function Navbar() {
               // Menu pour les utilisateurs standards
               <div className="hidden md:flex items-center space-x-1">
                 <Link
-                  href="/user/dashboard"
+                  href="/m3/dashboard"
                   className={`group relative px-4 py-2 text-lg font-medium transition-all duration-300 ${
-                    pathname === '/user/dashboard' || pathname?.startsWith('/user/')
+                    pathname === '/m3/dashboard' || pathname?.startsWith('/m3/') || pathname?.startsWith('/user/')
                       ? 'text-white'
                       : 'text-[#CBD5E1] hover:text-white'
                   }`}
@@ -343,7 +344,7 @@ export default function Navbar() {
                       <div className="p-1">
                         {user.role === 'superadmin' && (
                           <Link
-                            href="/admin/dashboard"
+                            href="/m1/dashboard"
                             onClick={() => setIsUserMenuOpen(false)}
                             className="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm text-[#CBD5E1] hover:text-white hover:bg-white/5 transition-colors"
                           >
@@ -355,7 +356,7 @@ export default function Navbar() {
                         )}
                         {user.role === 'admin' && (
                           <Link
-                            href="/org/dashboard"
+                            href="/m2/dashboard"
                             onClick={() => setIsUserMenuOpen(false)}
                             className="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm text-[#CBD5E1] hover:text-white hover:bg-white/5 transition-colors"
                           >
@@ -367,7 +368,7 @@ export default function Navbar() {
                         )}
                         {user.role === 'user' && (
                           <Link
-                            href="/user/dashboard"
+                            href="/m3/dashboard"
                             onClick={() => setIsUserMenuOpen(false)}
                             className="flex items-center space-x-2 px-3 py-2 rounded-lg text-sm text-[#CBD5E1] hover:text-white hover:bg-white/5 transition-colors"
                           >
@@ -506,10 +507,10 @@ export default function Navbar() {
                 ) : (
                   // Menu mobile pour les utilisateurs standards
                   <Link
-                    href="/user/dashboard"
+                    href="/m3/dashboard"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`flex items-center space-x-2 px-4 py-3 text-base font-medium transition-all duration-300 rounded-lg hover:bg-white/5 ${
-                      pathname === '/user/dashboard' || pathname?.startsWith('/user/')
+                      pathname === '/m3/dashboard' || pathname?.startsWith('/m3/') || pathname?.startsWith('/user/')
                         ? 'text-white'
                         : 'text-[#CBD5E1] hover:text-white'
                     }`}
@@ -550,7 +551,7 @@ export default function Navbar() {
                     </div>
                     {user.role === 'superadmin' && (
                       <Link
-                        href="/admin/dashboard"
+                        href="/m1/dashboard"
                         className="block px-4 py-2 text-sm text-[#CBD5E1] hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
@@ -559,7 +560,7 @@ export default function Navbar() {
                     )}
                     {user.role === 'admin' && (
                       <Link
-                        href="/org/dashboard"
+                        href="/m2/dashboard"
                         className="block px-4 py-2 text-sm text-[#CBD5E1] hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
@@ -568,7 +569,7 @@ export default function Navbar() {
                     )}
                     {user.role === 'user' && (
                       <Link
-                        href="/user/dashboard"
+                        href="/m3/dashboard"
                         className="block px-4 py-2 text-sm text-[#CBD5E1] hover:text-white hover:bg-white/5 rounded-lg transition-colors"
                         onClick={() => setIsMobileMenuOpen(false)}
                       >

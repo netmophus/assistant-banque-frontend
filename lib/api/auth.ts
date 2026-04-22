@@ -3,6 +3,7 @@
  */
 
 import { apiClient } from './client';
+import { setLoggedInCookie, clearLoggedInCookie } from '@/lib/auth-cookie';
 
 export interface LoginRequest {
   email: string;
@@ -66,7 +67,11 @@ export const authApi = {
     if (typeof window !== 'undefined') {
       localStorage.setItem('user', JSON.stringify(user));
     }
-    
+
+    // 5. Poser le cookie partagé .miznas.co pour la redirection mobile
+    //    (middleware.ts lit ce cookie pour rediriger www → app.miznas.co).
+    setLoggedInCookie();
+
     return {
       access_token: tokenResponse.access_token,
       token_type: tokenResponse.token_type,
@@ -88,7 +93,10 @@ export const authApi = {
       localStorage.setItem('token', response.access_token);
       localStorage.setItem('user', JSON.stringify(response.user));
     }
-    
+
+    // Register connecte l'utilisateur — poser le cookie partagé
+    setLoggedInCookie();
+
     return response;
   },
 
@@ -96,6 +104,9 @@ export const authApi = {
    * Déconnexion
    */
   logout(): void {
+    // Supprimer le cookie partagé avant de nettoyer le localStorage pour
+    // que le middleware de redirection ne reste pas actif sur www.miznas.co.
+    clearLoggedInCookie();
     if (typeof window !== 'undefined') {
       localStorage.removeItem('token');
       localStorage.removeItem('user');

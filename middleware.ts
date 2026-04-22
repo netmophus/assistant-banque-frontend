@@ -6,36 +6,52 @@ import { NextRequest, NextResponse } from 'next/server';
  *     → app.miznas.co (Expo Web — mobile, 2 modules)
  *
  * Règle : si le visiteur est sur un user-agent mobile ET qu'il a le cookie
- * partagé `miznas_logged_in=true` (posé sur `.miznas.co` par l'app Expo),
- * on le bascule vers l'expérience mobile.
+ * partagé `miznas_logged_in=true` (posé sur `.miznas.co`), on le bascule
+ * vers l'expérience mobile.
+ *
+ * Headers anti-cache pour éviter que le CDN ou le navigateur ne serve
+ * la redirection 307 à des visiteurs non loggés (faux positifs signalés).
  */
 
 const MOBILE_UA_REGEX = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
 
 export function middleware(request: NextRequest) {
-  // Skip en dev local : on ne veut pas qu'un cookie posé sur .miznas.co
-  // fasse rediriger localhost:3000 vers la prod app.miznas.co.
   if (process.env.NODE_ENV === 'development') {
     return NextResponse.next();
   }
 
   const userAgent = request.headers.get('user-agent') || '';
   const isMobile = MOBILE_UA_REGEX.test(userAgent);
-  const isLoggedIn = request.cookies.get('miznas_logged_in')?.value === 'true';
+  const cookieValue = request.cookies.get('miznas_logged_in')?.value;
+  const isLoggedIn = cookieValue === 'true';
+
+  // DEBUG TEMPORAIRE — a retirer apres diagnostic du faux positif en
+  // navigation privee mobile.
+  console.log('[MIDDLEWARE]', {
+    path: request.nextUrl.pathname,
+    isMobile,
+    cookieValue: cookieValue ?? 'ABSENT',
+    isLoggedIn,
+    ua: userAgent.substring(0, 80),
+  });
 
   if (isMobile && isLoggedIn) {
-    return NextResponse.redirect(new URL('https://app.miznas.co'), 307);
+    const response = NextResponse.redirect(new URL('https://app.miznas.co'), 307);
+    // Empeche tout cache (CDN Heroku + navigateur) de cette redirection.
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    response.headers.set('Pragma', 'no-cache');
+    response.headers.set('Vary', 'Cookie, User-Agent');
+    return response;
   }
 
-  return NextResponse.next();
+  const response = NextResponse.next();
+  // Vary aussi sur next() pour que le CDN ne cache pas une reponse
+  // "pas de redirection" et la resserve a tous les visiteurs suivants.
+  response.headers.set('Vary', 'Cookie, User-Agent');
+  return response;
 }
 
 export const config = {
-  // Toutes les pages sauf :
-  //   - routes API (proxies vers FastAPI)
-  //   - assets Next.js (_next/static, _next/image)
-  //   - favicon
-  //   - fichiers avec extension (png, svg, css, js, etc.)
   matcher: [
     '/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)',
   ],

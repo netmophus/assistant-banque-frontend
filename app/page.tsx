@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import ScrollReveal from '@/components/home/ScrollReveal';
 import FormationsModal from '@/components/home/FormationsModal';
 import { SmartLoginLink } from '@/components/SmartLoginLink';
+import { PlatformBadgeRow } from '@/components/PlatformBadge';
 import { authApi } from '@/lib/api/auth';
 
 /* ─── Animated Counter ─────────────────────────────────────────────────── */
@@ -70,12 +71,18 @@ const bankTypes = [
   'Institutions Financières UEMOA', 'Banques de Développement',
 ];
 
-const features = [
-  { image: '/imageA.jpg', tag: 'Réglementation', title: 'Base de Connaissance Réglementaire', description: 'Un accès en ligne centralisé à l\'ensemble des textes de la réglementation bancaire et aux référentiels PCB UEMOA, permettant aux utilisateurs de poser leurs questions et d\'obtenir des réponses immédiates, précises et conformes au cadre réglementaire.' },
-  { image: '/imageB.jpg', tag: 'Crédit', title: 'Analyse de Crédit Assistée par l\'IA', description: 'La plateforme automatise l\'analyse des dossiers des particuliers et des PME/PMI pour une prise de décision plus rapide et mieux structurée. Elle repère les éléments essentiels, signale les zones de risque et produit une synthèse claire et exploitable.' },
-  { image: '/imageC.jpg', tag: 'Recouvrement', title: 'Gestion Intelligente des Impayés', description: 'La plateforme centralise l\'import et la qualification des impayés, automatise les relances SMS auprès des débiteurs, suit les régularisations en temps réel et fournit les indicateurs clés de performance pour piloter efficacement l\'activité de recouvrement.' },
-  { image: '/imageD.jpg', tag: 'Finance', title: 'États Financiers PCB UEMOA', description: 'La plateforme génère automatiquement le bilan, le compte de résultat et le hors-bilan, calcule les ratios prudentiels, interprète les résultats et fournit des alertes ainsi que des recommandations conformes au cadre PCB UEMOA pour soutenir le pilotage financier.' },
-  { image: '/imageE.jpg', tag: 'Formation', title: 'Catalogue de Formations Spécialisées', description: 'Accédez à plus de 100 modules de formation spécialisés en banque et en finance, avec QCM intégrés pour renforcer l\'apprentissage et l\'évaluation des équipes, et créez facilement vos propres parcours de formation avec l\'assistance de l\'IA générative.' },
+const features: Array<{
+  image: string;
+  tag: string;
+  title: string;
+  description: string;
+  availableOn: 'both' | 'desktop-only';
+}> = [
+  { image: '/imageA.jpg', tag: 'Réglementation', title: 'Base de Connaissance Réglementaire', description: 'Un accès en ligne centralisé à l\'ensemble des textes de la réglementation bancaire et aux référentiels PCB UEMOA, permettant aux utilisateurs de poser leurs questions et d\'obtenir des réponses immédiates, précises et conformes au cadre réglementaire.', availableOn: 'both' },
+  { image: '/imageB.jpg', tag: 'Crédit', title: 'Analyse de Crédit Assistée par l\'IA', description: 'La plateforme automatise l\'analyse des dossiers des particuliers et des PME/PMI pour une prise de décision plus rapide et mieux structurée. Elle repère les éléments essentiels, signale les zones de risque et produit une synthèse claire et exploitable.', availableOn: 'desktop-only' },
+  { image: '/imageC.jpg', tag: 'Recouvrement', title: 'Gestion Intelligente des Impayés', description: 'La plateforme centralise l\'import et la qualification des impayés, automatise les relances SMS auprès des débiteurs, suit les régularisations en temps réel et fournit les indicateurs clés de performance pour piloter efficacement l\'activité de recouvrement.', availableOn: 'desktop-only' },
+  { image: '/imageD.jpg', tag: 'Finance', title: 'États Financiers PCB UEMOA', description: 'La plateforme génère automatiquement le bilan, le compte de résultat et le hors-bilan, calcule les ratios prudentiels, interprète les résultats et fournit des alertes ainsi que des recommandations conformes au cadre PCB UEMOA pour soutenir le pilotage financier.', availableOn: 'desktop-only' },
+  { image: '/imageE.jpg', tag: 'Formation', title: 'Catalogue de Formations Spécialisées', description: 'Accédez à plus de 100 modules de formation spécialisés en banque et en finance, avec QCM intégrés pour renforcer l\'apprentissage et l\'évaluation des équipes, et créez facilement vos propres parcours de formation avec l\'assistance de l\'IA générative.', availableOn: 'both' },
 ];
 
 const metrics = [
@@ -385,6 +392,8 @@ export default function Home() {
                         {f.title}
                       </h3>
                       <p className="text-[#64748B] leading-relaxed text-sm flex-1">{f.description}</p>
+                      {/* Badges de disponibilite par plateforme */}
+                      <PlatformBadgeRow availableOn={f.availableOn} />
                       {/* Animated gold bottom line */}
                       <div className="mt-6 h-[2px] w-0 group-hover:w-full rounded-full transition-all duration-600"
                         style={{ background: 'linear-gradient(90deg, #1B3A8C, #C9A84C, #1B3A8C)' }} />

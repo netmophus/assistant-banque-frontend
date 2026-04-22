@@ -20,7 +20,9 @@ export function MobileViewportGuard() {
   useEffect(() => {
     function checkViewport() {
       if (window.innerWidth < MOBILE_BREAKPOINT) {
-        window.location.replace('https://app.miznas.co');
+        // Redirection vers la page intermediaire avec QR code plutot que
+        // directement vers l'app mobile (UX : proposer le choix a l'user).
+        window.location.replace('/mobile-redirect');
       }
     }
 

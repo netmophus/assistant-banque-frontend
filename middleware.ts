@@ -12,8 +12,11 @@ import { NextRequest, NextResponse } from 'next/server';
 const MOBILE_UA_REGEX = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
 
 // Pages exactes autorisees sur mobile.
+//   /                  -> home publique (presentation marketing)
+//   /mobile-redirect   -> page intermediaire avec QR code (sinon boucle infinie)
 const MOBILE_ALLOWED_PATHS = new Set<string>([
   '/',
+  '/mobile-redirect',
 ]);
 
 // Prefixes autorises (toutes les routes qui commencent par ces chaines).
@@ -43,9 +46,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Mobile : si le path n'est pas autorise, redirection vers l'app.
+  // Mobile : si le path n'est pas autorise, redirection vers la page
+  // intermediaire /mobile-redirect (QR code + CTA vers app.miznas.co).
+  // On passe par une page intermediaire plutot qu'un redirect direct pour
+  // laisser le choix a l'utilisateur (scanner le QR sur son telephone
+  // depuis un desktop, ou continuer vers l'app mobile).
   if (!isMobileAllowed(pathname)) {
-    const response = NextResponse.redirect(new URL('https://app.miznas.co'), 307);
+    const redirectUrl = new URL('/mobile-redirect', request.url);
+    const response = NextResponse.redirect(redirectUrl, 307);
     // Anti-cache pour eviter les redirections cachees par CDN / navigateur.
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
     response.headers.set('Pragma', 'no-cache');

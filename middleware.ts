@@ -1,53 +1,61 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 /**
- * Redirection cross-subdomain :
- *   www.miznas.co (Next.js — desktop/tablette, 5 modules)
- *     → app.miznas.co (Expo Web — mobile, 2 modules)
+ * Redirection cross-subdomain : sur mobile, seules quelques pages publiques
+ * restent accessibles sur www.miznas.co. Tout le reste est redirige vers
+ * app.miznas.co (l'espace mobile Expo Web).
  *
- * Règle : si le visiteur est sur un user-agent mobile ET qu'il a le cookie
- * partagé `miznas_logged_in=true` (posé sur `.miznas.co`), on le bascule
- * vers l'expérience mobile.
- *
- * Headers anti-cache pour éviter que le CDN ou le navigateur ne serve
- * la redirection 307 à des visiteurs non loggés (faux positifs signalés).
+ * Strategie : URL-based (plus aucune dependance au cookie miznas_logged_in).
+ * Plus simple, plus robuste, pas sensible au cache de redirection.
  */
 
 const MOBILE_UA_REGEX = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
 
+// Pages exactes autorisees sur mobile.
+const MOBILE_ALLOWED_PATHS = new Set<string>([
+  '/',
+]);
+
+// Prefixes autorises (toutes les routes qui commencent par ces chaines).
+const MOBILE_ALLOWED_PREFIXES = [
+  '/legal/',           // Mentions legales, CGU, confidentialite
+  '/reset-password',   // CRITIQUE : lien email avec token — doit fonctionner sur mobile
+  '/forgot-password',  // Coherence avec le flow reset
+];
+
+function isMobileAllowed(pathname: string): boolean {
+  if (MOBILE_ALLOWED_PATHS.has(pathname)) return true;
+  return MOBILE_ALLOWED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
 export function middleware(request: NextRequest) {
+  // Skip en dev local : on ne veut pas rediriger localhost vers prod.
   if (process.env.NODE_ENV === 'development') {
     return NextResponse.next();
   }
 
   const userAgent = request.headers.get('user-agent') || '';
   const isMobile = MOBILE_UA_REGEX.test(userAgent);
-  const cookieValue = request.cookies.get('miznas_logged_in')?.value;
-  const isLoggedIn = cookieValue === 'true';
+  const pathname = request.nextUrl.pathname;
 
-  // DEBUG TEMPORAIRE — a retirer apres diagnostic du faux positif en
-  // navigation privee mobile.
-  console.log('[MIDDLEWARE]', {
-    path: request.nextUrl.pathname,
-    isMobile,
-    cookieValue: cookieValue ?? 'ABSENT',
-    isLoggedIn,
-    ua: userAgent.substring(0, 80),
-  });
+  // Desktop : jamais de redirection.
+  if (!isMobile) {
+    return NextResponse.next();
+  }
 
-  if (isMobile && isLoggedIn) {
+  // Mobile : si le path n'est pas autorise, redirection vers l'app.
+  if (!isMobileAllowed(pathname)) {
     const response = NextResponse.redirect(new URL('https://app.miznas.co'), 307);
-    // Empeche tout cache (CDN Heroku + navigateur) de cette redirection.
+    // Anti-cache pour eviter les redirections cachees par CDN / navigateur.
     response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate');
     response.headers.set('Pragma', 'no-cache');
-    response.headers.set('Vary', 'Cookie, User-Agent');
+    response.headers.set('Vary', 'User-Agent');
     return response;
   }
 
+  // Mobile + page autorisee : on laisse passer.
   const response = NextResponse.next();
-  // Vary aussi sur next() pour que le CDN ne cache pas une reponse
-  // "pas de redirection" et la resserve a tous les visiteurs suivants.
-  response.headers.set('Vary', 'Cookie, User-Agent');
+  response.headers.set('Vary', 'User-Agent');
   return response;
 }
 

@@ -7,6 +7,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import ScrollReveal from '@/components/home/ScrollReveal';
 import FormationsModal from '@/components/home/FormationsModal';
+import { SmartLoginLink } from '@/components/SmartLoginLink';
 import { authApi } from '@/lib/api/auth';
 
 /* ─── Animated Counter ─────────────────────────────────────────────────── */
@@ -222,9 +223,16 @@ export default function Home() {
                 </GoldBtn>
               ) : (
                 <>
-                  <GoldBtn href="/login">
-                    Démarrer maintenant <IcArrow />
-                  </GoldBtn>
+                  <SmartLoginLink
+                    target="login"
+                    className="group relative px-8 py-4 text-sm font-bold text-white rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105 shadow-lg shadow-[#1B3A8C]/30 hover:shadow-[#1B3A8C]/50 flex items-center gap-2"
+                  >
+                    <div className="absolute inset-0 bg-[#1B3A8C]" />
+                    <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
+                    <span className="relative z-10 flex items-center gap-2">
+                      Démarrer maintenant <IcArrow />
+                    </span>
+                  </SmartLoginLink>
                   <button
                     onClick={() => setShowFormations(true)}
                     className="px-8 py-4 text-sm font-semibold text-white/70 hover:text-white rounded-2xl border border-white/15 hover:border-[#C9A84C]/50 bg-white/5 hover:bg-white/10 backdrop-blur-sm transition-all duration-300 hover:scale-105 flex items-center gap-2"
@@ -581,14 +589,16 @@ export default function Home() {
                   Miznas Pilot pour leurs opérations bancaires quotidiennes.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link href="/login"
-                    className="group relative px-10 py-4 text-sm font-bold text-white rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105 shadow-lg shadow-[#1B3A8C]/30 hover:shadow-[#1B3A8C]/50">
+                  <SmartLoginLink
+                    target="login"
+                    className="group relative px-10 py-4 text-sm font-bold text-white rounded-2xl overflow-hidden transition-all duration-300 hover:scale-105 shadow-lg shadow-[#1B3A8C]/30 hover:shadow-[#1B3A8C]/50"
+                  >
                     <div className="absolute inset-0 bg-[#1B3A8C]" />
                     <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
                     <span className="relative z-10 flex items-center gap-2">
                       Accéder à la plateforme <IcArrow />
                     </span>
-                  </Link>
+                  </SmartLoginLink>
                   <a href="mailto:support@miznasbanking.com"
                     className="px-10 py-4 text-sm font-semibold text-white/70 hover:text-white rounded-2xl border border-white/15 hover:border-[#C9A84C]/40 bg-white/5 hover:bg-white/8 backdrop-blur-sm transition-all duration-300 hover:scale-105">
                     Contacter notre équipe

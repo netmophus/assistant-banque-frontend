@@ -83,7 +83,7 @@ export default function MobileRedirectPage() {
           style={{
             fontSize: '14px',
             color: 'rgba(255,255,255,0.7)',
-            marginBottom: '2rem',
+            marginBottom: '1.5rem',
             lineHeight: 1.5,
           }}
         >
@@ -92,32 +92,69 @@ export default function MobileRedirectPage() {
           Scannez le QR code avec votre téléphone pour une meilleure expérience.
         </p>
 
-        <a
-          href={appUrl}
+        {/* Note transparence — modules disponibles par plateforme */}
+        <div
           style={{
-            display: 'block',
-            backgroundColor: '#c9a34e',
-            color: '#1b1b1b',
-            padding: '14px 24px',
+            backgroundColor: 'rgba(201, 163, 78, 0.08)',
+            border: '1px solid rgba(201, 163, 78, 0.25)',
             borderRadius: '8px',
-            fontWeight: 600,
-            textDecoration: 'none',
-            fontSize: '16px',
-            marginBottom: '1rem',
+            padding: '0.75rem 1rem',
+            marginBottom: '1.5rem',
+            textAlign: 'left',
           }}
         >
-          → Continuer vers l&apos;app mobile
-        </a>
+          <p
+            style={{
+              fontSize: '12px',
+              color: '#c9a34e',
+              margin: '0 0 0.5rem',
+              fontWeight: 500,
+            }}
+          >
+            Bon à savoir
+          </p>
+          <p
+            style={{
+              fontSize: '13px',
+              color: 'rgba(255,255,255,0.85)',
+              margin: '0 0 0.4rem',
+              lineHeight: 1.5,
+            }}
+          >
+            <span style={{ color: '#ffffff', fontWeight: 500 }}>
+              Version mobile supporte les modules :
+            </span>{' '}
+            Formations · Base de connaissances
+          </p>
+          <p
+            style={{
+              fontSize: '13px',
+              color: 'rgba(255,255,255,0.85)',
+              margin: 0,
+              lineHeight: 1.5,
+            }}
+          >
+            <span style={{ color: '#ffffff', fontWeight: 500 }}>
+              Version desktop :
+            </span>{' '}
+            5 modules complets
+          </p>
+        </div>
 
         <Link
           href="/"
           style={{
-            color: 'rgba(255,255,255,0.5)',
+            display: 'inline-block',
+            border: '1px solid rgba(255,255,255,0.3)',
+            color: '#ffffff',
+            padding: '10px 24px',
+            borderRadius: '8px',
+            fontWeight: 500,
+            textDecoration: 'none',
             fontSize: '14px',
-            textDecoration: 'underline',
           }}
         >
-          ← Revenir à l&apos;accueil
+          ← Retour à l&apos;accueil
         </Link>
       </div>
     </div>

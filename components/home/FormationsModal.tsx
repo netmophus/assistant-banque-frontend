@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { SmartLoginLink } from '@/components/SmartLoginLink';
 
 /* ─── Données formations par catégorie ─────────────────────── */
 const CATEGORIES = [
@@ -263,12 +264,12 @@ export default function FormationsModal({ onClose }: { onClose: () => void }) {
           <p className="text-xs text-white/30">
             Accédez aux formations via votre espace utilisateur
           </p>
-          <a
-            href="/login"
+          <SmartLoginLink
+            target="login"
             className="px-5 py-2.5 text-xs font-bold rounded-xl text-[#0A1434] bg-[#C9A84C] hover:bg-[#E8D08A] transition-colors flex-shrink-0"
           >
             Commencer →
-          </a>
+          </SmartLoginLink>
         </div>
       </div>
     </>

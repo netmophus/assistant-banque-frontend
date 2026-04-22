@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import { MobileViewportGuard } from '@/components/MobileViewportGuard';
 import { authApi } from '@/lib/api/auth';
 
 export default function UserLayout({
@@ -38,6 +39,9 @@ export default function UserLayout({
 
   return (
     <div className="min-h-screen flex flex-col bg-[#070E28]">
+      {/* Guard : on skippe volontairement sur les pages print (iframe admin
+          pour PDF) — l'autre branche ci-dessus est deja un early return. */}
+      <MobileViewportGuard />
       <Navbar />
 
       <main className="flex-1 pt-20 pb-0 px-4 sm:px-6 lg:px-8">

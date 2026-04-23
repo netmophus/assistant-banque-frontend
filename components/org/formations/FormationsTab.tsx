@@ -472,8 +472,48 @@ const FormationsTab = () => {
         throw new Error(errorData.detail || 'Erreur lors de la publication');
       }
 
-      setMessage('Formation publiée avec succès.');
-      setError('');
+      // Lire les stats de generation eventuelles pour un feedback precis
+      const data = await response.json().catch(() => null);
+      const stats = data?.generation_stats as
+        | {
+            content_ok: number;
+            content_failed: number;
+            content_skipped_already_done: number;
+            qcm_ok: number;
+            qcm_failed: number;
+            qcm_skipped_already_done: number;
+            errors: string[];
+          }
+        | undefined;
+
+      if (stats) {
+        const parts: string[] = [];
+        if (stats.content_ok > 0) parts.push(`${stats.content_ok} chapitre(s) généré(s)`);
+        if (stats.content_skipped_already_done > 0) parts.push(`${stats.content_skipped_already_done} chapitre(s) déjà à jour`);
+        if (stats.qcm_ok > 0) parts.push(`${stats.qcm_ok} QCM généré(s)`);
+        if (stats.qcm_skipped_already_done > 0) parts.push(`${stats.qcm_skipped_already_done} QCM déjà à jour`);
+
+        const failed = stats.content_failed + stats.qcm_failed;
+        if (failed > 0) {
+          const firstErrors = (stats.errors || []).slice(0, 3).join(' · ');
+          setError(
+            `Publication terminée avec ${failed} échec(s) de génération. ` +
+            (parts.length ? `Succès : ${parts.join(', ')}. ` : '') +
+            `Relancez "Générer contenu" pour rattraper les échecs. Détails : ${firstErrors}`
+          );
+          setMessage('');
+        } else {
+          setMessage(
+            parts.length
+              ? `Formation publiée : ${parts.join(', ')}.`
+              : 'Formation publiée avec succès.'
+          );
+          setError('');
+        }
+      } else {
+        setMessage('Formation publiée avec succès.');
+        setError('');
+      }
       setShowPublishModal(false);
       setPublishFormationId(null);
       fetchFormations();
@@ -2470,40 +2510,57 @@ const FormationsTab = () => {
                         <IconBook size={12} color="#93c5fd" />
                         {formation.modules_count || formation.modules?.length || 0} module(s)
                       </span>
-                      {/* Status badge */}
-                      <span
-                        style={{
-                          padding: '3px 10px',
-                          borderRadius: '999px',
-                          background:
-                            formation.status === 'published'
-                              ? 'rgba(5,150,105,0.15)'
-                              : formation.status === 'archived'
-                                ? 'rgba(100,116,139,0.15)'
-                                : 'rgba(201,168,76,0.15)',
-                          color:
-                            formation.status === 'published'
-                              ? '#6ee7b7'
-                              : formation.status === 'archived'
-                                ? '#94a3b8'
-                                : nb.gold,
-                          border: `1px solid ${
-                            formation.status === 'published'
-                              ? 'rgba(5,150,105,0.3)'
-                              : formation.status === 'archived'
-                                ? 'rgba(100,116,139,0.3)'
-                                : 'rgba(201,168,76,0.3)'
-                          }`,
-                          fontSize: '0.78rem',
-                          fontWeight: 700,
-                        }}
-                      >
-                        {formation.status === 'published'
+                      {/* Status badge — 3 etats pour le statut 'published' :
+                          published+complet (vert) / published+incomplet (orange) / draft (or) / archived (gris) */}
+                      {(() => {
+                        const isArchived = formation.status === 'archived';
+                        const isPublishedReady = formation.status === 'published' && formation.is_ready_to_distribute;
+                        const isPublishedIncomplete = formation.status === 'published' && !formation.is_ready_to_distribute;
+                        const bg = isPublishedReady
+                          ? 'rgba(5,150,105,0.15)'
+                          : isPublishedIncomplete
+                            ? 'rgba(249,115,22,0.15)'
+                            : isArchived
+                              ? 'rgba(100,116,139,0.15)'
+                              : 'rgba(201,168,76,0.15)';
+                        const fg = isPublishedReady
+                          ? '#6ee7b7'
+                          : isPublishedIncomplete
+                            ? '#fdba74'
+                            : isArchived
+                              ? '#94a3b8'
+                              : nb.gold;
+                        const border = isPublishedReady
+                          ? 'rgba(5,150,105,0.3)'
+                          : isPublishedIncomplete
+                            ? 'rgba(249,115,22,0.35)'
+                            : isArchived
+                              ? 'rgba(100,116,139,0.3)'
+                              : 'rgba(201,168,76,0.3)';
+                        const label = isPublishedReady
                           ? 'Publiée'
-                          : formation.status === 'archived'
-                            ? 'Archivée'
-                            : 'Brouillon'}
-                      </span>
+                          : isPublishedIncomplete
+                            ? 'Publiée — contenu incomplet'
+                            : isArchived
+                              ? 'Archivée'
+                              : 'Brouillon';
+                        return (
+                          <span
+                            style={{
+                              padding: '3px 10px',
+                              borderRadius: '999px',
+                              background: bg,
+                              color: fg,
+                              border: `1px solid ${border}`,
+                              fontSize: '0.78rem',
+                              fontWeight: 700,
+                            }}
+                            title={isPublishedIncomplete ? "Contenu chapitres ou QCM manquants. Cliquez 'Générer contenu' pour compléter." : undefined}
+                          >
+                            {label}
+                          </span>
+                        );
+                      })()}
                     </div>
                   </div>
 

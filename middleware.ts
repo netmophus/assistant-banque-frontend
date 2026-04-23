@@ -16,6 +16,7 @@ const MOBILE_UA_REGEX = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Oper
 // viewport etroit (cf. MobileViewportGuard), pas aux vrais mobiles.
 const MOBILE_ALLOWED_PATHS = new Set<string>([
   '/',
+  '/tarifs',  // page marketing publique accessible partout
 ]);
 
 // Prefixes autorises (toutes les routes qui commencent par ces chaines).

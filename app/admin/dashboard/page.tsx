@@ -725,30 +725,56 @@ export default function SuperAdminDashboard() {
             {/* Overview Section */}
             {activeSection === 'overview' && (
               <ScrollReveal direction="up" delay={0}>
-                {/* Lien rapide vers les demandes d'abonnement */}
-                <a
-                  href="/m1/subscription-requests"
-                  className="block mb-6 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#C9A84C]/10 via-[#1B3A8C]/15 to-[#C9A84C]/5 border border-[#C9A84C]/30 hover:border-[#C9A84C] transition-colors group"
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#C9A84C]/20 border border-[#C9A84C]/40 flex items-center justify-center text-xl">
-                        📋
+                {/* Liens rapides vers les demandes (B2C + B2B) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
+                  <a
+                    href="/m1/subscription-requests"
+                    className="block p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#C9A84C]/10 via-[#1B3A8C]/15 to-[#C9A84C]/5 border border-[#C9A84C]/30 hover:border-[#C9A84C] transition-colors group"
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-[#C9A84C]/20 border border-[#C9A84C]/40 flex items-center justify-center text-xl">
+                          📋
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-black text-white">
+                            Demandes d&apos;abonnement
+                          </h3>
+                          <p className="text-xs text-white/60 mt-0.5">
+                            Individuels (mobile) reçus via /tarifs
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-sm font-black text-white">
-                          Demandes d&apos;abonnement
-                        </h3>
-                        <p className="text-xs text-white/60 mt-0.5">
-                          Gérer les demandes reçues via /tarifs
-                        </p>
+                      <div className="text-[#C9A84C] font-bold group-hover:translate-x-1 transition-transform">
+                        →
                       </div>
                     </div>
-                    <div className="text-[#C9A84C] font-bold group-hover:translate-x-1 transition-transform">
-                      →
+                  </a>
+
+                  <a
+                    href="/m1/institution-requests"
+                    className="block p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-purple-500/10 via-[#1B3A8C]/15 to-purple-500/5 border border-purple-500/30 hover:border-purple-500 transition-colors group"
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-xl">
+                          🏦
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-black text-white">
+                            Demandes B2B institution
+                          </h3>
+                          <p className="text-xs text-white/60 mt-0.5">
+                            Pipeline démo banques & institutions
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-purple-300 font-bold group-hover:translate-x-1 transition-transform">
+                        →
+                      </div>
                     </div>
-                  </div>
-                </a>
+                  </a>
+                </div>
 
                 {/* Quick Summary Bar */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import { OfferCTA } from '@/components/tarifs/OfferCTA';
 
 export const metadata: Metadata = {
   title: 'Tarifs | Miznas Pilot',
@@ -230,21 +231,12 @@ export default function TarifsPage() {
                   ))}
                 </ul>
 
-                {/* CTA */}
-                <a
-                  href={buildWaLink(WA_MESSAGES[offer.key])}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Contacter sur WhatsApp"
-                  className={`flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-bold text-sm transition-all duration-300 hover:scale-105 ${
-                    offer.featured
-                      ? 'bg-[#C9A84C] text-[#0A1434] hover:bg-[#E8D08A] shadow-lg shadow-[#C9A84C]/30'
-                      : 'bg-[#1B3A8C] text-white hover:bg-[#2E5BB8] border border-[#C9A84C]/30'
-                  }`}
-                >
-                  <IcWhatsApp />
-                  Contacter pour souscrire
-                </a>
+                {/* CTA : bouton principal "Demander cette offre" + lien WhatsApp secondaire */}
+                <OfferCTA
+                  planKey={offer.key}
+                  waLink={buildWaLink(WA_MESSAGES[offer.key])}
+                  featured={offer.featured}
+                />
               </div>
             ))}
           </div>

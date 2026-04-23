@@ -52,6 +52,9 @@ interface Formation {
   titre: string;
   description?: string;
   status: 'draft' | 'published' | 'archived';
+  // true = publiée ET tous chapitres ont contenu_genere + tous modules ont QCM.
+  // Permet de distinguer "published vide" vs "published + generee".
+  is_ready_to_distribute?: boolean;
   modules_count?: number;
   modules?: Module[];
   bloc_numero?: number | null;
@@ -2543,7 +2546,34 @@ const FormationsTab = () => {
                         Publier
                       </button>
                     )}
-                    {formation.status === 'published' && (
+                    {/* Publiee mais contenu/QCM incomplet : bouton pour relancer
+                        la generation (idempotent — remplit uniquement les trous). */}
+                    {formation.status === 'published' && !formation.is_ready_to_distribute && (
+                      <button
+                        type="button"
+                        onClick={() => openPublishModal(formation.id || '')}
+                        disabled={loading}
+                        title="Cette formation est publiée mais son contenu IA n'est pas complet. Cliquez pour générer le contenu manquant."
+                        style={{
+                          padding: '7px 14px',
+                          fontSize: '0.85rem',
+                          background: 'linear-gradient(135deg, #F97316 0%, #EA580C 100%)',
+                          color: '#fff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontWeight: 600,
+                          cursor: loading ? 'not-allowed' : 'pointer',
+                          opacity: loading ? 0.6 : 1,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          boxShadow: '0 2px 8px rgba(249,115,22,0.25)',
+                        }}
+                      >
+                        ⚡ Générer contenu
+                      </button>
+                    )}
+                    {formation.status === 'published' && formation.is_ready_to_distribute && (
                       <button
                         type="button"
                         onClick={async () => {

@@ -10,6 +10,7 @@ interface Formation {
   titre: string;
   description?: string;
   status: string;
+  is_ready_to_distribute?: boolean;
   modules_count?: number;
   bloc_label?: string;
   bloc_numero?: number;
@@ -121,15 +122,25 @@ export default function CataloguePage() {
     }
   }
 
-  const statusBadge = (status: string) => {
-    if (status === 'published') return (
-      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/30">
-        Publié
-      </span>
-    );
+  const statusBadge = (f: Formation) => {
+    // 3 etats : Brouillon / Publie sans contenu / Pret a distribuer
+    if (f.status !== 'published') {
+      return (
+        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
+          Brouillon
+        </span>
+      );
+    }
+    if (!f.is_ready_to_distribute) {
+      return (
+        <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">
+          Publié — contenu incomplet
+        </span>
+      );
+    }
     return (
-      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30">
-        Brouillon
+      <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-green-500/20 text-green-400 border border-green-500/30">
+        Prêt à distribuer
       </span>
     );
   };
@@ -181,7 +192,7 @@ export default function CataloguePage() {
                   <p className="text-[#94A3B8] text-sm mb-3 line-clamp-2">{f.description}</p>
                 )}
                 <div className="flex items-center gap-3">
-                  {statusBadge(f.status)}
+                  {statusBadge(f)}
                   {f.modules_count !== undefined && (
                     <span className="text-xs text-[#64748B]">
                       {f.modules_count} module{f.modules_count > 1 ? 's' : ''}
@@ -189,14 +200,14 @@ export default function CataloguePage() {
                   )}
                 </div>
               </div>
-              {f.status === 'published' ? (
+              {f.is_ready_to_distribute ? (
                 <button
                   onClick={() => openModal(f)}
                   className="shrink-0 px-4 py-2 rounded-xl bg-[#C9A84C] hover:bg-[#b8963e] text-[#0B1026] font-semibold text-sm transition-colors"
                 >
                   Affecter
                 </button>
-              ) : (
+              ) : f.status !== 'published' ? (
                 <div className="shrink-0 flex flex-col items-end gap-1.5 max-w-[180px]">
                   <button
                     disabled
@@ -207,6 +218,19 @@ export default function CataloguePage() {
                   </button>
                   <span className="text-[11px] text-yellow-400/70 text-right leading-tight">
                     Brouillon — à publier<br />+ générer d&apos;abord
+                  </span>
+                </div>
+              ) : (
+                <div className="shrink-0 flex flex-col items-end gap-1.5 max-w-[200px]">
+                  <button
+                    disabled
+                    title="Publiée mais contenu non généré. Régénérez le contenu + QCM depuis Paramétrage / Formations."
+                    className="px-4 py-2 rounded-xl bg-[#0F1E48] border border-orange-500/30 text-orange-400/50 font-semibold text-sm cursor-not-allowed"
+                  >
+                    Affecter
+                  </button>
+                  <span className="text-[11px] text-orange-400/70 text-right leading-tight">
+                    Contenu non généré<br />générez avant d&apos;affecter
                   </span>
                 </div>
               )}

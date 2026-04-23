@@ -65,31 +65,20 @@ export default function Footer() {
               </h3>
               <ul className="space-y-2.5">
                 {[
-                  { label: 'Fonctionnalités', href: '/#features', disabled: false },
-                  { label: 'Avantages', href: '/#benefits', disabled: false },
-                  { label: 'Tarifs', href: '/tarifs', disabled: true },
-                  { label: 'Tableau de bord', href: '/m3/dashboard', disabled: false },
-                  { label: 'Se connecter', href: '/login', disabled: false },
+                  { label: 'Fonctionnalités', href: '/#features' },
+                  { label: 'Avantages', href: '/#benefits' },
+                  { label: 'Tarifs', href: '/tarifs' },
+                  { label: 'Tableau de bord', href: '/m3/dashboard' },
+                  { label: 'Se connecter', href: '/login' },
                 ].map((link) => (
                   <li key={link.label}>
-                    {link.disabled ? (
-                      <span
-                        aria-disabled="true"
-                        title="Bientôt disponible"
-                        className="flex items-center justify-center gap-2 text-xs text-white/30 cursor-not-allowed select-none"
-                      >
-                        <span className="w-1 h-1 rounded-full bg-[#1B3A8C]/40 flex-shrink-0" />
-                        {link.label}
-                      </span>
-                    ) : (
-                      <Link
-                        href={link.href}
-                        className="group flex items-center justify-center gap-2 text-xs text-white/60 hover:text-white transition-colors duration-200"
-                      >
-                        <span className="w-1 h-1 rounded-full bg-[#1B3A8C] group-hover:bg-[#C9A84C] transition-colors flex-shrink-0" />
-                        {link.label}
-                      </Link>
-                    )}
+                    <Link
+                      href={link.href}
+                      className="group flex items-center justify-center gap-2 text-xs text-white/60 hover:text-white transition-colors duration-200"
+                    >
+                      <span className="w-1 h-1 rounded-full bg-[#1B3A8C] group-hover:bg-[#C9A84C] transition-colors flex-shrink-0" />
+                      {link.label}
+                    </Link>
                   </li>
                 ))}
               </ul>

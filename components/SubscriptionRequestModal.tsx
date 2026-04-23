@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 // ── Types ─────────────────────────────────────────────────────────────────
 export type PlanKey = 'monthly' | 'semester' | 'annual';
@@ -90,7 +91,11 @@ export function SubscriptionRequestModal({ isOpen, initialPlan, onClose }: Props
     };
   }, [isOpen, status, onClose]);
 
-  if (!isOpen) return null;
+  // Portal mount flag (SSR safety : document est indispo côté serveur)
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!isOpen || !mounted) return null;
 
   const update = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -183,8 +188,8 @@ export function SubscriptionRequestModal({ isOpen, initialPlan, onClose }: Props
     }
   };
 
-  // ── Rendu ────────────────────────────────────────────────────────────────
-  return (
+  // ── Rendu (portal dans <body> pour échapper aux ancêtres transform) ─────
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -477,7 +482,8 @@ export function SubscriptionRequestModal({ isOpen, initialPlan, onClose }: Props
           </form>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

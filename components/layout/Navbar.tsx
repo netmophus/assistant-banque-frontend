@@ -290,13 +290,13 @@ export default function Navbar() {
                 <span className="relative z-10">Avantages</span>
                 <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#1B3A8C] via-[#0F2864] to-[#C9A84C] group-hover:w-full transition-all duration-300"></span>
               </Link>
-              <span
-                aria-disabled="true"
-                title="Bientôt disponible"
-                className="relative px-4 py-2 text-lg font-medium text-muted/50 opacity-50 cursor-not-allowed select-none"
+              <Link
+                href="/tarifs"
+                className="group relative px-4 py-2 text-lg font-medium text-muted hover:text-text transition-all duration-300"
               >
-                Tarifs
-              </span>
+                <span className="relative z-10">Tarifs</span>
+                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-[#1B3A8C] via-[#0F2864] to-[#C9A84C] group-hover:w-full transition-all duration-300"></span>
+              </Link>
             </div>
           )}
 
@@ -543,13 +543,14 @@ export default function Navbar() {
                     <span className="relative z-10">Avantages</span>
                     <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-gradient-to-r from-[#1B3A8C] via-[#0F2864] to-[#C9A84C] group-hover:w-full transition-all duration-300"></span>
                   </Link>
-                  <span
-                    aria-disabled="true"
-                    title="Bientôt disponible"
-                    className="relative px-4 py-3 text-base font-medium text-[#CBD5E1]/40 opacity-50 cursor-not-allowed select-none rounded-lg"
+                  <Link
+                    href="/tarifs"
+                    className="group relative px-4 py-3 text-base font-medium text-[#CBD5E1] hover:text-white transition-all duration-300 rounded-lg hover:bg-white/5"
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    Tarifs
-                  </span>
+                    <span className="relative z-10">Tarifs</span>
+                    <span className="absolute left-0 bottom-0 w-0 h-0.5 bg-gradient-to-r from-[#1B3A8C] via-[#0F2864] to-[#C9A84C] group-hover:w-full transition-all duration-300"></span>
+                  </Link>
                 </>
               )}
               <div className="pt-4 space-y-2 border-t border-white/10">

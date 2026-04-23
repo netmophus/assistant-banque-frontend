@@ -86,9 +86,9 @@ const features: Array<{
 ];
 
 const metrics = [
-  { value: 50,  suffix: '+', prefix: '', label: 'FORMATIONS',    gold: false },
-  { value: 270, suffix: '',  prefix: '+', label: 'Q/R EXPERTES',  gold: true  },
-  { value: 16,  suffix: '',  prefix: '',  label: 'THÈMES',        gold: false },
+  { value: 100, suffix: '+', prefix: '', label: 'FORMATIONS',    gold: false },
+  { value: 270, suffix: '+', prefix: '',  label: 'Q/R EXPERTES',  gold: true  },
+  { value: 16,  suffix: '+', prefix: '',  label: 'THÈMES',        gold: false },
   { value: 5,   suffix: '',  prefix: '',  label: 'Modules intégrés en une seule plateforme', gold: true  },
 ];
 

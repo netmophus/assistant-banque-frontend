@@ -189,12 +189,27 @@ export default function CataloguePage() {
                   )}
                 </div>
               </div>
-              <button
-                onClick={() => openModal(f)}
-                className="shrink-0 px-4 py-2 rounded-xl bg-[#C9A84C] hover:bg-[#b8963e] text-[#0B1026] font-semibold text-sm transition-colors"
-              >
-                Affecter
-              </button>
+              {f.status === 'published' ? (
+                <button
+                  onClick={() => openModal(f)}
+                  className="shrink-0 px-4 py-2 rounded-xl bg-[#C9A84C] hover:bg-[#b8963e] text-[#0B1026] font-semibold text-sm transition-colors"
+                >
+                  Affecter
+                </button>
+              ) : (
+                <div className="shrink-0 flex flex-col items-end gap-1.5 max-w-[180px]">
+                  <button
+                    disabled
+                    title="Publiez d'abord la formation depuis Paramétrage / Formations"
+                    className="px-4 py-2 rounded-xl bg-[#0F1E48] border border-yellow-500/30 text-yellow-400/50 font-semibold text-sm cursor-not-allowed"
+                  >
+                    Affecter
+                  </button>
+                  <span className="text-[11px] text-yellow-400/70 text-right leading-tight">
+                    Brouillon — à publier<br />+ générer d&apos;abord
+                  </span>
+                </div>
+              )}
             </div>
           ))}
         </div>

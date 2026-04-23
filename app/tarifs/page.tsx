@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { OfferCTA } from '@/components/tarifs/OfferCTA';
 import { QrCodeBlock } from '@/components/tarifs/QrCodeBlock';
+import { InstitutionDemoCTA } from '@/components/tarifs/InstitutionDemoCTA';
 
 export const metadata: Metadata = {
   title: 'Tarifs | Miznas Pilot',
@@ -457,20 +458,7 @@ export default function TarifsPage() {
               <strong className="text-[#C9A84C]">tarification sur devis</strong>.
               Contactez-nous pour étudier votre besoin.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <a
-                href={buildWaLink(WA_MESSAGES.institution)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#C9A84C] text-[#0A1434] font-black text-sm hover:bg-[#E8D08A] shadow-lg shadow-[#C9A84C]/20 transition-all"
-              >
-                <IcWhatsApp />
-                Demander une démonstration institution
-              </a>
-              <span className="text-xs text-white/40">
-                ou WhatsApp : +227 96 64 83 83
-              </span>
-            </div>
+            <InstitutionDemoCTA whatsappLink={buildWaLink(WA_MESSAGES.institution)} />
           </div>
         </div>
       </section>
